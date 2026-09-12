@@ -133,7 +133,8 @@ test('HTTP file boundary and existing API routes', { timeout: 30000 }, async t =
     const initial = await request(port, '/api/state');
     assert.equal(JSON.parse(initial.body).state, null);
     const state = { employees: [], requests: [], marker: 'disposable-test' };
-    const saved = await request(port, '/api/state', 'POST', { state });
+    const baseRevision = JSON.parse(initial.body).revision ?? 0;
+    const saved = await request(port, '/api/state', 'POST', { state, baseRevision });
     assert.equal(saved.status, 200);
     assert.equal(JSON.parse(saved.body).ok, true);
     const loaded = await request(port, '/api/state');
