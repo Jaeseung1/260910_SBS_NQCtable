@@ -115,4 +115,3 @@ test('separate SQLite connections use the same atomic revision check', async t =
   assert.equal((await post({ state: { notes: 'stale browser' }, baseRevision: old.revision })).status, 409);
   assert.equal((await get()).state.notes, 'other process');
 });
-
