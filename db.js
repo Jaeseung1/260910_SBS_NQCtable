@@ -29,7 +29,8 @@ function getState() {
   try {
     return { state: JSON.parse(row.value), updatedAt: row.updated_at };
   } catch (e) {
-    return null;
+    // A damaged DB must not be mistaken for an empty, newly initialized store.
+    throw new Error('저장된 근무표 JSON을 읽을 수 없습니다.', { cause: e });
   }
 }
 
