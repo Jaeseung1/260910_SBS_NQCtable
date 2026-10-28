@@ -1,6 +1,7 @@
 const { randomBytes, scryptSync, timingSafeEqual } = require('node:crypto');
 const { isDeepStrictEqual: equal } = require('node:util');
 const activityLog = require('./activityLog');
+const { createScheduleModel, validDate, validMonth } = require('./schedule-model');
 
 function fail(status, message) { throw Object.assign(new Error(message), { status }); }
 const secretKeys = new Set(['pin', 'adminPin', 'smtpPass', 'kakaoKey', 'pinHash', '__proto__', 'constructor', 'prototype']);
@@ -46,6 +47,7 @@ function validateSave(previous, incoming, admin, employeeId = null) {
       if (!equal(old[key], next[key])) fail(403, '설정·직원·수동 근무 변경은 관리자 인증이 필요합니다.');
     }
   }
+  if (!admin && !equal(old.employeeOrderHistory || [], next.employeeOrderHistory || [])) fail(403, '직원 표시 순서 변경은 관리자 인증이 필요합니다.');
   // Even administrators must use the decision endpoint. Old approvals cannot be removed/replaced.
   if (!equal(old.monthlyApprovals || {}, next.monthlyApprovals || {})) fail(409, '월 확정은 승인함에서 처리해주세요.');
   // versions(월 확정본·변경 이력 등 과거 스냅샷)는 항목 형태가 제각각이라 id 스키마를 강제하지
@@ -56,11 +58,13 @@ function validateSave(previous, incoming, admin, employeeId = null) {
   if (nextVersions.length < oldVersions.length || oldVersions.some((v, i) => !equal(v, nextVersions[i]))) {
     fail(409, '기존 변경 이력은 수정할 수 없습니다. 새로고침 후 다시 시도하세요.');
   }
+  if (nextVersions.slice(oldVersions.length).some(v => v?.kind === 'monthly-approved')) fail(403, '확정본은 승인함에서만 생성할 수 있습니다.');
   for (const key of ['requests', 'protects', 'approvals', 'excuses']) {
     for (const before of list(old, key)) {
       if (!equal(before, list(next, key).find(item => item.id === before.id))) fail(409, '기존 신청/승인이 변경되었습니다. 새로고침 후 다시 시도하세요.');
     }
   }
+  if (list(old, 'requests').some((r, i) => next.requests?.[i]?.id !== r.id)) fail(409, '기존 휴가 신청 순서는 변경할 수 없습니다.');
   const added = key => list(next, key).filter(item => !list(old, key).some(before => before.id === item.id));
   if (!equal(old.approvers, next.approvers)) {
     for (const approval of list(old, 'approvals').filter(a => a.status === 'pending')) {
@@ -69,6 +73,8 @@ function validateSave(previous, incoming, admin, employeeId = null) {
       }
     }
   }
+  // 신규 신청만 순서대로 재계산한다. 기존 신청/확정 이력은 다시 쓰지 않는다.
+  const calculation = { ...next, requests: [...list(old, 'requests')] };
   for (const req of added('requests')) {
     if (!list(next, 'employees').some(e => e.id === req.empId)) fail(400, '신청 직원이 없습니다.');
     if (!admin) {
@@ -76,7 +82,17 @@ function validateSave(previous, incoming, admin, employeeId = null) {
       if (req.empId !== employeeId) fail(403, '본인 명의로만 신청할 수 있습니다.');
     }
     if (req.status !== (list(next, 'approvers').length ? 'pending' : 'confirmed')) fail(403, '휴가 승인 결과를 직접 지정할 수 없습니다.');
-    if (!Array.isArray(req.chain) || !/^\d{4}-\d{2}-\d{2}$/.test(req.startDate)) fail(400, '휴가 신청 형식을 확인해주세요.');
+    if (!Array.isArray(req.chain) || !validDate(req.startDate)) fail(400, '휴가 신청 형식을 확인해주세요.');
+    const expected = createScheduleModel(calculation).buildChain(req.empId, req.type, new Date(req.startDate + 'T00:00:00'));
+    if (expected.error) fail(400, expected.error);
+    if (!equal(req.chain, expected.chain)) fail(409, '현재 근무표와 대근 배정이 다릅니다. 새로고침 후 다시 신청해주세요.');
+    const submitted = Date.parse(req.submittedAt);
+    if (!Number.isFinite(submitted) || submitted > Date.now() + 60000) fail(400, '신청 시각을 확인해주세요.');
+    if (req.chain.some(c => {
+      const override = next.scheduleOverrides?.[c.date + '::' + c.empId];
+      return override && String(req.submittedAt) <= String(override.at || '');
+    })) fail(409, '수동 근무 변경 이후 다시 미리보기를 확인해주세요.');
+    calculation.requests.push(req);
   }
   const counted = [...list(old, 'protects')];
   for (const req of added('protects')) {
@@ -85,9 +101,14 @@ function validateSave(previous, incoming, admin, employeeId = null) {
       if (!employeeId) fail(401, '로그인 후 신청할 수 있습니다.');
       if (req.empId !== employeeId) fail(403, '본인 명의로만 신청할 수 있습니다.');
     }
-    const used = counted.filter(p => p.empId === req.empId && p.date.slice(0, 7) === req.date.slice(0, 7) && p.status !== 'cancelled').length;
+    if (!validDate(req.date)) fail(400, '보장 신청 날짜를 확인해주세요.');
+    const model = createScheduleModel({ ...next, protects: counted });
+    const error = model.protectionRequestError(req.empId, new Date(req.date + 'T00:00:00'));
+    if (error) fail(400, error);
+    const used = model.protectCountInMonth(req.empId, Number(req.date.slice(0, 4)), Number(req.date.slice(5, 7)) - 1);
     const needsApproval = used >= next.settings.quotaMax;
     if (req.status !== (needsApproval ? 'pending' : 'approved') || req.needsApproval !== needsApproval) fail(403, '비번 보장 승인 결과를 직접 지정할 수 없습니다.');
+    if (needsApproval && (typeof req.reason !== 'string' || !req.reason.trim())) fail(400, '월 한도 초과 사유를 입력해주세요.');
     counted.push(req);
   }
   for (const excuse of added('excuses')) {
@@ -109,7 +130,11 @@ function validateSave(previous, incoming, admin, employeeId = null) {
     if (approval.status !== 'pending' || approval.decidedBy || approval.decidedAt || approval.decisionReason) fail(403, '승인 결과는 서버에서만 기록합니다.');
     if (!['leave', 'protect', 'monthly'].includes(approval.type)) fail(400, '지원하지 않는 승인 종류입니다.');
     if (approval.type === 'monthly') {
-      if (!/^\d{4}-\d{2}$/.test(approval.refId) || approval.requestedBy !== null) fail(400, '월 확정 요청 형식을 확인해주세요.');
+      if (!validMonth(approval.refId) || approval.requestedBy !== null) fail(400, '월 확정 요청 형식을 확인해주세요.');
+      if (!equal(approval.scheduleSnapshot, createScheduleModel(next).monthlySnapshot(approval.refId)) ||
+          (approval.baseVersionId ?? null) !== (old.monthlyApprovals?.[approval.refId]?.versionId || null)) {
+        fail(409, '현재 근무표와 월 확정 요청이 다릅니다. 새로고침 후 다시 요청해주세요.');
+      }
     } else {
       const request = added(approval.type === 'leave' ? 'requests' : 'protects').find(r => r.id === approval.refId);
       if (!request || request.status !== 'pending' || request.empId !== approval.requestedBy) fail(400, '승인 요청과 신규 신청이 일치하지 않습니다.');
@@ -224,6 +249,7 @@ function createSecurity({ db, getState, setState, adminPassword = process.env.AD
       const incoming = req.body?.state;
       if (!incoming || typeof incoming !== 'object' || Array.isArray(incoming)) fail(400, 'invalid state payload');
       const admin = isAdmin(req), employeeId = admin ? null : isEmployee(req);
+      assertLockAvailable(req);
       const next = validateSave(row?.state, incoming, admin, employeeId);
       const pins = req.body.approverPins || {};
       if (typeof pins !== 'object' || Array.isArray(pins)) fail(400, 'PIN 형식을 확인해주세요.');
@@ -263,6 +289,7 @@ function createSecurity({ db, getState, setState, adminPassword = process.env.AD
     const { id, approverId, pin, approved, reason = '' } = req.body || {};
     if (typeof approved !== 'boolean' || typeof reason !== 'string' || reason.length > 2000 || (!approved && !reason.trim())) fail(400, '승인 여부와 반려 사유를 확인해주세요.');
     const admin = isAdmin(req);
+    assertLockAvailable(req);
     return transaction(() => {
       const row = getState(), state = row?.state;
       const actor = state?.approvers?.find(a => a.id === approverId);
@@ -282,9 +309,14 @@ function createSecurity({ db, getState, setState, adminPassword = process.env.AD
       if (approval.type === 'monthly') {
         // 재확정 요청을 반려해도 이전 확정본과 승인 도장은 그대로 둔다.
         if (approved) {
+          if (!validMonth(approval.refId) || !approval.scheduleSnapshot ||
+              (approval.baseVersionId ?? null) !== (state.monthlyApprovals?.[approval.refId]?.versionId || null) ||
+              !equal(approval.scheduleSnapshot, createScheduleModel(state).monthlySnapshot(approval.refId))) {
+            fail(409, '확정 요청 이후 근무표가 변경되었거나 요청 당시 표가 없습니다. 반려 후 다시 요청해주세요.');
+          }
           state.monthlyApprovals ||= {};
           if (approval.scheduleSnapshot) {
-            // 신청 시 첨부된 스냅샷을 그대로 확정본으로 보관한다 — 서버는 근무표를 다시 계산하지 않는다.
+            // 서버에서 현재 표와 일치함을 확인한 요청 스냅샷을 확정본으로 보관한다.
             state.versions ||= [];
             const number = Math.max(0, ...state.versions.filter(v => v.kind === 'monthly-approved' && v.monthKey === approval.refId).map(v => v.number)) + 1;
             const version = {
@@ -317,6 +349,7 @@ function createSecurity({ db, getState, setState, adminPassword = process.env.AD
     if (!['request', 'protect'].includes(kind) || typeof id !== 'string' || !id) fail(400, '요청 형식을 확인해주세요.');
     const employeeId = isEmployee(req);
     if (!employeeId) fail(401, '로그인이 필요합니다.');
+    assertLockAvailable(req);
     return transaction(() => {
       const row = getState(), state = row?.state;
       const items = kind === 'request' ? state?.requests : state?.protects;
@@ -352,13 +385,18 @@ function createSecurity({ db, getState, setState, adminPassword = process.env.AD
     return lock;
   }
   function callerKey(req) {
-    if (isAdmin(req)) return { key: 'admin', name: '관리자' };
+    if (isAdmin(req)) return { key: 'admin:' + req.get('X-Admin-Token'), name: '관리자' };
     const empId = isEmployee(req);
     if (empId) {
       const name = getState()?.state?.employees?.find(e => e.id === empId)?.name || '직원';
-      return { key: 'employee:' + empId, name };
+      return { key: 'employee:' + req.get('X-Employee-Token'), name };
     }
     return null;
+  }
+  // 잠금이 없는 기존 PIN 승인 흐름은 유지하되 다른 탭의 잠금은 서버 쓰기에서도 지킨다.
+  function assertLockAvailable(req) {
+    const l = activeLock(), who = callerKey(req);
+    if (l && l.holderKey !== who?.key) fail(423, `${l.holderName}님이 편집 중입니다. 편집이 끝난 뒤 다시 시도해주세요.`);
   }
   function lockStatus() {
     const l = activeLock();
@@ -387,7 +425,7 @@ function createSecurity({ db, getState, setState, adminPassword = process.env.AD
     };
     const who = callerKey(withBodyFallback);
     const l = activeLock();
-    if (l && (!who || l.holderKey === who.key)) lock = null;
+    if (l && who && l.holderKey === who.key) lock = null;
     return { ok: true };
   }
   return { login, save, decide, isAdmin, employeeLogin, cancelOwn, lockStatus, acquireLock, heartbeatLock, releaseLock };
