@@ -8,7 +8,7 @@ const root = path.join(__dirname, '..');
 
 function loadDigest() {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'digest-'));
-  for (const file of ['db.js', 'security.js', 'notifier.js', 'digest.js']) fs.copyFileSync(path.join(root, file), path.join(dir, file));
+  for (const file of ['db.js', 'security.js', 'schedule-model.js', 'notifier.js', 'digest.js']) fs.copyFileSync(path.join(root, file), path.join(dir, file));
   const { db } = require(path.join(dir, 'db.js'));
   const digest = require(path.join(dir, 'digest.js'));
   return { digest, cleanup: () => { db.close(); fs.rmSync(dir, { recursive: true, force: true, maxRetries: 5, retryDelay: 100 }); } };
