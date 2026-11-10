@@ -539,7 +539,7 @@
         </div>
 
         <div id="applyLeavePane">
-          <p id="reqLoginNotice" class="login-notice" hidden>근무자로 로그인하면 내 근무가 달력에 나오고 신청할 수 있어요.</p>
+          <p id="reqLoginNotice" class="login-notice" hidden>오른쪽 위에서 내 이름으로 로그인하면 내 근무가 달력에 나오고 신청할 수 있어요.</p>
           <div class="panel">
             <div class="step-head"><span class="step-no">2</span><h2 id="reqDateLabel">날짜</h2></div>
             <p id="reqHint" class="quota step-hint"></p>
@@ -566,7 +566,7 @@
         </div>
 
         <div id="applyProtectPane" hidden>
-          <p id="proLoginNotice" class="login-notice" hidden>근무자로 로그인하면 내 비번일이 달력에 나오고 신청할 수 있어요.</p>
+          <p id="proLoginNotice" class="login-notice" hidden>오른쪽 위에서 내 이름으로 로그인하면 내 비번일이 달력에 나오고 신청할 수 있어요.</p>
           <div class="panel">
             <div class="step-head"><span class="step-no">2</span><h2>날짜 — 내가 비번인 날</h2></div>
             <p class="quota step-hint">고른 날에는 휴가가 나도 내게 대근이 잡히지 않아요.</p>
@@ -1196,7 +1196,10 @@
     employeeToken = ''; employeeUntil = 0; employeeId = ''; employeeDisplayName = '';
     pendingChain = null;
     $('#modalBg').classList.remove('show');
-    for (const selector of ['#reqDate', '#proDate', '#proReason', '#employeeLoginPin']) $(selector).value = '';
+    for (const selector of ['#reqDate', '#proDate', '#proReason', '#employeeLoginPin']) {
+      const field = $(selector);
+      if (field) field.value = '';
+    }
     renderAll();
     showToast('로그아웃했습니다.');
   }
@@ -1207,12 +1210,11 @@
     const adminLoggedIn = !!adminToken && Date.now() < adminUntil;
     const loggedIn = employeeLoggedIn || adminLoggedIn;
     employeeMessage(employeeLoggedIn ? `${employeeDisplayName}님으로 로그인됨` : adminLoggedIn ? '관리자로 로그인됨' : '로그인이 필요합니다.');
-    const showApp = loggedIn || LOCAL_MODE;
-    $('#loginPage').hidden = showApp;
-    $('main').hidden = !showApp;
-    $('#tabbar').hidden = !showApp;
-    $('#refreshHolidayBtn').hidden = !showApp && !!stateSync?.info().ready;
-    $('#employeeLogoutBtn').hidden = !loggedIn;
+    const selectEl = $('#employeeLoginSelect'), pinEl = $('#employeeLoginPin'), loginBtn = $('#employeeLoginBtn'), logoutBtn = $('#employeeLogoutBtn');
+    if (selectEl) selectEl.hidden = loggedIn;
+    if (pinEl) pinEl.hidden = loggedIn || selectEl?.value === '__admin__';
+    if (loginBtn) loginBtn.hidden = loggedIn;
+    if (logoutBtn) logoutBtn.hidden = !loggedIn;
     ['#reqEmp', '#proEmp'].forEach(sel => {
       const select = $(sel);
       if (!select) return;
@@ -1234,6 +1236,13 @@
       gateNote.textContent = adminLoggedIn ? '관리자로 로그인됨 · 15분 동안 바꿀 수 있어요.' : '보기만 할 수 있어요. 바꾸려면 오른쪽 위 로그인에서 “관리자”를 고르세요.';
       gateNote.classList.toggle('is-admin', adminLoggedIn);
     }
+    const showApp = loggedIn || LOCAL_MODE;
+    $('#loginPage').hidden = showApp;
+    $('main').hidden = !showApp;
+    $('#tabbar').hidden = !showApp;
+    $('#refreshHolidayBtn').hidden = !showApp && !!stateSync?.info().ready;
+    $('#loginNameLabel').hidden = $('#loginRole').value === 'admin';
+    $('#employeeLoginSelect').hidden = $('#loginNameLabel').hidden;
   }
   let gateAppliedEmp = '';
   function finishLogin() {
