@@ -1203,8 +1203,8 @@
       if (result.mustChangePin && !(await changeOwnPin(true, pin))) {
         employeeToken = ''; employeeUntil = 0; employeeId = ''; employeeDisplayName = '';
         $('#employeeLoginPin').value = '';
-        employeeMessage('PIN을 바꿔야 로그인할 수 있어요.');
         renderAll();
+        showToast('기본 PIN(0000)은 새 PIN으로 바꿔야 로그인할 수 있어요.', 'warn');
         return;
       }
       try {
