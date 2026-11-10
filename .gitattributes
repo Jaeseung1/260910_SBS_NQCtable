@@ -1,0 +1,5 @@
+# Windows 실행 파일은 CRLF 로 둔다. cmd 는 LF 만 있으면 goto/라벨이 어긋날 수 있다.
+windows/*.cmd text eol=crlf
+windows/*.vbs text eol=crlf
+# PowerShell 5.1 은 BOM 이 있어야 한글을 읽는다. 줄바꿈 변환만 막는다.
+windows/*.ps1 text eol=crlf

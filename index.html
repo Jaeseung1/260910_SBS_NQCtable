@@ -3,227 +3,423 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>통합관제실 근무표 시스템 (초안)</title>
+<title>통합관제실 근무표</title>
+<link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAGjUlEQVR4nL2Xa4hdVxXHf3ufcx9z79zMzUwmk8bMzIfRqDSt0BIqFtLUjG2xtogpg+ZLbWrVtIp+EBpIE3CokBKLUExj8BVISCFYQdtaCTGx80EQqShpEkyJMpMwNfO6c+d1H+fsvWTvM/fOTBtByTQL9r3nrLPO/q+19nodhaMLEnC7MpsPitZ1DiAMiNjNSrQGUdwUKRFlrVL6MopTNs3g5b3KNjBV42LLC7IjjjijNNg6YCwgN4e9pAQEGp0GsRCm6H/nWfUHh+2t++QPZZut85bUQKIoRkkA6iYtfz+JIMqoVCpUGZwy9136nhpSW54XqpVYlFZIFBuUClYX+AN6GJUKA7FCtiVU4cLswmCQy2HnFwxKB07RD5kCqdWMzucChx2KZZetxIiI8ge0yo7/AHn7RHlMy64QY/qsVB1X3wLrE1JoiatgpS8Up5JZBP6wrW+QS7BFvFB8ui1RqJWP/8hKMwuDQKEEYsdrvKgSuYbPjJXEgc4IWZJx/47lbLSN95fjyTK3a+DqpKEeQ8863eQNjxtcwm4saq98CIyWDZVaomQqUHStVQRaYY2glfLKjEwboki8Bq1ZTWdBNZ29pIBNPOC0LFWEZ7+QZUNRs+9UhUIGpqvC4M4W6hH86M0KxZzinxOWx+7J8MV70uRScO5izNEzVdpykEsr6sYyXhae2J7l4U+lmIvgxFCN0+cjNrUnyjVIbXp6zN9qBSMThomfdtJRCHj8yAzHh6poZYlPdhHHkNp1HRUqfvnNNTy+rWWFJe9crbN13zTtBcV7Jcvv97bxwJ3ZFTJPHp3h2LkqPZ2KePHktfNAYyksw5PGPzj0lTwKg4ksYzPC6LSFacPOrWkPPjoV8ennpvjYd8Y5e6HKlu40h3blGb1U48ntWQ8+dLFG7zNjPHpo2u/582+sYf0ay0LNuoDwmHq5Am6l3QED64sBu+9vgbGIXBpCVx/nI/Y8kFj14A/K/Pl8heGxiP7vT3netx7M+RDf87lE5uGDk4yMxbx2bp7nXinzszOzSYxai72RAkSWQiZgZCKmvGA4vHuN3zCKwbjoCSx392USlw9X2Nil2FQEqcYMXaz69pG5TXN7d5rxGcvcbEx3O2zqVrz42ixPvVwmigyh+m8KGEs+C1cnDN/+xTTpUNO/Pe+tDFw6KEtbVjFZTlxojSF2aawskzPJ0bVlIRMqpuYSmXhRppARNrQLqUA8ePMIrHWMZGGF2Ai9nQHHf1XyGx7Zs5ZCXifpFFnKFUtHm0pkY+G9UgTjNbqKydlNz0YYER+MLtwDxFudzyiqVctMxXh+A1Ov9IBx+9KSVVCOOPDKFB/dkKKvK8Wcy/ma4e13az5puzthds4wfqyXHf1tfOYTGQRL/VqdSyMRnYWATEa4dj1m8t0KR77eTulEL515mK8YlNzoCKxzmVCpWugMOPhqiWo9yZdaLJAVXnpjxt8PPb+Rj39E869/1zkzuMHzvnZ4HOYMP/5dEvVv7O+ivSB8eWc7D92V80Xr2lhEOkyOwWE2C5EfvGJLz7pUI0GJZiL2nZjkxd2d3LY2gNaA3/yxzLGtWb7aX+TvL/WuyPM7ejIUt6Q5+mqJgXtb2XFnnsmTfc3n/fuvEtdjUqS8oSsqoXW1Ow/7j4+jtBBmoLVF85PXS/StD7lyvUaYtbTlA554YZRf/2megW15WrOKE2fn2HlvK999pMibf5nl9NQsO/YO89Tnizx0V56p+ZjDr5f52z9qrOvQuLmnWQnXDlxqFkZXDScnY3/d0RH6nmJiKE/EkIaO9tDHSKAUEy743OzohFyGBJov3V/g9F8XfKQ7Kk3FkGwH+YDOgl5qaA0Fio9dWMFxnc+Rz3snoBShm42b3TB57njLp0ZXWkulmEIxIFhsgV5m8flSN2y0y4RCN5stnwNcai0n1y0X47DB8b/Rkheb7be9qH0K+g7rW/qKrVa837gMxY1hNxT8/6nh7f+ZlB9InCmLU8OtpGQ2JLRWrigd9vm2l4TTrSCLTmmx0RWNMSdRWcQYccdxS5aLcJV1kX5S5R65gsRlUe4z0NSSb4NV+yR7P7n+YA1BJvDzR9iWJFLLoyPbsJW3MPPuwzDG9RC1moHhZ0fxE45OhwR50C33VX7bM6R5RgJ3YSTstzZEdCEUAuXS09Xr1VhuL7+nLoQOw2E5TIedmPj0+YCX7zAtn31bWy0HEDMgmM0gfgq4efOVVQSXUcEpbdVg5ezdtoH5HyyjFKv2qc1QAAAAAElFTkSuQmCC">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
+  /* 화면 v2 (2026-11): 모카 웹 대시보드. NQC 루틴과 같은 크림·캐러멜 톤.
+     색은 이 변수들만 쓴다. 근무 색(일·야·조·O·휴가·대근)은 근무표·범례·오른쪽 패널이 같이 쓴다. */
   :root{
-    --bg:#f4f6f9; --panel:#fff; --line:#e2e6ec; --text:#1b2430; --muted:#6b7684;
-    --blue:#2563eb; --blue-bg:#eaf1ff; --green:#16a34a; --green-bg:#eafbea;
-    --amber:#d97706; --amber-bg:#fff6e5; --red:#dc2626; --red-bg:#fdeaea;
-    --shift-일:#eaf1ff; --shift-야:#fff2df; --shift-조:#efeaff; --shift-O:#f0f1f3; --shift-휴가:#ffe0e0; --shift-대일:#d7f7e6;
+    --bg:#fbf8f4; --panel:#fff; --sunk:#f6f0e9; --line:#eee5db; --line2:#e2d5c7;
+    --text:#24190f; --muted:#5e4e44; --faint:#76655a;
+    --accent:#a5603d; --accent-hover:#95553a; --accent-soft:#f8e9de; --accent-text:#86492b;
+    --blue:#2b58a3; --blue-bg:#e8eefb; --green:#2e7d5e; --green-bg:#ddf3e8;
+    --amber:#866400; --amber-bg:#fcf1c7; --red:#be4358; --red-bg:#fde4e9;
+    --shift-일:#fcf0d3; --shift-야:#e5e6f8; --shift-조:#f2e5f3; --shift-O:transparent; --shift-휴가:#fde4e9; --shift-대일:#dcf2e6;
+    --today:#fbeee4;
+    --shadow:0 1px 2px rgba(60,35,15,.04),0 8px 28px rgba(60,35,15,.06);
+    --radius:20px;
     --sbs-red:#d81b26; --sbs-blue:#1a3d91;
   }
   *{box-sizing:border-box;}
-  body{margin:0;font-family:"Pretendard","Malgun Gothic", -apple-system, sans-serif;background:var(--bg);color:var(--text);}
-  header{background:#111827;color:#fff;padding:20px 28px;display:flex;justify-content:space-between;align-items:center;gap:16px;}
-  .header-copy h1{margin:0;font-size:24px;}
-  .header-copy p{margin:6px 0 0;font-size:13.5px;color:#9aa4b2;line-height:1.5;}
-  .sbs-logo{display:flex;align-items:center;justify-content:center;width:260px;height:90px;border-radius:14px;overflow:hidden;background:transparent;box-shadow:none;flex-shrink:0;}
-  .sbs-logo img{display:block;width:100%;height:100%;object-fit:contain;max-width:100%;max-height:100%;}
-  .header-copy{min-width:0;flex:1 1 auto;}
-  .header-copy h1{margin:0;font-size:24px;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-  nav{display:flex;gap:2px;background:#1f2937;padding:0 20px;flex-wrap:wrap;}
-  nav button{background:none;border:none;color:#c7cdd6;padding:14px 18px;font-size:14px;cursor:pointer;border-bottom:3px solid transparent;}
-  nav button.active{color:#fff;border-bottom-color:var(--blue);font-weight:700;}
-  main{max-width:1500px;margin:0 auto;padding:24px;}
-  .storage-status{max-width:1452px;margin:16px auto 0;padding:12px 16px;background:#eaf1ff;border:1px solid #cfd6e0;border-radius:8px;font-size:14px;line-height:1.6;}
-  .storage-status[data-state="error"],.storage-status[data-state="conflict"],.storage-status[data-state="recovered"]{background:#fff2df;border-color:#d97706;}
+  body{margin:0;font-family:"Inter","Noto Sans KR","Pretendard","Malgun Gothic",-apple-system,sans-serif;background:var(--bg);color:var(--text);letter-spacing:-0.01em;font-feature-settings:"tnum" 1;-webkit-font-smoothing:antialiased;}
+  a{color:var(--accent-text);}
+  [hidden]{display:none!important;}
+  code{background:var(--sunk);padding:1px 6px;border-radius:6px;font-size:12px;}
+
+  /* ── 머리: 위에 붙는 반투명 헤더 + 알약 메뉴 ── */
+  .app-header{position:sticky;top:0;z-index:40;background:rgba(255,255,255,.86);-webkit-backdrop-filter:saturate(160%) blur(14px);backdrop-filter:saturate(160%) blur(14px);border-bottom:1px solid var(--line);}
+  .app-header-inner{max-width:1440px;margin:0 auto;padding:0 32px;min-height:68px;display:flex;flex-wrap:wrap;align-items:center;gap:10px 24px;}
+  .brand{display:flex;align-items:center;gap:14px;background:none;border:0;padding:0;cursor:pointer;color:var(--text);font:inherit;}
+  .brand img{height:24px;width:auto;display:block;}
+  .brand-name{font-size:16px;font-weight:700;letter-spacing:-0.02em;white-space:nowrap;}
+  nav#tabbar{display:flex;flex-wrap:wrap;gap:2px;flex:1 1 520px;justify-content:center;}
+  nav#tabbar button{display:inline-flex;align-items:center;gap:7px;height:38px;padding:0 14px;border-radius:999px;border:0;background:transparent;color:var(--muted);font-size:14px;font-weight:500;font-family:inherit;cursor:pointer;white-space:nowrap;}
+  nav#tabbar button:hover{background:var(--sunk);color:var(--text);}
+  nav#tabbar button.active{background:var(--text);color:#fff;font-weight:600;}
+  .nav-count{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--accent);color:#fff;font-size:11px;font-weight:700;}
+  .account{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end;}
+  .account select{height:38px;padding:0 10px;border-radius:999px;}
+  .account input{height:38px;border-radius:999px;padding:0 14px;}
+  .account .btn{height:38px;min-height:38px;border-radius:999px;padding:0 14px;}
+  .account .refresh-btn{font-weight:600;color:var(--muted);}
+  .account-status{font-size:13px;color:var(--muted);white-space:nowrap;}
+  .lock-pill{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 11px;border-radius:999px;background:var(--amber-bg);color:var(--amber);font-size:12.5px;font-weight:600;}
+  .security-note{max-width:1440px;margin:0 auto;padding:6px 32px 0;font-size:12px;color:var(--faint);}
+
+  main{max-width:1440px;margin:0 auto;padding:28px 32px 56px;}
+  .storage-status{max-width:1376px;margin:16px auto 0;padding:12px 18px;background:var(--panel);border:1px solid var(--line);border-radius:14px;font-size:14px;line-height:1.6;color:var(--muted);box-shadow:var(--shadow);}
+  .storage-status[data-state="error"],.storage-status[data-state="conflict"],.storage-status[data-state="recovered"]{background:var(--amber-bg);border-color:transparent;color:var(--amber);}
   .storage-actions{display:flex;gap:8px;flex-wrap:wrap;}
   .storage-actions button:not([hidden]){margin-top:8px;}
-  [hidden]{display:none!important;}
-  .panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:24px 26px;margin-bottom:20px;}
-  .panel h2{margin:0 0 16px;font-size:17px;}
-  .panel h2 .sub{font-weight:400;color:var(--muted);font-size:12.5px;margin-left:8px;}
+
+  /* ── 카드·글자 ── */
+  .panel{background:var(--panel);border:1px solid rgba(226,213,199,.6);border-radius:var(--radius);padding:24px 26px;margin-bottom:20px;box-shadow:var(--shadow);}
+  .panel h2{margin:0 0 16px;font-size:17px;font-weight:700;letter-spacing:-0.02em;}
+  .panel h2 .sub{font-weight:500;color:var(--faint);font-size:12.5px;margin-left:8px;}
+  .page-head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px 20px;margin:4px 0 22px;}
+  .page-head h1{margin:0;font-size:32px;font-weight:800;letter-spacing:-0.035em;}
+  .page-head p{margin:6px 0 0;color:var(--faint);font-size:14px;}
+  .kicker{font-size:13px;font-weight:600;color:var(--accent-text);}
   .row{display:flex;gap:12px;flex-wrap:wrap;align-items:center;}
   .tool-row{justify-content:space-between;align-items:flex-end;}
-  label{font-size:13px;color:var(--muted);display:block;margin-bottom:6px;}
-  select,input,textarea,button.btn{font-size:14px;padding:9px 12px;border:1px solid #cfd6e0;border-radius:7px;background:#fff;color:var(--text);}
-  textarea{width:100%;min-height:52px;font-family:inherit;}
-  button.btn{cursor:pointer;background:var(--blue);color:#fff;border-color:var(--blue);font-weight:700;}
-  button.btn.secondary{background:#fff;color:var(--text);border-color:#cfd6e0;}
-  button.btn.ghost{background:none;border:none;color:var(--blue);font-weight:700;padding:4px 6px;}
+  label{font-size:13px;color:var(--muted);display:block;margin-bottom:6px;font-weight:500;}
+  .muted{color:var(--faint);font-size:12.5px;margin:6px 0 0;}
+  select,input,textarea,button.btn{font-size:14px;padding:10px 14px;border:1px solid var(--line2);border-radius:12px;background:#fff;color:var(--text);font-family:inherit;}
+  select:focus,input:focus,textarea:focus{outline:2px solid var(--accent-soft);border-color:var(--accent);}
+  textarea{width:100%;min-height:52px;line-height:1.6;}
+  button.btn{cursor:pointer;background:var(--accent);color:#fff;border-color:var(--accent);font-weight:600;min-height:44px;display:inline-flex;align-items:center;justify-content:center;gap:8px;}
+  button.btn:hover:not(:disabled){background:var(--accent-hover);border-color:var(--accent-hover);}
+  button.btn.secondary{background:#fff;color:var(--text);border-color:var(--line2);}
+  button.btn.secondary:hover:not(:disabled){background:var(--sunk);border-color:var(--line2);}
+  button.btn.ghost{background:none;border:none;color:var(--accent-text);font-weight:600;padding:4px 8px;min-height:0;}
+  button.btn.danger{background:var(--red);color:#fff;border-color:var(--red);}
   button.btn:disabled{opacity:.45;cursor:not-allowed;}
-  .schedule-toolbar{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:16px;margin-bottom:10px;}
-  .schedule-nav{display:flex;align-items:center;gap:10px;justify-self:start;}
-  .month-nav, .year-nav{width:36px;height:36px;padding:0;border:1px solid var(--line);background:#fff;border-radius:8px;font-size:14px;line-height:1;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;color:#374151;}
-  .month-pickers{display:flex;align-items:center;gap:10px;}
-  .schedule-title{justify-self:center;text-align:center;font-size:36px;font-weight:800;letter-spacing:-0.03em;color:#1b2430;white-space:nowrap;}
-  .schedule-tools{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end;justify-self:end;}
-  .schedule-actions-row{display:flex;justify-content:flex-end;align-items:center;margin-bottom:18px;}
+
+  /* ── 근무표: 제목 영역 ── */
+  .schedule-layout{display:flex;flex-wrap:wrap;gap:24px;align-items:flex-start;}
+  .schedule-main{flex:999 1 760px;min-width:0;}
+  .schedule-rail{flex:1 1 300px;max-width:360px;display:flex;flex-direction:column;gap:20px;}
+  .schedule-toolbar{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px 20px;margin-bottom:22px;}
+  .schedule-heading{display:flex;flex-direction:column;gap:10px;min-width:0;}
+  .schedule-title{margin:0;font-size:44px;line-height:1.05;font-weight:800;letter-spacing:-0.04em;color:var(--text);white-space:nowrap;}
+  .schedule-status{display:flex;flex-wrap:wrap;gap:8px;align-items:center;}
+  .schedule-controls{display:flex;flex-wrap:wrap;align-items:center;gap:10px;justify-content:flex-end;}
+  .schedule-nav{display:inline-flex;align-items:center;gap:2px;padding:4px;border-radius:14px;background:#fff;border:1px solid var(--line2);}
+  .month-nav,.year-nav{height:36px;min-width:36px;padding:0 8px;border:0;border-radius:10px;background:transparent;color:var(--muted);font-size:12px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;}
+  .month-nav:hover,.year-nav:hover{background:var(--sunk);color:var(--text);}
+  .month-pickers{display:flex;align-items:center;gap:2px;}
+  .month-pickers select{height:36px;border:0;border-radius:10px;padding:0 6px;font-weight:600;background:transparent;}
+  .month-pickers select:hover{background:var(--sunk);}
+  .schedule-actions-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
   .export-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end;}
-  .btn.export{background:#0f172a;border-color:#0f172a;}
-  .clock-wrap{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
-  .clock-source{font-size:12px;color:#667085;background:#f3f6fa;border:1px solid var(--line);border-radius:999px;padding:6px 10px;white-space:nowrap;}
-  .live-clock{min-width:220px;background:#f8fafc;border:1px solid var(--line);border-radius:8px;padding:10px 12px;font-size:15px;font-weight:700;color:#1b2430;}
-  .schedule-sheet-header{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;margin:12px 0 16px;}
-  .approval-block{margin-left:auto;display:flex;justify-content:flex-end;gap:12px;flex-wrap:wrap;max-width:540px;}
-  .approval-cell{min-width:120px;border:1px solid var(--line);border-radius:10px;background:#fff;padding:8px 10px;text-align:center;}
-  .approval-title{font-size:12px;color:var(--muted);margin-bottom:6px;}
-  .approval-name{min-height:32px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;}
-  .approval-date{font-size:10.5px;color:var(--muted);margin-top:2px;}
-  .notes-panel{margin-top:18px;border:1px solid var(--line);border-radius:10px;background:#f9fafb;padding:14px;}
-  .notes-panel label{font-size:13px;color:var(--muted);margin-bottom:8px;display:block;}
-  .notes-panel textarea{min-height:120px;resize:vertical;}
-  .date-selection-panel{margin-bottom:16px;padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:linear-gradient(180deg,#f9fbff,#f4f7fb);}
-  .date-selection-header{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:8px;font-size:13px;color:var(--muted);}
-  .date-pills{display:flex;flex-wrap:wrap;gap:8px;}
-  .date-pill{padding:8px 11px;border-radius:8px;border:1px solid var(--line);background:#fff;color:#334155;font-weight:700;cursor:pointer;min-width:50px;text-align:center;transition:.15s ease;}
-  .date-pill:hover:not(:disabled){background:#eef5ff;border-color:#bfd5ff;color:#1d4ed8;}
-  .date-pill.allowed{background:#edf8f0;border-color:#bfe3c7;color:#0d9251;}
-  .date-pill.selected{background:#2563eb;color:#fff;border-color:#2563eb;box-shadow:0 0 0 2px rgba(37,99,235,.12);}
-  .date-pill:disabled{opacity:.35;cursor:not-allowed;background:#f6f7f9;color:#9aa4b2;}
-  table.grid{border-collapse:collapse;width:100%;font-size:16px;table-layout:fixed;min-width:1240px;}
-  table.grid th,table.grid td{border:1px solid var(--line);text-align:center;padding:0;min-height:52px;height:52px;max-height:52px;vertical-align:middle;overflow:hidden;}
-  table.grid th{background:#f8f9fb;font-weight:700;line-height:1.2;vertical-align:middle;}
-  table.grid td.name{width:150px;text-align:center;padding-left:12px;padding-right:12px;font-weight:700;background:#fafbfc;white-space:nowrap;font-size:16.5px;}
-  .gridwrap{overflow-x:auto;}
-  .cell-일,.cell-야,.cell-조,.cell-O,.cell-휴가,.cell-대일,.cell-대근,.cell-custom{background:#fff;color:#1b2430;font-weight:700;line-height:1;white-space:nowrap;overflow:hidden;text-overflow:clip;max-width:100%;text-align:center;vertical-align:middle;}
-  .cell-일,.cell-야,.cell-조,.cell-O,.cell-대근{font-size:18px;letter-spacing:0;}
-  .cell-휴가,.cell-대일,.cell-custom{font-size:15px;letter-spacing:-0.06em;}
-  .cell-휴가{background:#fff3bf !important;color:#b45309 !important;}
-  .cell-대일,.cell-대근{background:#dff7e8 !important;color:#0a7a44 !important;}
-  .cell-custom{background:#f0f1f3 !important;color:#1b2430 !important;}
-  .cell-protected{background:#fff3bf !important;color:#b45309 !important;}
-  .cell-일{background:var(--shift-일);}
-  .cell-야{background:var(--shift-야);}
-  .cell-조{background:var(--shift-조);}
-  .cell-O{background:var(--shift-O);}
-  .day-weekday{background:#ffffff;}
-  .day-saturday{background:#edf5ff;}
-  .day-holiday{background:#fdeaea;}
-  .date-num{display:inline-block;font-size:17px;font-weight:800;line-height:1.1;}
-  .date-week{display:block;font-size:14px;letter-spacing:-0.02em;line-height:1.2;margin-top:3px;}
-  .day-holiday .date-num,.day-saturday .date-num{display:inline-block;}
-  .weekend{color:var(--blue);font-weight:700;}
-  .holiday{color:var(--red);font-weight:700;}
-  .holiday.sun{background:#fdeaea;}
-  .holiday.red{background:#fdeaea;}
-  .status-cell.ok{background:linear-gradient(180deg,#eafbea,#dff5db);color:#0f7d3a;}
-  .status-cell.bad{background:linear-gradient(180deg,#fee7e7,#ffdfe0);color:#b91c1c;}
-  .legend{font-size:13px;color:var(--muted);margin-top:12px;line-height:1.6;}
-  .banner{border-radius:8px;padding:10px 14px;font-size:13px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;}
-  .banner.locked{background:var(--red-bg);color:var(--red);}
+  .btn.export{background:#fff;}
+  .clock-wrap{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--faint);white-space:nowrap;}
+  .clock-source{font-size:12.5px;color:var(--faint);}
+  .live-clock{font-size:12.5px;font-weight:600;color:var(--muted);}
+  #monthlyApprovalStatus{display:inline-flex;align-items:center;height:28px;padding:0 11px;border-radius:999px;background:var(--sunk);color:var(--muted)!important;font-size:12.5px!important;font-weight:600;margin:0!important;}
+  #monthlyVersionPanel summary{cursor:pointer;color:var(--accent-text);font-size:13px;font-weight:600;}
+  .status-pill{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 11px;border-radius:999px;font-size:12.5px;font-weight:600;}
+
+  /* ── 근무표 카드 ── */
+  .sheet-card{background:var(--panel);border-radius:var(--radius);box-shadow:var(--shadow);border:1px solid rgba(226,213,199,.6);overflow:hidden;}
+  .sheet-head{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;padding:20px 24px 16px;}
+  .sheet-head h2{margin:0;font-size:17px;font-weight:700;}
+  .sheet-hint{font-size:13px;color:var(--faint);}
+  .shift-filters{display:flex;flex-wrap:wrap;gap:6px;margin-left:auto;}
+  .person-chip{display:inline-flex;align-items:center;gap:8px;height:36px;padding:0 14px 0 5px;border-radius:999px;border:1px solid var(--line2);background:#fff;color:var(--muted);font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;}
+  .person-chip:hover{border-color:var(--faint);color:var(--text);}
+  .person-chip.all{padding:0 14px;}
+  .person-chip .ava{width:26px;height:26px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;background:var(--accent-soft);color:var(--accent-text);font-size:12px;font-weight:700;}
+  .person-chip.on{background:var(--text);border-color:var(--text);color:#fff;}
+  .person-chip.on .ava{background:rgba(255,255,255,.18);color:#fff;}
+  .person-chip .me{font-size:11px;font-weight:700;color:var(--accent-text);}
+  .person-chip.on .me{color:#f6d3bf;}
+  table.grid tr.is-dim .shift{opacity:.22;}
+  table.grid tr.is-dim td.name{color:var(--faint);font-weight:500;}
+  table.grid tr.is-focus td{background:#fdf6f0;}
+  table.grid tr.is-focus td.name{color:var(--accent-text);font-weight:700;box-shadow:inset 3px 0 0 var(--accent);}
+  .week-row{display:flex;align-items:center;gap:12px;padding:9px 0;border-top:1px solid var(--line);}
+  .week-row:first-of-type{border-top:0;}
+  .week-row .when{width:88px;flex:none;font-size:13px;color:var(--muted);white-space:nowrap;}
+  .week-row .when b{display:block;font-size:14px;color:var(--text);}
+  .week-row.today{margin:0 -12px;padding:9px 12px;border-radius:12px;background:var(--today);border-top-color:transparent;}
+  .week-row.today + .week-row{border-top-color:transparent;}
+  .week-row .shift{width:40px;max-width:40px;flex:none;}
+  .week-row small{font-size:12px;color:var(--faint);}
+  .shift-filter{display:inline-flex;align-items:center;gap:7px;height:34px;padding:0 13px;border-radius:999px;border:1px solid var(--line2);background:#fff;color:var(--muted);font-size:13px;font-weight:500;font-family:inherit;cursor:pointer;}
+  .shift-filter:hover{border-color:var(--faint);}
+  .shift-filter.on{background:var(--text);border-color:var(--text);color:#fff;}
+  .shift-filter i{width:10px;height:10px;border-radius:3px;display:inline-block;}
+  .schedule-sheet-header{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:0 24px 12px;}
+  .approval-block{margin-left:auto;display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap;}
+  .approval-cell{min-width:92px;border:1px solid var(--line2);border-radius:12px;background:#fff;padding:6px 10px 8px;text-align:center;}
+  .approval-title{font-size:11.5px;color:var(--faint);margin-bottom:2px;}
+  .approval-name{min-height:26px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;}
+  .approval-date{font-size:10.5px;color:var(--faint);}
+  #lockBanner{padding:0 24px;}
+  .banner{border-radius:12px;padding:10px 14px;font-size:13px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;line-height:1.5;}
+  .banner.locked{background:var(--amber-bg);color:var(--amber);}
   .banner.open{background:var(--green-bg);color:var(--green);}
-  .pill{display:inline-block;padding:2px 8px;border-radius:999px;font-size:11.5px;font-weight:700;}
-  .pill.locked{background:var(--red);color:#fff;}
+  .pill{display:inline-block;padding:2px 9px;border-radius:999px;font-size:11.5px;font-weight:700;margin-right:6px;}
+  .pill.locked{background:var(--amber);color:#fff;}
   .pill.open{background:var(--green);color:#fff;}
-  .list-item{border:1px solid var(--line);border-radius:8px;padding:12px 14px;margin-bottom:10px;font-size:14px;}
-  .list-item .meta{color:var(--muted);font-size:12px;margin-top:4px;}
-  .tag{display:inline-block;font-size:11.5px;font-weight:700;padding:3px 8px;border-radius:6px;margin-right:6px;}
-  .tag.email{background:#dbeafe;color:#1e40af;}
-  .tag.day{background:var(--blue-bg);color:var(--blue);}
+  .gridwrap{overflow-x:auto;}
+  table.grid{border-collapse:separate;border-spacing:0;width:100%;font-size:14px;table-layout:fixed;min-width:920px;}
+  table.grid th,table.grid td{text-align:center;padding:0;vertical-align:middle;overflow:hidden;border:0;}
+  table.grid th{height:58px;font-weight:500;line-height:1.2;color:var(--faint);font-size:11.5px;background:#fff;}
+  table.grid td{height:54px;padding:4px 2px;border-top:1px solid var(--line);}
+  table.grid th:first-child{width:112px;}
+  table.grid td.name{width:112px;text-align:left;padding-left:20px;padding-right:8px;font-weight:600;white-space:nowrap;font-size:14px;background:#fff;position:sticky;left:0;z-index:1;}
+  table.grid th:first-child{text-align:left;padding-left:20px;position:sticky;left:0;z-index:1;}
+  table.grid tbody tr:hover td{background:#fdfaf7;}
+  .date-num{display:block;font-size:14px;font-weight:600;color:var(--text);line-height:1.1;margin:0 auto 3px;}
+  .date-week{display:block;font-size:11.5px;letter-spacing:-0.02em;line-height:1.2;}
+  .weekend .date-num,.weekend .date-week{color:var(--blue);}
+  .holiday .date-num,.holiday .date-week{color:var(--red);}
+  table.grid th.is-today .date-num{display:flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:var(--accent);color:#fff;}
+  table.grid .is-today{background:var(--today)!important;}
+  .shift{display:inline-flex;align-items:center;justify-content:center;width:100%;max-width:36px;height:32px;border-radius:10px;font-weight:700;font-size:14px;line-height:1;white-space:nowrap;overflow:hidden;transition:opacity .15s;}
+  td[colspan] .shift{max-width:none;}
+  .cell-일{background:var(--shift-일);color:#7a5300;}
+  .cell-야{background:var(--shift-야);color:#3b3e8f;}
+  .cell-조{background:var(--shift-조);color:#7a3f80;}
+  .cell-O{background:transparent;color:#857468;font-weight:500;}
+  .cell-휴가{background:var(--shift-휴가)!important;color:#b23a52!important;font-size:12px;letter-spacing:-0.04em;}
+  .cell-대일,.cell-대근{background:var(--shift-대일)!important;color:#2e7d5e!important;}
+  .cell-대일{font-size:12px;letter-spacing:-0.04em;}
+  .cell-custom{background:var(--sunk)!important;color:var(--text)!important;font-size:12px;letter-spacing:-0.04em;}
+  .cell-protected{background:transparent!important;color:var(--accent-text)!important;box-shadow:inset 0 0 0 1.5px var(--accent);font-weight:600;}
+  .holiday{color:var(--red);}
+  .weekend{color:var(--blue);}
+  .status-cell.ok{background:var(--green-bg);color:var(--green);}
+  .status-cell.bad{background:var(--red-bg);color:var(--red);}
+  .legend{display:flex;flex-wrap:wrap;gap:6px 18px;align-items:center;padding:14px 24px 18px;border-top:1px solid var(--line);font-size:12.5px;color:var(--faint);line-height:1.6;}
+  .legend .shift{width:24px;height:18px;font-size:10.5px;border-radius:5px;vertical-align:middle;margin-right:4px;}
+  .notes-panel{padding:0 24px 22px;}
+  .notes-panel label{font-size:13px;color:var(--muted);margin-bottom:8px;display:block;font-weight:600;}
+  .notes-panel textarea{min-height:88px;resize:vertical;background:var(--bg);border-color:var(--line);}
+
+  /* ── 오른쪽 패널 ── */
+  .rail-card{background:var(--panel);border-radius:var(--radius);box-shadow:var(--shadow);border:1px solid rgba(226,213,199,.6);padding:22px 24px;}
+  .rail-card h2{margin:0;font-size:17px;font-weight:700;}
+  .rail-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:6px;}
+  .rail-head span,.rail-head a{font-size:13px;color:var(--faint);}
+  .rail-head button{background:none;border:0;padding:0;color:var(--accent-text);font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;}
+  .rail-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-top:1px solid var(--line);}
+  .rail-row:first-of-type{border-top:0;}
+  .rail-row .shift{width:40px;max-width:40px;flex:none;}
+  .rail-row b{font-weight:600;font-size:14px;display:block;}
+  .rail-row small{font-size:12px;color:var(--faint);}
+  .rail-empty{font-size:13px;color:var(--faint);padding:10px 0 2px;margin:0;}
+  .meter{height:8px;border-radius:4px;background:var(--sunk);overflow:hidden;margin:8px 0 6px;}
+  .meter > div{height:100%;border-radius:4px;background:var(--accent);}
+
+  /* ── 신청 폼 ── */
+  .date-selection-panel{margin-bottom:16px;padding:14px 16px;border:0;border-radius:14px;background:var(--bg);}
+  .date-selection-header{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:10px;font-size:13px;color:var(--faint);}
+  .date-selection-header strong{color:var(--text);}
+  .date-pills{display:flex;flex-wrap:wrap;gap:8px;}
+  .date-pill{padding:8px 12px;border-radius:999px;border:1px solid var(--line2);background:#fff;color:var(--muted);font-weight:600;cursor:pointer;min-width:52px;text-align:center;transition:.15s ease;font-family:inherit;}
+  .date-pill:hover:not(:disabled){border-color:var(--accent);color:var(--accent-text);}
+  .date-pill.allowed{background:var(--green-bg);border-color:transparent;color:var(--green);}
+  .date-pill.selected{background:var(--accent);color:#fff;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft);}
+  .date-pill:disabled{opacity:.35;cursor:not-allowed;background:var(--sunk);color:var(--faint);}
+
+  /* ── 목록·태그 ── */
+  .list-item{border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin-bottom:10px;font-size:14px;background:#fff;}
+  .list-item .meta{color:var(--faint);font-size:12.5px;margin-top:5px;line-height:1.55;}
+  .tag{display:inline-block;font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:999px;margin-right:6px;}
+  .tag.email{background:var(--blue-bg);color:var(--blue);}
+  .tag.day{background:var(--accent-soft);color:var(--accent-text);}
   .tag.set{background:var(--amber-bg);color:var(--amber);}
   .tag.warn{background:var(--red-bg);color:var(--red);}
-  .empty{color:var(--muted);font-size:13px;padding:10px 0;}
-  .quota{font-size:12px;color:var(--muted);margin-top:6px;}
-  .modalbg{position:fixed;inset:0;background:rgba(15,20,30,.45);display:none;align-items:center;justify-content:center;z-index:50;}
+  .empty{color:var(--faint);font-size:13px;padding:10px 0;margin:0;}
+  .quota{font-size:12.5px;color:var(--faint);margin-top:6px;line-height:1.6;}
+
+  /* ── 창·알림 ── */
+  .modalbg{position:fixed;inset:0;background:rgba(36,25,15,.38);display:none;align-items:center;justify-content:center;z-index:50;-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);}
   .modalbg.show{display:flex;}
-  .modal{background:#fff;border-radius:12px;padding:22px;max-width:440px;width:92%;}
-  .modal h3{margin:0 0 12px;font-size:16px;}
-  .modal .chain{background:#f8f9fb;border-radius:8px;padding:10px 12px;font-size:13px;margin:10px 0;line-height:1.7;}
+  .modal{background:#fff;border-radius:20px;padding:24px;max-width:460px;width:92%;box-shadow:0 24px 64px rgba(36,25,15,.22);}
+  .modal h3{margin:0 0 12px;font-size:17px;}
+  .modal .chain{background:var(--bg);border-radius:12px;padding:12px 14px;font-size:13px;margin:10px 0;line-height:1.7;}
   .modal .actions{display:flex;justify-content:flex-end;gap:8px;margin-top:16px;}
-  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  #toastHost{position:fixed;top:84px;left:50%;transform:translateX(-50%);z-index:80;display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none;}
+  /* opacity는 애니메이션에 맡기지 않는다. 애니메이션이 진행되지 않는 환경에서 토스트가 안 보이게 되기 때문. */
+  #toastHost .toast{background:var(--text);color:#fff;font-size:14px;font-weight:600;padding:12px 18px;border-radius:999px;box-shadow:0 8px 24px rgba(36,25,15,.25);max-width:80vw;text-align:center;opacity:1;animation:toastIn .16s ease-out;}
+  #toastHost .toast.ok{background:var(--green);}
+  #toastHost .toast.warn{background:var(--red);}
+  @keyframes toastIn{from{transform:translateY(-6px);}to{transform:none;}}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
   .grid3{display:grid;grid-template-columns:repeat(3, minmax(0, 1fr));gap:12px;}
-  @media print {
-    body{background:#fff;}
-    header, nav, main > section:not(#tab-schedule), .schedule-toolbar .schedule-nav, .schedule-toolbar .schedule-tools .btn, .schedule-toolbar .schedule-tools .clock-wrap, .schedule-actions-row, .date-selection-panel, .legend, #lockBanner, #monthlyApprovalStatus, .notes-panel, #monthlyVersionPanel{display:none !important;}
-    main{max-width:none;padding:0;}
-    .panel{border:none;box-shadow:none;padding:0;margin:0 0 10px;}
-    .schedule-toolbar{margin-bottom:8px;}
-    .schedule-title{font-size:26px;}
-    .schedule-sheet-header{margin:0 0 8px;}
-    .approval-cell{break-inside:avoid;page-break-inside:avoid;}
-    .gridwrap{overflow:visible;}
-    table.grid{min-width:0;font-size:18px;}
-    table.grid th,table.grid td{height:58px;min-height:58px;}
-    table.grid td.name{font-size:18px;}
-    .cell-일,.cell-야,.cell-조,.cell-O,.cell-대근{font-size:20px;}
-    .cell-휴가,.cell-대일,.cell-custom{font-size:18px;}
-    .date-num{font-size:18px;}
-    .date-week{font-size:14px;}
-    *{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
-    @page{size:A4 landscape;margin:8mm;}
-  }
+
+  /* ── 설정: 편집 표 ── */
   .export-hidden{display:none !important;}
   .export-invisible{visibility:hidden !important;}
   .schedule-grid-export{width:100%;border-collapse:collapse;}
-  .schedule-edit-panel{margin-top:16px;padding:14px;border:1px solid #bfd5ff;border-radius:10px;background:#f8fbff;}
+  .schedule-edit-panel{margin-top:16px;padding:16px;border:1px solid var(--line);border-radius:16px;background:var(--bg);}
   .schedule-edit-panel[hidden]{display:none;}
   .schedule-edit-table{width:100%;border-collapse:collapse;table-layout:fixed;min-width:1240px;background:#fff;}
   .schedule-edit-table th,.schedule-edit-table td{border:1px solid var(--line);height:48px;padding:3px;text-align:center;vertical-align:middle;}
-  .schedule-edit-table th{background:#f3f6fb;font-size:12px;}
+  .schedule-edit-table th{background:var(--sunk);font-size:12px;color:var(--muted);}
   .schedule-edit-table th:first-child{width:150px;}
-  .schedule-edit-table td.name{font-size:14px;font-weight:700;white-space:nowrap;background:#fafbfc;}
-  .schedule-edit-table input{width:100%;max-width:100%;min-width:0;height:38px;padding:2px 1px;border:1px solid #cfd6e0;border-radius:4px;text-align:center;font-size:13px;font-weight:700;}
-  .schedule-edit-table input:focus{outline:2px solid #2563eb;border-color:#2563eb;}
-  .schedule-edit-table input:disabled{background:#f1f3f5;border-color:#e2e6ec;color:#9aa4b2;}
-  .schedule-edit-table .edit-inactive{background:#f7f8fa;}
-  .schedule-edit-table .edit-covered input{background:#fff8e1;border-color:#f0d9a0;}
+  .schedule-edit-table td.name{font-size:14px;font-weight:700;white-space:nowrap;background:#fff;}
+  .schedule-edit-table input{width:100%;max-width:100%;min-width:0;height:38px;padding:2px 1px;border:1px solid var(--line2);border-radius:8px;text-align:center;font-size:13px;font-weight:700;}
+  .schedule-edit-table input:focus{outline:2px solid var(--accent-soft);border-color:var(--accent);}
+  .schedule-edit-table input:disabled{background:var(--sunk);border-color:var(--line);color:var(--faint);}
+  .schedule-edit-table .edit-inactive{background:var(--bg);}
+  .schedule-edit-table .edit-covered input{background:var(--amber-bg);border-color:#e9d48d;}
   /* routine: 4조 교대 자동 대근 로테이션에 속한 정식 루틴 근무자 행 표시 */
-  .schedule-edit-table .routine-row td.name{border-left:4px solid #2563eb;}
+  .schedule-edit-table .routine-row td.name{border-left:4px solid var(--accent);}
   .schedule-editor-view[hidden]{display:none;}
   .schedule-editor-view+.schedule-editor-view{margin-top:22px;padding-top:18px;border-top:1px solid var(--line);}
   .employee-edit-table{width:100%;border-collapse:collapse;table-layout:fixed;background:#fff;}
   .employee-edit-table th,.employee-edit-table td{border:1px solid var(--line);padding:7px;text-align:center;}
-  .employee-edit-table th{background:#f3f6fb;font-size:13px;}
-  .employee-edit-table input{width:100%;padding:7px;border:1px solid #cfd6e0;border-radius:5px;text-align:center;}
-  .ended-staff-panel{margin-top:18px;padding-top:14px;border-top:1px dashed var(--line);}
+  .employee-edit-table th{background:var(--sunk);font-size:13px;color:var(--muted);}
+  .employee-edit-table input{width:100%;padding:7px;border:1px solid var(--line2);border-radius:8px;text-align:center;}
+  .ended-staff-panel{margin-top:18px;padding-top:14px;border-top:1px dashed var(--line2);}
   .ended-staff-panel .list-item{margin-bottom:8px;}
   .ended-staff-panel .list-item .meta{margin-top:2px;}
-  button.btn.danger{background:var(--red);color:#fff;border-color:var(--red);}
+  /* ── 탭 공통 레이아웃: 본문 + 오른쪽 패널 ── */
+  .page-head-stack{flex-direction:column;align-items:flex-start;gap:6px;}
+  .page-head-stack p{margin:0;}
+  .page-head > div{display:flex;flex-direction:column;gap:6px;}
+  .page-head > div p{margin:0;}
+  .head-pick{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--muted);font-weight:500;}
+  .head-pick select{border-radius:999px;font-weight:600;min-width:150px;}
+  .page-layout{display:flex;flex-wrap:wrap;gap:24px;align-items:flex-start;}
+  .page-main{flex:999 1 640px;min-width:0;}
+  .page-rail{flex:1 1 300px;max-width:380px;display:flex;flex-direction:column;gap:20px;}
+  .rail-list .list-item{border:0;border-top:1px solid var(--line);border-radius:0;padding:12px 0;margin:0;background:none;}
+  .rail-list .list-item:first-child{border-top:0;}
+  .login-notice{margin:0 0 16px;padding:12px 16px;border-radius:14px;background:var(--amber-bg);color:var(--amber);font-size:13.5px;font-weight:600;}
+  .step-head{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+  .step-head h2{margin:0;}
+  .step-no{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:var(--accent-soft);color:var(--accent-text);font-size:13px;font-weight:800;flex:none;}
+  .step-hint{margin:-6px 0 12px;}
+  .type-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;}
+  .type-card{display:flex;flex-direction:column;align-items:flex-start;gap:6px;text-align:left;padding:16px 18px;border-radius:16px;border:1.5px solid var(--line2);background:#fff;color:var(--text);font-family:inherit;cursor:pointer;transition:.15s ease;}
+  .type-card strong{font-size:15.5px;font-weight:700;}
+  .type-card span{font-size:13px;line-height:1.55;color:var(--faint);}
+  .type-card:hover{border-color:var(--accent);}
+  .type-card[aria-checked="true"]{border-color:var(--accent);background:var(--accent-soft);box-shadow:0 0 0 3px rgba(165,96,61,.12);}
+  .type-card[aria-checked="true"] strong{color:var(--accent-text);}
+  .date-direct{display:flex;flex-wrap:wrap;align-items:center;gap:10px;font-size:13px;color:var(--faint);}
+  .date-direct label{margin:0;font-weight:500;color:var(--faint);}
+  .date-direct input{padding:8px 12px;}
+  .confirm-box{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px 16px;padding:16px 18px;border-radius:14px;background:var(--bg);}
+  .confirm-text{margin:0;font-size:14.5px;line-height:1.6;color:var(--muted);}
+  .confirm-text b{color:var(--text);}
+  /* 달력 */
+  .cal-host{display:block;}
+  .cal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+  .cal-head strong{font-size:15px;}
+  .cal-nav{width:34px;height:34px;border-radius:50%;border:1px solid var(--line2);background:#fff;color:var(--muted);font-size:16px;cursor:pointer;font-family:inherit;}
+  .cal-nav:disabled{opacity:.35;cursor:default;}
+  .cal-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;}
+  .cal-wd{font-size:12px;color:var(--faint);text-align:center;padding:2px 0 4px;}
+  .cal-wd:nth-child(6){color:var(--blue);}
+  .cal-wd:nth-child(7){color:var(--red);}
+  .cal-day{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-height:62px;padding:6px 2px;border-radius:12px;border:1.5px solid transparent;background:transparent;font-family:inherit;color:var(--text);}
+  .cal-day .cal-num{font-size:13px;font-weight:600;line-height:1;}
+  .cal-day .shift{max-width:34px;height:24px;font-size:12px;border-radius:7px;}
+  .cal-day.is-past,.cal-day.is-other{opacity:.38;}
+  button.cal-day{cursor:pointer;background:#fff;border-color:var(--accent);box-shadow:0 1px 2px rgba(60,35,15,.06);}
+  button.cal-day:hover{background:var(--accent-soft);}
+  button.cal-day.selected{background:var(--accent);border-color:var(--accent);}
+  button.cal-day.selected .cal-num{color:#fff;}
+  button.cal-day.selected .shift{background:#fff;}
+  button.cal-day:disabled{cursor:not-allowed;border-style:dashed;border-color:var(--line2);background:var(--sunk);box-shadow:none;}
+  .cal-day.is-today .cal-num{color:var(--accent-text);text-decoration:underline;text-underline-offset:3px;}
+  .cal-legend{display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:10px;font-size:12px;color:var(--faint);}
+  .cal-legend i{display:inline-block;width:12px;height:12px;border-radius:4px;margin-right:5px;vertical-align:-1px;border:1.5px solid var(--accent);background:#fff;}
+  .cal-legend i.sel{background:var(--accent);}
+  .cal-legend i.taken{border-style:dashed;border-color:var(--line2);background:var(--sunk);}
+  /* 내 대근 */
+  .cover-card{display:flex;gap:18px;align-items:flex-start;background:var(--panel);border-radius:var(--radius);box-shadow:var(--shadow);border:1px solid rgba(226,213,199,.6);padding:20px 22px;margin-bottom:14px;}
+  .cover-date{width:64px;flex:none;display:flex;flex-direction:column;align-items:center;padding:10px 0;border-radius:14px;background:var(--bg);}
+  .cover-date b{font-size:24px;font-weight:800;line-height:1;}
+  .cover-date small{font-size:12px;color:var(--faint);margin-top:4px;}
+  .cover-body{flex:1;min-width:0;display:flex;flex-direction:column;gap:8px;}
+  .cover-line{display:flex;flex-wrap:wrap;align-items:center;gap:10px;font-size:15px;}
+  .cover-line .shift{width:auto;max-width:none;padding:0 10px;height:28px;font-size:13px;}
+  .cover-body .meta{font-size:13px;color:var(--faint);}
+  .cover-body textarea{min-height:64px;}
+  .cover-done{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--green);font-weight:600;}
+  .cover-past summary{cursor:pointer;font-size:14px;font-weight:600;color:var(--muted);padding:6px 0 12px;}
+  .stat-row{display:flex;justify-content:space-between;align-items:baseline;padding:10px 0;border-top:1px solid var(--line);font-size:14px;color:var(--muted);}
+  .stat-row:first-child{border-top:0;}
+  .stat-row b{font-size:18px;color:var(--text);}
+  .tip-card h2{margin:0 0 6px;}
+  .tip-card p{margin:0 0 14px;font-size:13.5px;line-height:1.6;color:var(--muted);}
+  /* 승인함 */
+  .approval-card{background:var(--panel);border-radius:var(--radius);box-shadow:var(--shadow);border:1px solid rgba(226,213,199,.6);padding:20px 24px;margin-bottom:14px;display:flex;flex-direction:column;gap:12px;}
+  .approval-card-head{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;}
+  .approval-card-head b{font-size:16.5px;font-weight:700;}
+  .approval-card-head time{margin-left:auto;font-size:12.5px;color:var(--faint);}
+  .approval-card .summary{padding:12px 14px;border-radius:12px;background:var(--bg);font-size:13.5px;line-height:1.65;color:var(--muted);}
+  .approval-card .who{font-size:12.5px;color:var(--faint);}
+  .approval-card .actions{display:flex;justify-content:flex-end;gap:8px;}
+  .tag.leave{background:var(--red-bg);color:var(--red);}
+  .tag.ok{background:var(--green-bg);color:var(--green);}
+  .tag.muted{background:var(--sunk);color:var(--faint);}
+  /* 설정 */
+  .settings-layout{display:flex;flex-wrap:wrap;gap:24px;align-items:flex-start;}
+  .settings-nav{flex:1 1 220px;max-width:250px;display:flex;flex-direction:column;padding:8px 10px 12px;background:var(--panel);border-radius:var(--radius);box-shadow:var(--shadow);border:1px solid rgba(226,213,199,.6);position:sticky;top:96px;}
+  .side-group{font-size:12px;font-weight:600;color:var(--faint);padding:14px 14px 6px;}
+  .side-item{display:flex;align-items:center;width:100%;min-height:42px;padding:0 14px;border:0;border-radius:10px;background:transparent;color:var(--muted);font-size:14px;font-weight:500;line-height:1.3;font-family:inherit;cursor:pointer;text-align:left;}
+  .side-item:hover{background:var(--sunk);}
+  .side-item.active{background:var(--accent-soft);color:var(--accent-text);font-weight:700;}
+  .settings-main{flex:999 1 640px;min-width:0;}
+  #settingsGateNote.is-admin{color:var(--green);font-weight:600;}
+
   #rotationAnchorPreview span,#rotationAnchorList span,#pendingBulkFillsList span{display:inline-block;margin:2px 8px 2px 0;}
   #rotationAnchorPreview .clash{color:var(--red);font-weight:700;}
-  .onboarding-step{font-size:13px;font-weight:700;color:#1b2430;margin-top:4px;}
-  #toastHost{position:fixed;top:16px;left:50%;transform:translateX(-50%);z-index:80;display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none;}
-  /* opacity는 애니메이션에 맡기지 않는다. 애니메이션이 진행되지 않는 환경에서 토스트가 안 보이게 되기 때문. */
-  #toastHost .toast{background:#0f172a;color:#fff;font-size:14px;font-weight:700;padding:12px 18px;border-radius:10px;box-shadow:0 8px 24px rgba(15,20,30,.25);max-width:80vw;text-align:center;opacity:1;animation:toastIn .16s ease-out;}
-  #toastHost .toast.ok{background:#0f7d3a;}
-  #toastHost .toast.warn{background:#b91c1c;}
-  @keyframes toastIn{from{transform:translateY(-6px);}to{transform:none;}}
-  @media(max-width:800px){.grid2{grid-template-columns:1fr;}.grid3{grid-template-columns:1fr;}.schedule-sheet-header{flex-direction:column;align-items:stretch;}.approval-block{justify-content:flex-start;max-width:none;}}
-  code{background:#f1f3f6;padding:1px 5px;border-radius:4px;font-size:12px;}
+  .onboarding-step{font-size:13px;font-weight:700;color:var(--text);margin-top:4px;}
+
+  @media print {
+    body{background:#fff;}
+    .app-header, .security-note, #storageStatus, main > section:not(#tab-schedule), .schedule-rail, .schedule-nav, .schedule-actions-row, .clock-wrap, .shift-filters, .sheet-hint, #lockBanner, #monthlyApprovalStatus, .notes-panel, #monthlyVersionPanel{display:none !important;}
+    main{max-width:none;padding:0;}
+    .sheet-card,.panel{border:none;box-shadow:none;padding:0;margin:0 0 10px;}
+    .schedule-title{font-size:26px;}
+    .approval-cell{break-inside:avoid;page-break-inside:avoid;}
+    .gridwrap{overflow:visible;}
+    table.grid{min-width:0;font-size:16px;}
+    table.grid td.name,table.grid th:first-child{position:static;}
+    *{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+    @page{size:A4 landscape;margin:8mm;}
+  }
+  @media(max-width:900px){
+    .app-header-inner,main,.security-note{padding-left:16px;padding-right:16px;}
+    nav#tabbar{justify-content:flex-start;overflow-x:auto;flex-wrap:nowrap;}
+    .grid2,.grid3{grid-template-columns:1fr;}
+    .schedule-title{font-size:34px;}
+    .schedule-rail,.page-rail{max-width:none;}
+    .settings-nav{max-width:none;position:static;flex-direction:row;flex-wrap:wrap;gap:4px;}
+    .settings-nav .side-group{display:none;}
+    .side-item{width:auto;}
+    .page-head h1{font-size:28px;}
+    .schedule-sheet-header{flex-direction:column;align-items:stretch;}
+    .approval-block{justify-content:flex-start;}
+  }
 </style>
 </head>
 <body>
-<section style="padding:10px 24px;background:#fff7dd;border-bottom:1px solid #e2e6ec;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
-  <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-    <span id="securityStatus" role="status">승인·설정 변경은 서버에서 권한을 확인합니다.</span>
+<header class="app-header">
+  <div class="app-header-inner">
+    <button type="button" class="brand" id="mainTitleBtn" aria-label="근무표 처음 화면으로">
+      <img src="./sbs-logo.png" alt="SBS">
+      <span class="brand-name">통합관제실 근무표</span>
+    </button>
+    <nav id="tabbar" inert aria-label="메뉴">
+      <button type="button" data-tab="schedule" class="active">근무표</button>
+      <button type="button" data-tab="apply">신청하기</button>
+      <button type="button" data-tab="cover">내 대근</button>
+      <button type="button" data-tab="approve">승인함 <span class="nav-count" id="approvalCountBadge" hidden>0</span></button>
+      <button type="button" data-tab="notif">기록</button>
+      <button type="button" data-tab="settings">설정</button>
+    </nav>
+    <div class="account">
+      <span id="lockStatus" class="lock-pill" role="status" hidden></span>
+      <span id="employeeStatus" class="account-status" role="status">로그인이 필요합니다.</span>
+      <select id="employeeLoginSelect" aria-label="이름"><option value="">이름 선택</option><option value="__admin__">관리자</option></select>
+      <input id="employeeLoginPin" type="password" placeholder="PIN" maxlength="128" aria-label="PIN" style="width:96px">
+      <button id="employeeLoginBtn" type="button" class="btn">로그인</button>
+      <button id="employeeLogoutBtn" type="button" class="btn secondary" hidden>로그아웃</button>
+      <button class="btn secondary refresh-btn" id="refreshHolidayBtn" type="button" title="서버의 최신 근무표와 휴일 정보를 다시 불러옵니다">↻ 새로고침</button>
+    </div>
   </div>
-  <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-    <span id="employeeStatus" role="status">로그인이 필요합니다.</span>
-    <select id="employeeLoginSelect" aria-label="이름"><option value="">이름 선택</option><option value="__admin__">관리자</option></select>
-    <input id="employeeLoginPin" type="password" placeholder="PIN" maxlength="128" style="width:100px">
-    <button id="employeeLoginBtn" type="button" class="btn secondary">로그인</button>
-    <button id="employeeLogoutBtn" type="button" class="btn secondary" hidden>로그아웃</button>
-  </div>
-  <div style="width:100%;">
-    <span id="lockStatus" role="status" style="font-size:13px;color:#92400e;" hidden></span>
-  </div>
-</section>
-
-<header>
-  <div class="header-copy">
-    <h1 id="mainTitleBtn" style="cursor:pointer;display:inline-block;">📋 통합관제실 근무표 시스템 <span style="font-weight:400;color:#9aa4b2;font-size:13px;">— 초안(Draft) v0.1</span></h1>
-    <p>NC 4인 (최도인 · 양명국 · 김경율 · 김건호) 기준 · node server.js로 실행 시 사내망 서버(SQLite)에 저장되어 여러 PC가 데이터를 공유합니다 (서버 없이 열면 이 브라우저의 localStorage에만 저장) · 담당자 승인 요청과 일일 변경 요약은 메일로 발송됩니다</p>
-  </div>
-  <div class="sbs-logo" aria-label="SBS logo"><img src="./sbs-logo.png" alt="SBS 로고"></div>
 </header>
-
-<nav id="tabbar" inert>
-  <button data-tab="schedule" class="active">근무표</button>
-  <button data-tab="request">휴가 신청</button>
-  <button data-tab="protect">비번 보장 신청</button>
-  <button data-tab="admin">대근 관리·불가사유 신청</button>
-  <button data-tab="notif">알림 로그</button>
-  <button data-tab="settings">설정</button>
-</nav>
+<p class="security-note" id="securityStatus" role="status">승인·설정 변경은 서버에서 권한을 확인합니다.</p>
 
 <div id="storageStatus" class="storage-status" data-state="loading" role="status" aria-live="polite">
   <span id="storageStatusText">저장된 데이터를 확인하는 중입니다.</span>
   <div class="storage-actions">
     <button class="btn secondary" id="storageRetryBtn" type="button" hidden>다시 시도</button>
-    <button class="btn secondary" id="storageReloadBtn" type="button" hidden>최신 근무표 불러오기</button>
     <button class="btn secondary" id="storageExportBtn" type="button" hidden>내 변경 내려받기</button>
   </div>
   <div id="storageDiscardConfirm" hidden>
@@ -234,157 +430,247 @@
 </div>
 <main inert>
   <section id="tab-schedule">
-    <div class="panel" id="schedulePageRoot">
+    <div id="schedulePageRoot">
       <div class="schedule-toolbar">
-        <div class="schedule-nav">
-          <button class="year-nav" id="prevYearBtn" type="button" aria-label="이전 년">◀◀</button>
-          <button class="month-nav" id="prevMonthBtn" type="button" aria-label="이전 달">◀</button>
-          <div class="month-pickers">
-            <select id="yearSelect"></select>
-            <select id="monthSelect"></select>
+        <div class="schedule-heading">
+          <span class="kicker">NC 교대 근무표</span>
+          <h1 class="schedule-title" id="scheduleMonthTitle">2026년 8월</h1>
+          <div class="schedule-status">
+            <div id="monthlyApprovalStatus"></div>
+            <span class="clock-wrap"><span class="clock-source" id="clockSourceLabel">기준: 로컬 서버 시각</span> · <span class="live-clock" id="liveDateTime">현재 시각</span></span>
           </div>
-          <button class="month-nav" id="nextMonthBtn" type="button" aria-label="다음 달">▶</button>
-          <button class="year-nav" id="nextYearBtn" type="button" aria-label="다음 년">▶▶</button>
         </div>
-        <div class="schedule-title" id="scheduleMonthTitle">2026년 8월</div>
-        <div class="schedule-tools">
-          <div class="clock-wrap">
-            <div class="clock-source" id="clockSourceLabel">기준: 로컬 서버 시각</div>
-            <div class="live-clock" id="liveDateTime">현재 시각</div>
+        <div class="schedule-controls">
+          <div class="schedule-nav" role="group" aria-label="달 바꾸기">
+            <button class="year-nav" id="prevYearBtn" type="button" aria-label="이전 년" title="이전 년">«</button>
+            <button class="month-nav" id="prevMonthBtn" type="button" aria-label="이전 달" title="이전 달">‹</button>
+            <div class="month-pickers">
+              <select id="yearSelect" aria-label="년"></select>
+              <select id="monthSelect" aria-label="월"></select>
+            </div>
+            <button class="month-nav" id="nextMonthBtn" type="button" aria-label="다음 달" title="다음 달">›</button>
+            <button class="year-nav" id="nextYearBtn" type="button" aria-label="다음 년" title="다음 년">»</button>
+          </div>
+          <div class="schedule-actions-row">
+            <div class="export-actions">
+              <button class="btn secondary export" id="exportPdfBtn" type="button">PDF</button>
+              <button class="btn secondary export" id="exportExcelBtn" type="button" title="샘플 양식 · NC 교대근무자 최대 4명 · TC 추가 인원 · 설정된 일근자">엑셀</button>
+              <button class="btn" id="requestMonthlyBtn" type="button">이 달 근무표 확정 요청</button>
+            </div>
           </div>
         </div>
       </div>
-      <div class="schedule-actions-row">
-        <div class="export-actions">
-          <button class="btn" id="requestMonthlyBtn" type="button">이 달 근무표 확정 요청</button>
-        <button class="btn secondary export" id="exportPdfBtn" type="button">PDF 내보내기</button>
-        <button class="btn secondary export" id="exportExcelBtn" type="button" title="샘플 양식 · NC 교대근무자 최대 4명 · TC 추가 인원 · 설정된 일근자">엑셀 내보내기</button>
-          <button class="btn secondary" id="refreshHolidayBtn" type="button">새로고침</button>
+      <details id="monthlyVersionPanel" data-html2canvas-ignore="true" style="margin:0 0 14px;"><summary>확정본·변경 이력 보기</summary><div id="monthlyVersionContent"></div></details>
+      <div class="schedule-layout">
+      <div class="schedule-main">
+      <div class="sheet-card">
+        <div class="sheet-head">
+          <h2>전체 근무</h2>
+          <span class="sheet-hint" data-html2canvas-ignore="true">이름을 고르면 그 사람 근무가 진하게 보여요</span>
+          <div class="shift-filters" id="personFilters" role="group" aria-label="사람별로 보기" data-html2canvas-ignore="true"></div>
         </div>
-      </div>
-      <div id="monthlyApprovalStatus" style="font-size:12.5px;color:var(--muted);margin:6px 0 2px;"></div>
-      <details id="monthlyVersionPanel" data-html2canvas-ignore="true" style="margin:12px 0;"><summary>확정본·변경 이력 보기</summary><div id="monthlyVersionContent"></div></details>
-      <div id="lockBanner"></div>
-      <div class="schedule-sheet-header">
-        <div></div>
-        <div class="approval-block" id="approvalBlock" aria-live="polite"></div>
-      </div>
-      <div class="gridwrap"><table class="grid" id="scheduleTable"></table></div>
-      <div class="legend">토요일: <span style="color:#1f5ee6;font-weight:700;">파랑</span> · 일요일/휴일: <span style="color:#dc2626;font-weight:700;">빨강</span> · 일: 09:00~18:30 · 야·조: 18:00~09:00 · O: 비번 · <span class="cell-휴가" style="padding:1px 6px;border-radius:4px;">휴가</span> · <span class="cell-대일" style="padding:1px 6px;border-radius:4px;">대일/대근</span> · <span class="cell-protected" style="padding:1px 6px;border-radius:4px;">비번 보장</span></div>
-      <div class="notes-panel">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-          <label for="scheduleNotesInput" style="margin:0;">비고</label>
-          <div style="display:flex;gap:6px;">
-            <button class="btn secondary" id="editNotesBtn" style="padding:4px 10px;font-size:12px;">수정</button>
-            <button class="btn" id="applyNotesBtn" style="padding:4px 10px;font-size:12px;display:none;">적용</button>
+        <div id="lockBanner"></div>
+        <div class="schedule-sheet-header">
+          <div></div>
+          <div class="approval-block" id="approvalBlock" aria-live="polite"></div>
+        </div>
+        <div class="gridwrap"><table class="grid" id="scheduleTable"></table></div>
+        <div class="legend"><span>일 09:00~18:30</span><span>야·조 18:00~09:00</span><span>O 비번</span><span><span class="shift cell-휴가">휴가</span>휴가</span><span><span class="shift cell-대일">대일</span>대일·대근</span><span><span class="shift cell-protected">O</span>비번 보장</span><span style="color:var(--blue);font-weight:600;">토요일</span><span style="color:var(--red);font-weight:600;">일요일·휴일</span></div>
+        <div class="notes-panel">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <label for="scheduleNotesInput" style="margin:0;">비고</label>
+            <div style="display:flex;gap:6px;">
+              <button class="btn secondary" id="editNotesBtn" style="min-height:32px;padding:4px 12px;font-size:12.5px;">수정</button>
+              <button class="btn" id="applyNotesBtn" style="min-height:32px;padding:4px 12px;font-size:12.5px;display:none;">적용</button>
+            </div>
           </div>
+          <textarea id="scheduleNotesInput" placeholder="근무 관련 특이사항을 입력하세요." readonly></textarea>
         </div>
-        <textarea id="scheduleNotesInput" placeholder="근무 관련 특이사항을 입력하세요." readonly></textarea>
+      </div>
+      </div>
+    <aside class="schedule-rail" aria-label="요약" data-html2canvas-ignore="true">
+      <div class="rail-card" aria-labelledby="railTodayTitle">
+        <div class="rail-head"><h2 id="railTodayTitle">이번 주 근무</h2><span id="railTodayDate"></span></div>
+        <div id="railToday"><p class="rail-empty">불러오는 중…</p></div>
+      </div>
+      <div class="rail-card" aria-labelledby="railApprovalTitle">
+        <div class="rail-head"><h2 id="railApprovalTitle">승인 대기 <span id="railApprovalCount" style="color:var(--accent-text);font-size:17px;"></span></h2><button type="button" id="railApprovalLink">승인함 →</button></div>
+        <div id="railApprovals"><p class="rail-empty">승인 대기 건이 없습니다.</p></div>
+      </div>
+      <div class="rail-card" aria-labelledby="railMineTitle">
+        <div class="rail-head"><h2 id="railMineTitle">내 이번 달</h2><span id="railMineName"></span></div>
+        <div id="railMine"><p class="rail-empty">로그인하면 내 비번 보장·신청 현황이 보입니다.</p></div>
+      </div>
+    </aside>
       </div>
     </div>
   </section>
 
-  <section id="tab-request" style="display:none;">
-    <div class="grid2">
-      <div class="panel">
-        <h2>휴가 신청</h2>
-        <p id="reqLoginNotice" class="quota" style="color:#dc2626;" hidden>상단에서 로그인 후 본인 명의로 신청할 수 있습니다.</p>
-        <div class="row">
-          <div><label>신청자</label><select id="reqEmp"></select></div>
-          <div>
-            <label>휴가 유형</label>
-            <select id="reqType">
-              <option value="day">일근 휴가</option>
-              <option value="set">야+조 세트 휴가</option>
-            </select>
+  <section id="tab-apply" style="display:none;">
+    <div class="page-head page-head-stack">
+      <span class="kicker">신청하기</span>
+      <h1>무엇을 신청할까요?</h1>
+      <p>종류를 고르고 달력에서 날짜를 누르세요. 대근자는 저절로 정해지고, 신청 전에 미리 보여 드려요.</p>
+    </div>
+    <div class="page-layout">
+      <div class="page-main">
+        <div class="panel">
+          <div class="step-head"><span class="step-no">1</span><h2>종류</h2></div>
+          <div class="type-cards" id="applyKindCards" role="radiogroup" aria-label="신청 종류">
+            <button type="button" class="type-card" role="radio" data-apply-kind="day" aria-checked="true"><strong>일근 휴가</strong><span>일근인 하루를 쉬어요. 그날 비번인 사람이 대신 서요.</span></button>
+            <button type="button" class="type-card" role="radio" data-apply-kind="set" aria-checked="false"><strong>야+조 세트 휴가</strong><span>야근일을 고르면 다음 날 조근까지 이틀을 함께 쉬어요.</span></button>
+            <button type="button" class="type-card" role="radio" data-apply-kind="protect" aria-checked="false"><strong>비번 보장</strong><span>비번인 날 대근에 불리지 않게 미리 막아요. 한 달 <b id="quotaMaxLabel">3</b>번까지는 사유 없이 돼요.</span></button>
           </div>
-          <div><label id="reqDateLabel">날짜 선택</label><input type="date" id="reqDate"></div>
         </div>
-        <p id="reqHint" class="quota"></p>
-        <div class="date-selection-panel" id="dateSelectionPanel">
-          <div class="date-selection-header">
-            <strong>휴가 날짜 자동 선택</strong>
-            <span id="dateSelectionStatus">신청자와 유형을 선택하면 가능한 날짜만 표시됩니다.</span>
+
+        <div id="applyLeavePane">
+          <p id="reqLoginNotice" class="login-notice" hidden>오른쪽 위에서 내 이름으로 로그인하면 내 근무가 달력에 나오고 신청할 수 있어요.</p>
+          <div class="panel">
+            <div class="step-head"><span class="step-no">2</span><h2 id="reqDateLabel">날짜</h2></div>
+            <p id="reqHint" class="quota step-hint"></p>
+            <div class="date-selection-panel" id="dateSelectionPanel">
+              <div class="date-selection-header"><span id="dateSelectionStatus">로그인하면 고를 수 있는 날짜가 표시됩니다.</span></div>
+              <div class="date-pills cal-host" id="availableDatePills"></div>
+            </div>
+            <div class="date-direct"><label for="reqDate">달력에 없는 날짜는 직접</label><input type="date" id="reqDate"></div>
+            <div hidden>
+              <select id="reqEmp" aria-label="신청자"></select>
+              <select id="reqType" aria-label="휴가 종류">
+                <option value="day">일근 휴가</option>
+                <option value="set">야+조 세트 휴가</option>
+              </select>
+            </div>
           </div>
-          <div class="date-pills" id="availableDatePills"></div>
+          <div class="panel">
+            <div class="step-head"><span class="step-no">3</span><h2>확인</h2></div>
+            <div class="confirm-box">
+              <p class="confirm-text" id="reqConfirmText">날짜를 고르면 여기에 요약이 나와요.</p>
+              <button class="btn" id="reqPreviewBtn">대근자 보고 신청하기</button>
+            </div>
+          </div>
         </div>
-        <div class="row" style="margin-top:10px;">
-          <button class="btn" id="reqPreviewBtn">대근 배정 미리보기</button>
+
+        <div id="applyProtectPane" hidden>
+          <p id="proLoginNotice" class="login-notice" hidden>오른쪽 위에서 내 이름으로 로그인하면 내 비번일이 달력에 나오고 신청할 수 있어요.</p>
+          <div class="panel">
+            <div class="step-head"><span class="step-no">2</span><h2>날짜 — 내가 비번인 날</h2></div>
+            <p class="quota step-hint">고른 날에는 휴가가 나도 내게 대근이 잡히지 않아요.</p>
+            <div class="date-selection-panel" id="proDateSelectionPanel">
+              <div class="date-selection-header"><span id="proDateSelectionStatus">로그인하면 비번인 날짜가 표시됩니다.</span></div>
+              <div class="date-pills cal-host" id="proAvailableDatePills"></div>
+            </div>
+            <div class="date-direct"><label for="proDate">달력에 없는 날짜는 직접</label><input type="date" id="proDate"></div>
+            <div hidden><select id="proEmp" aria-label="신청자"></select></div>
+          </div>
+          <div class="panel">
+            <div class="step-head"><span class="step-no">3</span><h2>확인</h2></div>
+            <div id="proQuotaInfo" class="confirm-text"></div>
+            <div id="proReasonWrap" style="display:none;margin-top:12px;">
+              <label for="proReason">한 달 한도를 넘었어요 — 팀장·담당이 볼 사유 (필수)</label>
+              <textarea id="proReason" placeholder="예: 개인 사정으로 이날은 대근이 어렵습니다."></textarea>
+            </div>
+            <div class="confirm-box" style="margin-top:12px;">
+              <p class="confirm-text" id="proConfirmText">날짜를 고르면 여기에 요약이 나와요.</p>
+              <button class="btn" id="proSubmitBtn">비번 보장 신청하기</button>
+            </div>
+          </div>
         </div>
       </div>
-      <div class="panel">
-        <h2>신청 내역</h2>
-        <div id="reqList"><p class="empty">아직 신청 내역이 없습니다.</p></div>
-      </div>
+
+      <aside class="page-rail">
+        <div class="rail-card">
+          <div class="rail-head"><h2>휴가 신청 내역</h2></div>
+          <div id="reqList" class="rail-list"><p class="empty">아직 신청 내역이 없습니다.</p></div>
+        </div>
+        <div class="rail-card">
+          <div class="rail-head"><h2>비번 보장 내역</h2></div>
+          <div id="proList" class="rail-list"><p class="empty">아직 신청 내역이 없습니다.</p></div>
+        </div>
+      </aside>
     </div>
   </section>
 
-  <section id="tab-protect" style="display:none;">
-    <div class="grid2">
-      <div class="panel">
-        <h2>비번(휴식) 보장 신청 <span class="sub">규칙 6</span></h2>
-        <p style="font-size:12.5px;color:var(--muted);margin-top:-6px;">비번인 날에 "대근 불가"를 미리 못 박아두는 신청입니다. 1인당 월 <b id="quotaMaxLabel">3</b>회까지 사유 없이 가능, 초과분은 팀장/담당 승인용 사유가 필수입니다.</p>
-        <p id="proLoginNotice" class="quota" style="color:#dc2626;" hidden>상단에서 로그인 후 본인 명의로 신청할 수 있습니다.</p>
-        <div class="row">
-          <div><label>신청자</label><select id="proEmp"></select></div>
-          <div><label>보장 받을 날짜 (본인이 비번(O)인 날만 선택 가능)</label><input type="date" id="proDate"></div>
-        </div>
-        <div class="date-selection-panel" id="proDateSelectionPanel">
-          <div class="date-selection-header">
-            <strong>비번 날짜 자동 선택</strong>
-            <span id="proDateSelectionStatus">신청자를 선택하면 비번(O)인 날짜만 표시됩니다.</span>
-          </div>
-          <div class="date-pills" id="proAvailableDatePills"></div>
-        </div>
-        <div id="proQuotaInfo" class="quota"></div>
-        <div id="proReasonWrap" style="display:none;margin-top:8px;">
-          <label>월 한도 초과 사유 (팀장/담당 승인용, 필수)</label>
-          <textarea id="proReason" placeholder="예: 개인 사정으로 이번 달 야간 대근이 어렵습니다..."></textarea>
-        </div>
-        <div class="row" style="margin-top:10px;">
-          <button class="btn" id="proSubmitBtn">보장 신청</button>
-        </div>
+  <section id="tab-cover" style="display:none;">
+    <div class="page-head">
+      <div>
+        <span class="kicker">내 대근</span>
+        <h1 id="coverTitle">내게 잡힌 대근</h1>
+        <p>다른 사람 휴가로 내게 잡힌 근무예요. 못 서는 날은 그 달 25일 0시 전까지 사유를 내 주세요.</p>
       </div>
-      <div class="panel">
-        <h2>보장 신청 내역</h2>
-        <div id="proList"><p class="empty">아직 신청 내역이 없습니다.</p></div>
+      <label class="head-pick">누구의 대근 <select id="adminEmp"></select></label>
+    </div>
+    <div class="page-layout">
+      <div class="page-main">
+        <div id="adminAssignList"><p class="empty">배정된 대근이 없습니다.</p></div>
       </div>
+      <aside class="page-rail">
+        <div class="rail-card">
+          <div class="rail-head"><h2 id="coverSummaryTitle">이번 달</h2></div>
+          <div id="coverSummary"></div>
+        </div>
+        <div class="rail-card tip-card">
+          <h2>미리 막아 두려면</h2>
+          <p>쉬어야 하는 비번일은 <b>비번 보장</b>을 신청해 두면 대근에 불리지 않아요.</p>
+          <button type="button" class="btn secondary" id="coverToProtectBtn">비번 보장 신청하기</button>
+        </div>
+      </aside>
     </div>
   </section>
 
-  <section id="tab-admin" style="display:none;">
-    <div class="panel">
-      <h2>내게 배정된 대근 &amp; 불가 사유 제출 <span class="sub">규칙 7</span></h2>
-      <p style="font-size:12.5px;color:var(--muted);margin-top:-6px;">비번 보장을 미리 걸어두지 않았는데 실제로 대근이 불가능한 경우, <b>해당 월 락(25일 00시) 전까지</b> 사유를 제출해야 합니다.</p>
-      <div class="row">
-        <div><label>확인할 사람</label><select id="adminEmp"></select></div>
+  <section id="tab-approve" style="display:none;">
+    <div class="page-head">
+      <div>
+        <span class="kicker">승인함</span>
+        <h1 id="approveTitle">처리할 신청</h1>
+        <p>사내메일로 받은 승인 요청이 여기 모여요. 관리자로 로그인하면 PIN 없이 대신 처리할 수 있어요.</p>
       </div>
-      <div id="adminAssignList" style="margin-top:12px;"><p class="empty">배정된 대근이 없습니다.</p></div>
+      <label class="head-pick">이 이름으로 처리 <select id="approvalActorSelect"></select></label>
     </div>
-    <div class="panel">
-      <h2>담당/팀장 승인함 <span class="sub">휴가·대근 배정 / 비번 보장 초과 / 월간 근무표 확정</span></h2>
-      <p style="font-size:12.5px;color:var(--muted);margin-top:-6px;">사내메일로 받은 승인 요청을 여기서 처리합니다. 먼저 본인을 선택한 뒤 승인/반려를 누르세요(담당자 등록은 설정 탭).</p>
-      <div class="row">
-        <div><label>승인하는 담당자</label><select id="approvalActorSelect"></select></div>
+    <div class="page-layout">
+      <div class="page-main">
+        <div id="approvalList"><p class="empty">승인 대기 건이 없습니다.</p></div>
       </div>
-      <div id="approvalList" style="margin-top:12px;"><p class="empty">승인 대기 건이 없습니다.</p></div>
-    </div>
-    <div class="panel">
-      <h2>최근 승인·반려 기록</h2>
-      <div id="approvalHistory"><p class="empty">처리된 승인 건이 없습니다.</p></div>
+      <aside class="page-rail">
+        <div class="rail-card">
+          <div class="rail-head"><h2>최근 처리</h2></div>
+          <div id="approvalHistory" class="rail-list"><p class="empty">처리된 승인 건이 없습니다.</p></div>
+        </div>
+      </aside>
     </div>
   </section>
 
   <section id="tab-notif" style="display:none;">
+    <div class="page-head page-head-stack">
+      <span class="kicker">기록</span>
+      <h1>알림 기록</h1>
+    </div>
     <div class="panel">
-      <h2>알림 기록</h2>
+      <h2>보낸 알림</h2>
       <p style="font-size:12.5px;color:var(--muted);margin-top:-6px;">화면에서 발생한 알림 내역입니다. 실제 메일은 승인 요청이 생길 때 담당자에게 즉시 발송되고, 변경된 대근·휴가·비번 보장 내용은 매일 정해진 시각에 근무자와 담당자에게 요약 메일로 발송됩니다(서버 .env 설정 필요).</p>
       <div id="notifList"><p class="empty">발송 로그가 없습니다.</p></div>
     </div>
   </section>
 
   <section id="tab-settings" style="display:none;">
-    <div class="panel">
+    <div class="page-head page-head-stack">
+      <span class="kicker">설정 · 관리자만</span>
+      <h1 id="settingsTitle">근무표·직원 편집</h1>
+      <p id="settingsGateNote">보기만 할 수 있어요. 바꾸려면 오른쪽 위 로그인에서 “관리자”를 고르세요.</p>
+    </div>
+    <div class="settings-layout">
+      <nav class="settings-nav" id="settingsNav" aria-label="설정 메뉴">
+        <span class="side-group">사람·근무표</span>
+        <button type="button" class="side-item active" data-settings-pane="editor">근무표·직원 편집</button>
+        <span class="side-group">승인</span>
+        <button type="button" class="side-item" data-settings-pane="approvers">담당자</button>
+        <button type="button" class="side-item" data-settings-pane="approvalLine">결재라인</button>
+        <button type="button" class="side-item" data-settings-pane="quota">비번 보장 한도</button>
+        <span class="side-group">시스템</span>
+        <button type="button" class="side-item" data-settings-pane="system">시계·휴일·마감일</button>
+        <button type="button" class="side-item" data-settings-pane="mail">메일</button>
+      </nav>
+      <div class="settings-main">
+    <div class="panel" data-settings-pane="mail" hidden>
       <h2>메일 발송 설정 (Gmail 공용 계정 — 실제 값은 서버 .env에 보관)</h2>
       <div>
         <label>SMTP 서버</label>
@@ -397,7 +683,7 @@
       <div class="row" style="margin-top:14px;"><button class="btn" id="settingsSaveBtn">설정 저장</button></div>
       <p class="quota">관리자 인증 후 서버에 저장합니다. 이 화면의 값은 참고용이며, 실제 발송에 쓰는 계정·앱 비밀번호와 요약 메일 발송 시각(DIGEST_TIME)은 서버 .env에서 설정합니다.</p>
     </div>
-    <div class="panel">
+    <div class="panel" data-settings-pane="approvers" hidden>
       <h2>담당자(승인권자) 관리 <span class="sub">승인 요청을 받을 사람</span></h2>
       <p style="font-size:12.5px;color:var(--muted);margin-top:-6px;">여기 등록된 담당자 전원에게 승인 요청이 사내메일로 발송되고, 근무자들의 휴가·비번 보장 처리 현황이 매일 요약 메일로 발송됩니다.</p>
       <div id="approverList" style="margin-top:10px;"><p class="empty">등록된 담당자가 없습니다. 아래에서 추가해주세요.</p></div>
@@ -415,11 +701,12 @@
       </div>
       <div class="row" style="margin-top:14px;"><button class="btn" id="approverAddBtn">담당자 추가</button></div>
     </div>
-    <div class="panel">
+    <div class="panel" data-settings-pane="quota" hidden>
       <h2>비번 보장 월 한도</h2>
+      <p class="quota" style="margin:-8px 0 12px;">한 사람이 한 달에 사유 없이 낼 수 있는 비번 보장 횟수예요. 넘으면 사유를 받아 승인함으로 갑니다.</p>
       <div class="row"><input type="number" id="setQuotaMax" min="1" max="10" style="width:80px;"><button class="btn secondary" id="quotaSaveBtn">저장</button></div>
     </div>
-    <div class="panel">
+    <div class="panel" data-settings-pane="approvalLine" hidden>
       <h2>결재라인 설정</h2>
       <div class="grid2">
         <div>
@@ -439,8 +726,8 @@
         <button class="btn" id="approvalApplyBtn">결재라인 적용</button>
       </div>
     </div>
-    <div class="panel">
-      <h2>관리자 설정</h2>
+    <div class="panel" data-settings-pane="system" hidden>
+      <h2>시계·휴일·마감일 · 기본값</h2>
       <div class="grid2">
         <div>
           <label>방송국명</label>
@@ -489,7 +776,7 @@
           <p class="quota">상단 ‘관리자 인증’에서 서버 관리자 비밀번호로 인증하면 15분 동안 설정과 근무표를 수정할 수 있습니다. 비밀번호는 서버 .env의 ADMIN_PASSWORD에서 관리합니다.</p>
       </div>
     </div>
-    <div class="panel">
+    <div class="panel" data-settings-pane="editor">
       <h2>근무표 수동 편집</h2>
       <p class="quota">현재 선택된 월의 표를 직접 수정합니다. 일·야·조·O 또는 경조휴가·교육 같은 특수 근무값을 입력할 수 있습니다.</p>
       <div class="row" style="margin-top:10px;">
@@ -588,6 +875,8 @@
         </div>
       </div>
       <div id="auditLogSummary" class="quota"></div>
+    </div>
+      </div>
     </div>
   </section>
 </main>
@@ -902,7 +1191,17 @@
     const reqNotice = $('#reqLoginNotice'), proNotice = $('#proLoginNotice');
     if (reqNotice) reqNotice.hidden = employeeLoggedIn;
     if (proNotice) proNotice.hidden = employeeLoggedIn;
+    // 내 대근: 로그인하면 내 이름이 먼저 골라져 있다(한 번만 — 그 뒤 다른 사람을 골라 볼 수 있다).
+    const coverSel = $('#adminEmp');
+    if (coverSel && employeeLoggedIn && gateAppliedEmp !== employeeId) coverSel.value = employeeId;
+    gateAppliedEmp = employeeLoggedIn ? employeeId : '';
+    const gateNote = $('#settingsGateNote');
+    if (gateNote) {
+      gateNote.textContent = adminLoggedIn ? '관리자로 로그인됨 · 15분 동안 바꿀 수 있어요.' : '보기만 할 수 있어요. 바꾸려면 오른쪽 위 로그인에서 “관리자”를 고르세요.';
+      gateNote.classList.toggle('is-admin', adminLoggedIn);
+    }
   }
+  let gateAppliedEmp = '';
 
   const STORE_KEY = 'ncq_schedule_v1';
   let STATE = normalizeState();
@@ -1084,21 +1383,21 @@
   function showStorageStatus(info) {
     const messages = {
       loading: '서버의 최신 근무표를 불러오는 중입니다.',
-      saved: info.revision === 0 ? '서버에 아직 저장된 근무표가 없습니다. 기본 근무표를 표시합니다.' : '서버에 저장된 근무표입니다. 다른 사람이 수정한 내용은 새로고침으로 확인하세요.',
+      saved: info.revision === 0 ? '서버에 아직 저장된 근무표가 없습니다. 기본 근무표를 표시합니다.' : '서버에 저장된 근무표입니다. 다른 사람이 수정한 내용은 위 [새로고침] 으로 확인하세요.',
       pending: '저장 대기 중입니다. 아직 다른 PC에는 반영되지 않았습니다.',
       saving: '서버에 저장 중입니다. 완료될 때까지 기다려주세요.',
-      conflict: '다른 사람이 먼저 저장했습니다. 내 변경은 서버에 저장되지 않았습니다. 필요하면 내 변경을 내려받고 최신 근무표를 불러오세요.',
+      conflict: '다른 사람이 먼저 저장했습니다. 내 변경은 서버에 저장되지 않았습니다. 필요하면 내 변경을 내려받고 위 [새로고침] 을 누르세요.',
       error: '서버 연결 또는 저장에 실패했습니다. 내 변경은 저장 완료가 확인되지 않았습니다. 연결을 확인하고 다시 시도해주세요.',
-      recovered: '이 탭의 미저장 변경을 복구했습니다. 내용을 확인한 뒤 다시 저장하거나 최신 근무표를 불러오세요.'
+      recovered: '이 탭의 미저장 변경을 복구했습니다. 내용을 확인한 뒤 다시 저장하거나 위 [새로고침] 으로 최신 근무표를 불러오세요.'
     };
     const text = document.getElementById('storageStatusText');
     text.textContent = messages[info.status] + (!info.draftStored ? ' 브라우저 임시 보관에도 실패했습니다. 탭을 닫기 전에 내 변경을 내려받으세요.' : '');
     document.getElementById('storageStatus').dataset.state = info.status;
+    document.getElementById('storageStatus').hidden = info.status === 'saved' && info.draftStored
+      && document.getElementById('storageDiscardConfirm').hidden;
     document.querySelector('main').inert = !info.ready || info.status === 'loading';
     document.getElementById('tabbar').inert = !info.ready || info.status === 'loading';
     document.getElementById('storageRetryBtn').hidden = !['error', 'recovered'].includes(info.status);
-    document.getElementById('storageReloadBtn').hidden = !info.ready;
-    document.getElementById('storageReloadBtn').disabled = info.busy;
     document.getElementById('storageDiscardBtn').disabled = info.busy;
     document.getElementById('storageExportBtn').hidden = !info.dirty && info.draftStored;
     const refresh = document.getElementById('refreshHolidayBtn');
@@ -1179,6 +1478,7 @@
       if (stateSync.info().busy) return;
       if (!discard && (stateSync.info().dirty || formHasEdits)) {
         document.getElementById('storageDiscardConfirm').hidden = false;
+        document.getElementById('storageStatus').hidden = false;
         return;
       }
       if (!await stateSync.reload()) return;
@@ -1624,7 +1924,8 @@
     </div>`;
 
     const daysInMonth = new Date(y, m + 1, 0).getDate();
-    let thead = '<tr><th style="width:70px;">직원</th>';
+    const todayKey = fmt(now);
+    let thead = '<tr><th>근무자</th>';
     for(let d = 1; d <= daysInMonth; d++){
       const date = new Date(y, m, d);
       const info = getHolidayInfo(date);
@@ -1634,19 +1935,25 @@
       if (isHoliday) dayClass.push('holiday');
       if (isSaturday) dayClass.push('weekend');
       const dateColClass = isHoliday ? 'day-holiday' : (isSaturday ? 'day-saturday' : 'day-weekday');
-      thead += `<th class="${dayClass.join(' ')} ${dateColClass}" title="${escapeAttribute(info ? info.name : '')}"><span class="date-num">${d}</span><span class="date-week">${WEEKDAY_KO[date.getDay()]}</span></th>`;
+      const isToday = fmt(date) === todayKey;
+      if (isToday) dayClass.push('is-today');
+      thead += `<th class="${dayClass.join(' ')} ${dateColClass}" title="${escapeAttribute(info ? info.name : '')}"><span class="date-num">${d}</span><span class="date-week">${isToday ? '오늘' : WEEKDAY_KO[date.getDay()]}</span></th>`;
     }
     thead += '</tr>';
 
     let rows = '';
-    getActiveStaff(y, m).forEach(emp => {
-      let r = `<tr><td class="name" style="width:150px;">${escapeAttribute(emp.name)}</td>`;
+    const staffOfMonth = getActiveStaff(y, m);
+    const focus = focusedEmployeeId();
+    renderPersonFilters(staffOfMonth, focus);
+    staffOfMonth.forEach(emp => {
+      const rowClass = !focus ? '' : emp.id === focus ? 'is-focus' : 'is-dim';
+      let r = `<tr class="${rowClass}"><td class="name">${escapeAttribute(emp.name)}</td>`;
       for(let d = 1; d <= daysInMonth; d++){
         const date = new Date(y, m, d);
         const info = getHolidayInfo(date);
         const isHoliday = !!info || date.getDay() === 0;
         const isSaturday = date.getDay() === 6 && !isHoliday;
-        const dateColClass = isHoliday ? 'day-holiday' : (isSaturday ? 'day-saturday' : 'day-weekday');
+        const dateColClass = (isHoliday ? 'day-holiday' : (isSaturday ? 'day-saturday' : 'day-weekday')) + (fmt(date) === todayKey ? ' is-today' : '');
         if (!isEmployeeActiveOnDate(emp, date)) {
           r += `<td class="${dateColClass}"></td>`;
           continue;
@@ -1660,15 +1967,106 @@
         const sh = effectiveShift(emp.id, date);
         const isSubstitute = isSubstituteShift(emp.id, date);
         const cellClass = sh === '휴가' ? 'cell-휴가' : sh === '대일' ? 'cell-대일' : isSubstitute && (sh === '야' || sh === '조') ? 'cell-대근' : isStandardShift(sh) ? 'cell-' + sh : 'cell-custom';
-        const cellClasses = [cellClass, dateColClass];
-        if (isProtectedOn(emp.id, date)) cellClasses.push('cell-protected');
-        r += `<td class="${escapeAttribute(cellClasses.join(' '))}"${span > 1 ? ` colspan="${span}"` : ''}>${escapeAttribute(sh)}</td>`;
+        // 칸 안의 둥근 칩이 근무를 말한다.
+        const chipClasses = ['shift', cellClass];
+        if (isProtectedOn(emp.id, date)) chipClasses.push('cell-protected');
+        r += `<td class="${escapeAttribute(dateColClass)}"${span > 1 ? ` colspan="${span}"` : ''}><span class="${escapeAttribute(chipClasses.join(' '))}">${escapeAttribute(sh)}</span></td>`;
       }
       r += '</tr>';
       rows += r;
     });
 
     $('#scheduleTable').innerHTML = `<thead>${thead}</thead><tbody>${rows}</tbody>`;
+    renderScheduleRail();
+  }
+
+  // 사람별로 보기 (2026-11 사용자 요청: 화면을 여는 사람은 대개 "나는 언제 근무지?" 를 본다).
+  // null = 아직 안 고름 → 로그인한 직원이 있으면 그 사람. '' = 일부러 [전체] 를 고름.
+  let scheduleFocusEmp = null;
+  function focusedEmployeeId(){
+    if (scheduleFocusEmp !== null) return scheduleFocusEmp;
+    return (employeeToken && Date.now() < employeeUntil) ? employeeId : '';
+  }
+  function renderPersonFilters(staff, focus){
+    const box = $('#personFilters');
+    if (!box) return;
+    const me = (employeeToken && Date.now() < employeeUntil) ? employeeId : '';
+    box.innerHTML = `<button type="button" class="person-chip all${focus ? '' : ' on'}" data-person="">전체</button>`
+      + staff.map(emp => `<button type="button" class="person-chip${emp.id === focus ? ' on' : ''}" data-person="${escapeAttribute(emp.id)}"><span class="ava">${escapeAttribute(String(emp.name || '?').slice(0, 1))}</span>${escapeAttribute(emp.name)}${emp.id === me ? ' <span class="me">나</span>' : ''}</button>`).join('');
+  }
+  function shiftClassFor(empId, date, sh){
+    const isSubstitute = isSubstituteShift(empId, date);
+    if (sh === '휴가') return 'cell-휴가';
+    if (sh === '대일') return 'cell-대일';
+    if (isSubstitute && (sh === '야' || sh === '조')) return 'cell-대근';
+    return isStandardShift(sh) ? 'cell-' + sh : 'cell-custom';
+  }
+
+  // 오른쪽 패널: 이번 주 근무 · 승인 대기 · 내 이번 달. 보고 있는 달과 상관없이 "오늘" 기준이다.
+  const SHIFT_HOURS = { '일': '09:00 – 18:30', '야': '18:00 – 09:00', '조': '18:00 – 09:00', 'O': '비번', '휴가': '휴가', '대일': '대근 (일근)' };
+  const RAIL_ORDER = { '일': 0, '대일': 1, '야': 2, '조': 3, '휴가': 5, 'O': 6 };
+  function weekOf(date){
+    const start = addDays(stripTime(date), -((date.getDay() + 6) % 7));   // 월요일부터
+    return Array.from({ length: 7 }, (_, i) => addDays(start, i));
+  }
+  function renderScheduleRail(){
+    const today = getToday();
+    const todayKey = fmt(today);
+    const title = $('#railTodayTitle'), dateLabel = $('#railTodayDate'), todayBox = $('#railToday');
+    const focus = focusedEmployeeId();
+    const emp = focus ? EMPLOYEES.find(e => e.id === focus) : null;
+    const me = (employeeToken && Date.now() < employeeUntil) ? employeeId : '';
+    if (todayBox && emp) {
+      const days = weekOf(today);
+      if (title) title.textContent = emp.id === me ? '내 이번 주' : `${emp.name}님 이번 주`;
+      if (dateLabel) dateLabel.textContent = `${days[0].getMonth() + 1}/${days[0].getDate()} – ${days[6].getMonth() + 1}/${days[6].getDate()}`;
+      todayBox.innerHTML = days.map(day => {
+        const when = `<span class="when"><b>${WEEKDAY_KO[day.getDay()]}요일</b>${day.getMonth() + 1}/${day.getDate()}${fmt(day) === todayKey ? ' · 오늘' : ''}</span>`;
+        if (!isEmployeeActiveOnDate(emp, day)) return `<div class="week-row">${when}<small>근무 기간 아님</small></div>`;
+        const sh = effectiveShift(emp.id, day);
+        const cls = shiftClassFor(emp.id, day, sh) + (isProtectedOn(emp.id, day) ? ' cell-protected' : '');
+        const note = isSubstituteShift(emp.id, day) ? '대근' : isProtectedOn(emp.id, day) ? '비번 보장' : (SHIFT_HOURS[sh] || '');
+        return `<div class="week-row${fmt(day) === todayKey ? ' today' : ''}">${when}<span class="shift ${escapeAttribute(cls)}">${escapeAttribute(sh)}</span><small>${escapeAttribute(note)}</small></div>`;
+      }).join('');
+    } else if (todayBox) {
+      if (title) title.textContent = '오늘 근무';
+      if (dateLabel) dateLabel.textContent = `${today.getMonth() + 1}월 ${today.getDate()}일 ${WEEKDAY_KO[today.getDay()]}요일`;
+      const staff = getActiveStaff(today.getFullYear(), today.getMonth()).filter(e => isEmployeeActiveOnDate(e, today));
+      const rows = staff.map(e => {
+        const sh = effectiveShift(e.id, today);
+        return { emp: e, sh, cls: shiftClassFor(e.id, today, sh), order: RAIL_ORDER[sh] ?? 4, note: isSubstituteShift(e.id, today) ? '대근' : (SHIFT_HOURS[sh] || '') };
+      }).sort((x, y) => x.order - y.order);
+      todayBox.innerHTML = (rows.length
+        ? rows.map(row => `<div class="rail-row"><span class="shift ${escapeAttribute(row.cls)}">${escapeAttribute(row.sh)}</span><div><b>${escapeAttribute(row.emp.name)}</b><small>${escapeAttribute(row.note)}</small></div></div>`).join('')
+        : '<p class="rail-empty">오늘 근무자가 없습니다.</p>')
+        + '<p class="rail-empty" style="padding-top:12px;">근무표에서 이름을 고르면 그 사람의 이번 주가 보여요.</p>';
+    }
+    const pending = pendingApprovals();
+    const badge = $('#approvalCountBadge');
+    if (badge) { badge.textContent = String(pending.length); badge.hidden = !pending.length; }
+    const count = $('#railApprovalCount');
+    if (count) count.textContent = pending.length ? String(pending.length) : '';
+    const approvalsBox = $('#railApprovals');
+    if (approvalsBox) {
+      approvalsBox.innerHTML = pending.length
+        ? pending.slice(0, 4).map(a => `<div class="rail-row"><span class="tag warn" style="margin:0;flex:none;">${escapeAttribute(APPROVAL_TYPE_LABEL[a.type] || a.type)}</span><div style="min-width:0;"><b style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeAttribute(a.title)}</b><small>${a.approverIds?.length ? '담당 ' + escapeAttribute(a.approverIds.map(approverName).join(', ')) : ''}</small></div></div>`).join('')
+          + (pending.length > 4 ? `<p class="rail-empty">외 ${pending.length - 4}건</p>` : '')
+        : '<p class="rail-empty">승인 대기 건이 없습니다.</p>';
+    }
+    const mineBox = $('#railMine'), mineName = $('#railMineName');
+    if (!mineBox) return;
+    const employeeLoggedIn = !!employeeToken && Date.now() < employeeUntil;
+    if (!employeeLoggedIn) {
+      if (mineName) mineName.textContent = '';
+      mineBox.innerHTML = '<p class="rail-empty">위에서 로그인하면 내 비번 보장·신청 현황이 보입니다.</p>';
+      return;
+    }
+    if (mineName) mineName.textContent = employeeDisplayName || empName(employeeId);
+    const max = Number(STATE.settings.quotaMax) || 3;
+    const used = protectCountInMonth(employeeId, today.getFullYear(), today.getMonth());
+    mineBox.innerHTML = `<div style="display:flex;justify-content:space-between;font-size:13px;"><span style="color:var(--muted);">비번 보장</span><b>${used} / ${max}회</b></div>
+      <div class="meter"><div style="width:${Math.min(100, Math.round(used / max * 100))}%"></div></div>
+      <p class="rail-empty" style="padding:0;">${used < max ? `${max - used}회 더 사유 없이 신청할 수 있어요` : '이번 달 한도를 다 썼어요 — 더 신청하려면 사유가 필요해요'}</p>`;
   }
 
   function getClockSourceLabel(){
@@ -1756,6 +2154,67 @@
     return dates;
   }
 
+  // 신청 달력: 오늘부터 REQUEST_HORIZON_DAYS 안의 달을 한 달씩 보여 준다.
+  // 칸마다 내 근무가 나오고, 고를 수 있는 날만 버튼이다. 보고 있는 달은 화면 상태일 뿐 저장하지 않는다.
+  const pickCalMonth = {};
+  function pickCalRange(){
+    const today = stripTime(getToday());
+    const last = addDays(today, REQUEST_HORIZON_DAYS - 1);
+    return { today, first: new Date(today.getFullYear(), today.getMonth(), 1), last: new Date(last.getFullYear(), last.getMonth(), 1) };
+  }
+  function renderPickCalendar(container, { empId, selectable, taken, selected }){
+    const { today, first, last } = pickCalRange();
+    let view = pickCalMonth[container.id];
+    if (selected && (!view || selected.slice(0, 7) !== fmt(view).slice(0, 7))) {
+      const d = new Date(selected + 'T00:00:00');
+      if (d >= first) view = new Date(d.getFullYear(), d.getMonth(), 1);
+    }
+    if (!view || view < first) view = first;
+    pickCalMonth[container.id] = view;
+    const y = view.getFullYear(), m = view.getMonth();
+    const days = new Date(y, m + 1, 0).getDate();
+    const lead = (new Date(y, m, 1).getDay() + 6) % 7; // 월요일 시작
+    const emp = EMPLOYEES.find(e => e.id === empId);
+    const todayKey = fmt(today);
+    const cells = ['월', '화', '수', '목', '금', '토', '일'].map(w => `<div class="cal-wd">${w}</div>`);
+    for (let i = 0; i < lead; i += 1) cells.push('<div></div>');
+    for (let d = 1; d <= days; d += 1) {
+      const date = new Date(y, m, d);
+      const key = fmt(date);
+      const sh = emp && isEmployeeActiveOnDate(emp, date) ? effectiveShift(empId, date) : '';
+      const chip = sh ? `<span class="shift ${shiftClassFor(empId, date, sh)}">${escapeAttribute(sh)}</span>` : '<span class="shift"></span>';
+      const label = `${m + 1}월 ${d}일(${WEEKDAY_KO[date.getDay()]})`;
+      const cls = `cal-day${key === todayKey ? ' is-today' : ''}${date < today ? ' is-past' : ''}`;
+      if (taken.has(key)) {
+        cells.push(`<button type="button" class="${cls}" disabled title="이미 신청한 날짜입니다" aria-label="${label} 이미 신청함"><span class="cal-num">${d}</span>${chip}</button>`);
+      } else if (selectable.has(key)) {
+        cells.push(`<button type="button" class="${cls}${selected === key ? ' selected' : ''}" data-date="${key}" aria-pressed="${selected === key}" aria-label="${label} ${escapeAttribute(sh)}"><span class="cal-num">${d}</span>${chip}</button>`);
+      } else {
+        cells.push(`<div class="${cls}"><span class="cal-num">${d}</span>${chip}</div>`);
+      }
+    }
+    container.innerHTML = `<div class="cal-head">
+        <button type="button" class="cal-nav" data-cal-step="-1" aria-label="이전 달" ${view <= first ? 'disabled' : ''}>‹</button>
+        <strong>${y}년 ${m + 1}월</strong>
+        <button type="button" class="cal-nav" data-cal-step="1" aria-label="다음 달" ${view >= last ? 'disabled' : ''}>›</button>
+      </div>
+      <div class="cal-grid">${cells.join('')}</div>
+      <div class="cal-legend"><span><i></i>고를 수 있는 날</span><span><i class="sel"></i>고른 날</span>${taken.size ? '<span><i class="taken"></i>이미 신청함</span>' : ''}</div>`;
+  }
+  function shiftPickCalendar(container, step){
+    const { first, last } = pickCalRange();
+    const view = pickCalMonth[container.id] || first;
+    const next = new Date(view.getFullYear(), view.getMonth() + step, 1);
+    if (next < first || next > last) return;
+    pickCalMonth[container.id] = next;
+    if (container.id === 'availableDatePills') { $('#reqDate').value = ''; updateAvailableDatePills(); }
+    else { $('#proDate').value = ''; updateProtectDatePills(); updateProtectQuotaInfo(); }
+  }
+  function pickLabel(value){
+    const d = new Date(value + 'T00:00:00');
+    return `${d.getMonth() + 1}월 ${d.getDate()}일(${WEEKDAY_KO[d.getDay()]})`;
+  }
+
   function updateAvailableDatePills(){
     const empId = $('#reqEmp').value;
     const type = $('#reqType').value;
@@ -1773,36 +2232,36 @@
     }
 
     const typeLabel = type === 'day' ? '일근 휴가' : '야+조 세트 휴가';
-    if (!dates.length) {
-      container.innerHTML = '<div class="empty">앞으로 3개월 안에는 해당 근무일이 없습니다. 달력에서 직접 날짜를 고를 수 있습니다.</div>';
-      if (status) status.textContent = `${empName(empId)} · ${typeLabel} · 오늘 이후 바로 고를 수 있는 날짜가 없습니다.`;
+    renderReqConfirm();
+    if (!empId) {
+      container.innerHTML = '<div class="empty">로그인하면 내 근무와 고를 수 있는 날이 달력에 나와요.</div>';
+      if (status) status.textContent = '';
       return;
     }
+    renderPickCalendar(container, { empId, selectable: new Set(dates.map(fmt)), taken: new Set(), selected: selectedDate });
+    if (status) status.textContent = dates.length
+      ? `${type === 'day' ? '일근' : '야근'}인 날 ${dates.length}일 중에서 고를 수 있어요 · 앞으로 3개월`
+      : `앞으로 3개월 안에는 ${typeLabel}를 낼 수 있는 날이 없어요. 아래에서 날짜를 직접 고를 수 있어요.`;
+  }
 
-    container.innerHTML = dates.map(date => {
-      const value = fmt(date);
-      const isSelected = selectedDate === value;
-      const label = `${date.getMonth() + 1}/${date.getDate()}(${WEEKDAY_KO[date.getDay()]})`;
-      return `<button type="button" class="date-pill ${isSelected ? 'selected' : 'allowed'}" data-date="${value}">${label}</button>`;
-    }).join('');
-
-    if (status) status.textContent = `${empName(empId)} · ${typeLabel} · 오늘(${fmt(today)}) 이후 ${dates.length}일 선택 가능 · 더 먼 날짜는 달력에서 직접 선택`;
-
-    container.querySelectorAll('.date-pill').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const pick = btn.dataset.date;
-        $('#reqDate').value = pick;
-        document.querySelectorAll('.date-pill').forEach(item => item.classList.toggle('selected', item.dataset.date === pick));
-      });
-    });
+  function renderReqConfirm(){
+    const box = $('#reqConfirmText');
+    if (!box) return;
+    const value = $('#reqDate').value;
+    if (!value) { box.textContent = '날짜를 고르면 여기에 요약이 나와요.'; return; }
+    const type = $('#reqType').value;
+    const next = fmt(addDays(new Date(value + 'T00:00:00'), 1));
+    box.innerHTML = type === 'day'
+      ? `<b>${escapeAttribute(pickLabel(value))} 일근 휴가</b><br>그날 비번인 사람이 대신 서요. 다음 화면에서 대근자를 확인한 뒤 신청돼요.`
+      : `<b>${escapeAttribute(pickLabel(value))} 야근 ~ ${escapeAttribute(pickLabel(next))} 조근</b><br>이틀이 함께 휴가가 돼요. 다음 화면에서 대근자를 확인한 뒤 신청돼요.`;
   }
 
   function renderRequestHint(){
     const type = $('#reqType').value;
-    $('#reqDateLabel').textContent = type === 'day' ? '휴가 날짜 (일근인 날만)' : '야근 시작일 (야근인 날만, 다음날 조근까지 자동 포함)';
+    $('#reqDateLabel').textContent = type === 'day' ? '날짜 — 내가 일근인 날' : '날짜 — 내가 야근인 날';
     $('#reqHint').textContent = type === 'day'
-      ? '해당 날짜가 신청자의 "일" 근무일이어야 합니다.'
-      : '야근+조근은 반드시 세트입니다. 야근일을 고르면 다음날 조근까지 자동으로 2일 휴가 처리됩니다.';
+      ? '테두리가 있는 날을 누르세요.'
+      : '야근과 다음 날 조근은 늘 함께 쉬어요. 야근일을 누르면 다음 날 조근까지 이틀이 휴가가 돼요.';
     updateAvailableDatePills();
   }
 
@@ -1875,15 +2334,15 @@
     const wrap = $('#reqList');
     if(STATE.requests.length === 0){ wrap.innerHTML = '<p class="empty">아직 신청 내역이 없습니다.</p>'; return; }
     wrap.innerHTML = [...STATE.requests].reverse().map(r => {
-      const tag = r.type === 'day' ? '<span class="tag day">일근 단독</span>' : '<span class="tag set">야+조 세트</span>';
-      const statusTag = r.status === 'pending' ? '<span class="tag warn">승인대기</span>'
-        : r.status === 'cancelled' ? (r.cancelledAt ? '<span class="tag" style="background:#f3f4f6;color:#6b7684;">취소됨</span>' : '<span class="tag" style="background:#fee2e2;color:#dc2626;">반려됨</span>')
-        : '<span class="tag" style="background:#eafbea;color:#16a34a;">확정</span>';
+      const tag = r.type === 'day' ? '<span class="tag day">일근</span>' : '<span class="tag set">야+조</span>';
+      const statusTag = r.status === 'pending' ? '<span class="tag warn">승인 대기</span>'
+        : r.status === 'cancelled' ? (r.cancelledAt ? '<span class="tag muted">취소됨</span>' : '<span class="tag leave">반려됨</span>')
+        : '<span class="tag ok">확정</span>';
       const chainTxt = r.chain.map(c => `${escapeAttribute(c.date)} ${escapeAttribute(empName(c.empId))}:${escapeAttribute(c.label)}`).join(' → ');
-      return `<div class="list-item">${tag}${statusTag}<b>${escapeAttribute(empName(r.empId))}</b> — ${escapeAttribute(r.startDate)} 부터
+      return `<div class="list-item">${statusTag}${tag}<b>${escapeAttribute(empName(r.empId))}</b> · ${escapeAttribute(r.startDate)}
         <div class="meta">${escapeAttribute(chainTxt)}</div>
-        <div class="meta">신청시각: ${new Date(r.submittedAt).toLocaleString('ko-KR')}</div>
-        ${r.status !== 'cancelled' && employeeId && employeeId === r.empId ? `<div class="row" style="margin-top:6px;"><button class="btn ghost" data-security-action="cancel-request" data-id="${escapeAttribute(r.id)}">취소</button></div>` : ''}
+        <div class="meta">${new Date(r.submittedAt).toLocaleString('ko-KR')} 신청</div>
+        ${r.status !== 'cancelled' && employeeId && employeeId === r.empId ? `<div class="row" style="margin-top:6px;"><button class="btn ghost" data-security-action="cancel-request" data-id="${escapeAttribute(r.id)}">신청 취소</button></div>` : ''}
       </div>`;
     }).join('');
   }
@@ -1936,32 +2395,17 @@
       proInput.min = fmt(today);       // 오늘 포함, 지난 날짜는 선택 불가
       proInput.removeAttribute('max'); // 이후 날짜는 제한 없음
     }
-
-    if (!dates.length) {
-      container.innerHTML = '<div class="empty">앞으로 3개월 안에는 비번(O)인 날이 없습니다. 달력에서 직접 고를 수 있습니다.</div>';
-      if (status) status.textContent = `${empName(empId)} · 오늘 이후 바로 고를 수 있는 비번일이 없습니다.`;
+    if (!empId) {
+      container.innerHTML = '<div class="empty">로그인하면 내 비번일이 달력에 나와요.</div>';
+      if (status) status.textContent = '';
       return;
     }
-
-    container.innerHTML = dates.map(date => {
-      const value = fmt(date);
-      const taken = isProtectedOn(empId, date);
-      const isSelected = selectedDate === value;
-      const label = `${date.getMonth() + 1}/${date.getDate()}(${WEEKDAY_KO[date.getDay()]})`;
-      const cls = taken ? 'date-pill' : `date-pill ${isSelected ? 'selected' : 'allowed'}`;
-      return `<button type="button" class="${cls}" data-date="${value}" ${taken ? 'disabled title="이미 신청한 날짜입니다"' : ''}>${label}</button>`;
-    }).join('');
-
-    if (status) status.textContent = `${empName(empId)} · 오늘(${fmt(today)}) 이후 비번 ${dates.length}일 선택 가능 · 더 먼 날짜는 달력에서 직접 선택`;
-
-    container.querySelectorAll('.date-pill:not([disabled])').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const pick = btn.dataset.date;
-        $('#proDate').value = pick;
-        container.querySelectorAll('.date-pill').forEach(item => item.classList.toggle('selected', item.dataset.date === pick));
-        updateProtectQuotaInfo();
-      });
-    });
+    const taken = new Set(dates.filter(date => isProtectedOn(empId, date)).map(fmt));
+    const open = dates.filter(date => !taken.has(fmt(date)));
+    renderPickCalendar(container, { empId, selectable: new Set(open.map(fmt)), taken, selected: selectedDate });
+    if (status) status.textContent = open.length
+      ? `비번인 날 ${open.length}일 중에서 고를 수 있어요 · 앞으로 3개월`
+      : '앞으로 3개월 안에는 고를 수 있는 비번일이 없어요. 아래에서 날짜를 직접 고를 수 있어요.';
   }
   function updateProtectQuotaInfo(){
     const empId = $('#proEmp').value;
@@ -1971,8 +2415,12 @@
     if(dateVal){ const d = new Date(dateVal + 'T00:00:00'); y = d.getFullYear(); m = d.getMonth(); }
     const used = protectCountInMonth(empId, y, m);
     const max = STATE.settings.quotaMax;
-    $('#proQuotaInfo').textContent = `${empName(empId)}님 ${y}년 ${m + 1}월 보장 사용: ${used}/${max}회`;
-    $('#proReasonWrap').style.display = used >= max ? 'block' : 'none';
+    $('#proQuotaInfo').textContent = empId ? `${y}년 ${m + 1}월 비번 보장 ${used}/${max}번 사용${used >= max ? ' — 이번 것은 승인이 필요해요' : ''}` : '';
+    $('#proReasonWrap').style.display = empId && used >= max ? 'block' : 'none';
+    const confirmText = $('#proConfirmText');
+    if (confirmText) confirmText.innerHTML = dateVal
+      ? `<b>${escapeAttribute(pickLabel(dateVal))} 비번 보장</b><br>${used >= max ? '사유를 적으면 팀장·담당 승인 뒤에 확정돼요.' : '신청하면 바로 확정돼요.'}`
+      : '날짜를 고르면 여기에 요약이 나와요.';
   }
   function submitProtect(){
     if (!requireEmployeeLogin('비번 보장 신청')) return;
@@ -2012,15 +2460,15 @@
     const wrap = $('#proList');
     if(STATE.protects.length === 0){ wrap.innerHTML = '<p class="empty">아직 신청 내역이 없습니다.</p>'; return; }
     wrap.innerHTML = [...STATE.protects].reverse().map(p => {
-      const statusTag = p.status === 'pending' ? '<span class="tag warn">승인대기</span>'
-        : p.status === 'rejected' ? '<span class="tag" style="background:#fee2e2;color:#dc2626;">반려됨</span>'
-        : p.status === 'cancelled' ? '<span class="tag" style="background:#f3f4f6;color:#6b7684;">취소됨</span>'
-        : '<span class="tag" style="background:#eafbea;color:#16a34a;">확정</span>';
+      const statusTag = p.status === 'pending' ? '<span class="tag warn">승인 대기</span>'
+        : p.status === 'rejected' ? '<span class="tag leave">반려됨</span>'
+        : p.status === 'cancelled' ? '<span class="tag muted">취소됨</span>'
+        : '<span class="tag ok">확정</span>';
       const cancellable = p.status !== 'rejected' && p.status !== 'cancelled';
-      return `<div class="list-item">${statusTag}<b>${escapeAttribute(empName(p.empId))}</b> — ${escapeAttribute(p.date)} 대근 불가(비번 보장)
+      return `<div class="list-item">${statusTag}<b>${escapeAttribute(empName(p.empId))}</b> · ${escapeAttribute(p.date)}
         ${p.reason ? `<div class="meta">사유: ${escapeAttribute(p.reason)}</div>` : ''}
-        <div class="meta">신청시각: ${new Date(p.submittedAt).toLocaleString('ko-KR')}</div>
-        ${cancellable && employeeId && employeeId === p.empId ? `<div class="row" style="margin-top:6px;"><button class="btn ghost" data-security-action="cancel-protect" data-id="${escapeAttribute(p.id)}">취소</button></div>` : ''}
+        <div class="meta">${new Date(p.submittedAt).toLocaleString('ko-KR')} 신청</div>
+        ${cancellable && employeeId && employeeId === p.empId ? `<div class="row" style="margin-top:6px;"><button class="btn ghost" data-security-action="cancel-protect" data-id="${escapeAttribute(p.id)}">신청 취소</button></div>` : ''}
       </div>`;
     }).join('');
   }
@@ -2044,24 +2492,47 @@
     const empId = $('#adminEmp').value;
     const mine = [];
     STATE.requests.forEach(r => r.chain.forEach(c => {
-      if(c.empId === empId && c.empId !== r.empId) mine.push({...c, sourceEmp: r.empId, reqId: r.id});
+      if(c.empId === empId && c.empId !== r.empId && r.status !== 'cancelled') mine.push({...c, sourceEmp: r.empId, reqId: r.id});
     }));
+    mine.sort((a, b) => a.date.localeCompare(b.date));
+    const todayKey = fmt(stripTime(getToday()));
+    const upcoming = mine.filter(m => m.date >= todayKey);
+    const past = mine.filter(m => m.date < todayKey).reverse();
+    const isMe = employeeId && employeeId === empId;
+    const title = $('#coverTitle');
+    if (title) title.textContent = !empId ? '내게 잡힌 대근' : isMe ? `내게 잡힌 대근 ${upcoming.length}건` : `${empName(empId)}님 대근 ${upcoming.length}건`;
+    const card = m => {
+      const d = new Date(m.date + 'T00:00:00');
+      const already = STATE.excuses.find(e => e.empId === empId && e.date === m.date);
+      const canSubmit = isMe && m.date >= todayKey;
+      const chip = `<span class="shift ${m.shift === '대일' ? 'cell-대일' : 'cell-대근'}">${escapeAttribute(m.shift || '대근')}</span>`;
+      return `<div class="cover-card">
+        <div class="cover-date"><b>${d.getDate()}</b><small>${d.getMonth() + 1}월 · ${WEEKDAY_KO[d.getDay()]}</small></div>
+        <div class="cover-body">
+          <div class="cover-line">${chip}<b>${escapeAttribute(empName(m.sourceEmp))}님 휴가 대근</b><span class="meta">${escapeAttribute(m.label)}</span></div>
+          ${already ? `<span class="cover-done">✓ 못 서는 사유를 냈어요 — “${escapeAttribute(already.reason)}”</span>`
+            : canSubmit ? `<textarea placeholder="못 서는 사유 (그 달 25일 0시 전까지)" id="excuse-${escapeAttribute(m.date)}-${escapeAttribute(empId)}" aria-label="${escapeAttribute(m.date)} 못 서는 사유"></textarea>
+            <div class="row"><button class="btn secondary" data-security-action="excuse" data-emp="${escapeAttribute(empId)}" data-date="${escapeAttribute(m.date)}">못 서요 · 사유 내기</button></div>`
+            : m.date >= todayKey ? '<span class="meta">본인 이름으로 로그인하면 못 서는 사유를 낼 수 있어요.</span>' : ''}
+        </div>
+      </div>`;
+    };
     const wrap = $('#adminAssignList');
-    if(mine.length === 0){ wrap.innerHTML = '<p class="empty">배정된 대근이 없습니다.</p>'; }
+    if (!empId) wrap.innerHTML = '<div class="panel"><p class="empty">위에서 사람을 고르거나 로그인하세요.</p></div>';
+    else if (!mine.length) wrap.innerHTML = '<div class="panel"><p class="empty">잡힌 대근이 없어요.</p></div>';
     else {
-      wrap.innerHTML = mine.map(m => {
-        const already = STATE.excuses.find(e => e.empId === empId && e.date === m.date);
-        const canSubmit = employeeId && employeeId === empId;
-        return `<div class="list-item"><b>${escapeAttribute(m.date)}</b> — ${escapeAttribute(m.label)} (${escapeAttribute(empName(m.sourceEmp))}님 휴가 대근)
-          <div class="meta">${already ? `제출된 불가 사유: "${escapeAttribute(already.reason)}"` : ''}</div>
-          ${already ? '' : canSubmit ? `<div style="margin-top:6px;">
-            <textarea placeholder="대근 불가 사유 (25일 00시 전까지 제출)" id="excuse-${escapeAttribute(m.date)}-${escapeAttribute(empId)}"></textarea>
-            <div class="row" style="margin-top:8px;">
-              <button class="btn" data-security-action="excuse" data-emp="${escapeAttribute(empId)}" data-date="${escapeAttribute(m.date)}">불가 사유 제출</button>
-            </div>
-          </div>` : `<p class="meta">본인 계정으로 로그인 후 본인 배정 건에 대해서만 사유를 제출할 수 있습니다.</p>`}
-        </div>`;
-      }).join('');
+      wrap.innerHTML = (upcoming.length ? upcoming.map(card).join('') : '<div class="panel"><p class="empty">앞으로 잡힌 대근이 없어요.</p></div>')
+        + (past.length ? `<details class="cover-past"><summary>지난 대근 ${past.length}건</summary>${past.map(card).join('')}</details>` : '');
+    }
+    const summary = $('#coverSummary');
+    if (summary) {
+      const monthKey = todayKey.slice(0, 7);
+      const thisMonth = mine.filter(m => m.date.startsWith(monthKey));
+      const excused = thisMonth.filter(m => STATE.excuses.some(e => e.empId === empId && e.date === m.date)).length;
+      $('#coverSummaryTitle').textContent = `${Number(monthKey.slice(5))}월 대근`;
+      summary.innerHTML = empId ? `<div class="stat-row"><span>잡힌 대근</span><b>${thisMonth.length}건</b></div>
+        <div class="stat-row"><span>남은 대근</span><b>${thisMonth.filter(m => m.date >= todayKey).length}건</b></div>
+        <div class="stat-row"><span>사유 낸 것</span><b>${excused}건</b></div>` : '<p class="rail-empty">사람을 고르면 보여요.</p>';
     }
     renderApprovalInbox();
     renderApprovalHistory();
@@ -2202,16 +2673,22 @@
     const wrap = $('#approvalList');
     if (!wrap) return;
     const pend = pendingApprovals();
-    if (pend.length === 0){ wrap.innerHTML = '<p class="empty">승인 대기 건이 없습니다.</p>'; return; }
-    wrap.innerHTML = pend.map(a => `<div class="list-item">
-      <span class="tag warn">${escapeAttribute(APPROVAL_TYPE_LABEL[a.type] || a.type)}</span><b>${escapeAttribute(a.title)}</b>
-      <div class="meta">${escapeAttribute(a.summary || '').replace(/\n/g, '<br>')}</div>
-      <div class="meta">요청시각: ${new Date(a.requestedAt).toLocaleString('ko-KR')}${a.approverIds?.length ? ` · 담당: ${escapeAttribute(a.approverIds.map(approverName).join(', '))}` : ''}</div>
-      <div class="row" style="margin-top:8px;">
-        <button class="btn" data-security-action="approve" data-id="${escapeAttribute(a.id)}">승인</button>
-        <button class="btn secondary" data-security-action="reject" data-id="${escapeAttribute(a.id)}">반려</button>
+    const title = $('#approveTitle');
+    if (title) title.textContent = pend.length ? `처리할 신청 ${pend.length}건` : '처리할 신청이 없어요';
+    if (pend.length === 0){ wrap.innerHTML = '<div class="panel"><p class="empty">승인 대기 건이 없습니다.</p></div>'; return; }
+    const typeClass = { leave: 'leave', protect: 'set', monthly: 'day' };
+    wrap.innerHTML = pend.map(a => `<article class="approval-card">
+      <div class="approval-card-head">
+        <span class="tag ${typeClass[a.type] || 'warn'}">${escapeAttribute(APPROVAL_TYPE_LABEL[a.type] || a.type)}</span><b>${escapeAttribute(a.title)}</b>
+        <time>${new Date(a.requestedAt).toLocaleString('ko-KR')} 요청</time>
       </div>
-    </div>`).join('');
+      ${a.summary ? `<div class="summary">${escapeAttribute(a.summary).replace(/\n/g, '<br>')}</div>` : ''}
+      ${a.approverIds?.length ? `<div class="who">담당: ${escapeAttribute(a.approverIds.map(approverName).join(', '))}</div>` : ''}
+      <div class="actions">
+        <button class="btn secondary" data-security-action="reject" data-id="${escapeAttribute(a.id)}">반려</button>
+        <button class="btn" data-security-action="approve" data-id="${escapeAttribute(a.id)}">${a.type === 'monthly' ? '확정' : '승인'}</button>
+      </div>
+    </article>`).join('');
   }
 
   function renderApprovalHistory(){
@@ -2221,8 +2698,8 @@
     if (done.length === 0){ wrap.innerHTML = '<p class="empty">처리된 승인 건이 없습니다.</p>'; return; }
     wrap.innerHTML = done.map(a => {
       const tag = a.status === 'approved'
-        ? '<span class="tag" style="background:#eafbea;color:#16a34a;">승인</span>'
-        : '<span class="tag" style="background:#fee2e2;color:#dc2626;">반려</span>';
+        ? '<span class="tag ok">승인</span>'
+        : '<span class="tag leave">반려</span>';
       return `<div class="list-item">${tag}<b>${escapeAttribute(a.title)}</b>
         <div class="meta">${escapeAttribute(approverName(a.decidedBy))} · ${a.decidedAt ? new Date(a.decidedAt).toLocaleString('ko-KR') : ''}${a.decisionReason ? ` · 사유: ${escapeAttribute(a.decisionReason)}` : ''}</div>
       </div>`;
@@ -2410,7 +2887,7 @@
     const params = new URLSearchParams(location.search);
     const approvalId = params.get('approve');
     if (!approvalId) return;
-    const tabBtn = document.querySelector('#tabbar button[data-tab="admin"]');
+    const tabBtn = document.querySelector('#tabbar button[data-tab="approve"]');
     if (tabBtn) tabBtn.click();
     const approval = STATE.approvals.find(a => a.id === approvalId);
     if (!approval){
@@ -2577,11 +3054,13 @@
     const actions = $('.schedule-actions-row');
     const scheduleNav = $('.schedule-nav');
     const element = $('#schedulePageRoot');
+    const rail = $('.schedule-rail');
     if (!btn || !actions || !scheduleNav || !element) return;
 
     btn.disabled = true;
     actions.classList.add('export-hidden');
     scheduleNav.classList.add('export-invisible');
+    rail?.classList.add('export-hidden');
     try{
       await new Promise(resolve => requestAnimationFrame(resolve));
       const canvas = await html2canvas(element, {
@@ -2624,6 +3103,7 @@
     } finally{
       actions.classList.remove('export-hidden');
       scheduleNav.classList.remove('export-invisible');
+      rail?.classList.remove('export-hidden');
       btn.disabled = false;
     }
   }
@@ -3360,6 +3840,17 @@
     renderNotifTab();
   }
 
+  function setApplyKind(kind){
+    $$('#applyKindCards [data-apply-kind]').forEach(card => card.setAttribute('aria-checked', String(card.dataset.applyKind === kind)));
+    $('#applyLeavePane').hidden = kind === 'protect';
+    $('#applyProtectPane').hidden = kind !== 'protect';
+    if (kind !== 'protect' && $('#reqType').value !== kind) {
+      $('#reqType').value = kind;
+      $('#reqDate').value = '';
+      $('#reqType').dispatchEvent(new Event('change'));
+    }
+  }
+
   function initTabs(){
     $$('#tabbar button').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -3378,11 +3869,11 @@
       const reloading = !info.ready || !info.dirty;
       if (await stateSync.retry() && reloading) redrawLoadedState();
     });
-    document.getElementById('storageReloadBtn').addEventListener('click', refreshSharedState);
     document.getElementById('storageExportBtn').addEventListener('click', downloadPendingState);
     document.getElementById('storageDiscardBtn').addEventListener('click', () => refreshSharedState({ discard: true }));
     document.getElementById('storageKeepBtn').addEventListener('click', () => {
       document.getElementById('storageDiscardConfirm').hidden = true;
+      if (stateSync) showStorageStatus(stateSync.info());
     });
     document.querySelector('main').addEventListener('input', () => { formHasEdits = true; });
     window.addEventListener('beforeunload', event => {
@@ -3400,6 +3891,16 @@
     populateYearSelect();
     populateMonthSelect();
     initTabs();
+    // 사람별로 보기: 고른 사람 줄만 진하게, 오른쪽에 그 사람의 이번 주. 저장하지 않는 화면 표시다.
+    $('#personFilters').addEventListener('click', event => {
+      const chip = event.target.closest('[data-person]');
+      if (!chip) return;
+      scheduleFocusEmp = chip.dataset.person;
+      renderScheduleTab();
+    });
+    $('#railApprovalLink').addEventListener('click', () => {
+      document.querySelector('#tabbar button[data-tab="approve"]').click();
+    });
 
     const initMonth = new Date();
     setCurrentMonthView(initMonth.getFullYear(), initMonth.getMonth());
@@ -3444,11 +3945,35 @@
     });
     $('#reqEmp').addEventListener('change', renderRequestHint);
     $('#reqType').addEventListener('change', renderRequestHint);
-    $('#reqDate').addEventListener('change', () => {
-      const selected = $('#reqDate').value;
-      if (selected) {
-        document.querySelectorAll('.date-pill').forEach(item => item.classList.toggle('selected', item.dataset.date === selected));
-      }
+    $('#reqDate').addEventListener('change', updateAvailableDatePills);
+    // 달력: 날짜 칸과 ‹ › 는 다시 그려지므로 바깥에서 한 번만 받는다.
+    [['#availableDatePills', '#reqDate'], ['#proAvailableDatePills', '#proDate']].forEach(([host, input]) => {
+      $(host).addEventListener('click', event => {
+        const nav = event.target.closest('[data-cal-step]');
+        if (nav) { shiftPickCalendar($(host), Number(nav.dataset.calStep)); return; }
+        const day = event.target.closest('button[data-date]');
+        if (!day || day.disabled) return;
+        $(input).value = day.dataset.date;
+        $(input).dispatchEvent(new Event('change'));
+      });
+    });
+    // 신청하기: 종류 카드 — 휴가 두 가지는 기존 reqType 을, 비번 보장은 다른 칸을 보여 준다.
+    $('#applyKindCards').addEventListener('click', event => {
+      const card = event.target.closest('[data-apply-kind]');
+      if (card) setApplyKind(card.dataset.applyKind);
+    });
+    $('#coverToProtectBtn').addEventListener('click', () => {
+      document.querySelector('#tabbar button[data-tab="apply"]').click();
+      setApplyKind('protect');
+    });
+    // 설정: 왼쪽 메뉴로 한 영역씩 보여 준다.
+    $('#settingsNav').addEventListener('click', event => {
+      const item = event.target.closest('[data-settings-pane]');
+      if (!item) return;
+      $$('#settingsNav [data-settings-pane]').forEach(b => b.classList.toggle('active', b === item));
+      $$('.settings-main > [data-settings-pane]').forEach(panel => { panel.hidden = panel.dataset.settingsPane !== item.dataset.settingsPane; });
+      $('#settingsTitle').textContent = item.textContent;
+      renderAll();
     });
     $('#reqPreviewBtn').addEventListener('click', previewChain);
     $('#modalCancel').addEventListener('click', () => $('#modalBg').classList.remove('show'));
@@ -3456,8 +3981,7 @@
     $('#proEmp').addEventListener('change', () => { updateProtectQuotaInfo(); updateProtectDatePills(); });
     $('#proDate').addEventListener('change', () => {
       updateProtectQuotaInfo();
-      const selected = $('#proDate').value;
-      document.querySelectorAll('#proAvailableDatePills .date-pill').forEach(item => item.classList.toggle('selected', item.dataset.date === selected));
+      updateProtectDatePills();
     });
     $('#proSubmitBtn').addEventListener('click', submitProtect);
     $('#adminEmp').addEventListener('change', renderAdminTab);
