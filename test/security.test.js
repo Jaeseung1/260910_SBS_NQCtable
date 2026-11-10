@@ -292,28 +292,42 @@ test('UI compiles and renders untrusted approval strings as text without inline 
   }
 });
 
-test('관리자가 아닌 담당자도 승인함에서 PIN으로 처리할 건을 볼 수 있다', () => {
+test('승인함: 근무자는 내 신청만, 담당자 화면에서만 다른 사람 신청이 보인다', () => {
   const html = readFileSync(path.join(root, 'index.html'), 'utf8');
   const script = html.match(/<script>([\s\S]*?)<\/script>/)[1];
-  const nodes = { '#approvalActorSelect': { value: '' }, '#approvalActorPick': { hidden: true }, '#approvalList': {}, '#activityApprovalCount': {}, '#approveTitle': {} };
   const approvals = [
     { id: 'other', status: 'pending', type: 'leave', title: '다른 사람 휴가', summary: '', requestedBy: 'e2', approverIds: ['a'], requestedAt: new Date().toISOString() },
-    { id: 'mine', status: 'pending', type: 'leave', title: '내 휴가', summary: '', requestedBy: 'e1', approverIds: ['a'], requestedAt: new Date().toISOString() }
+    { id: 'forB', status: 'pending', type: 'leave', title: 'B 담당 휴가', summary: '', requestedBy: 'e3', approverIds: ['b'], requestedAt: new Date().toISOString() }
   ];
-  const context = vm.createContext({ $: selector => nodes[selector], STATE: { approvals, requests: [], protects: [] }, getApprovers: () => [{ id: 'a', name: '팀장' }, { id: 'b', name: '무관' }], activityViewer: () => ({ admin: false, employee: 'e1' }), approverName: id => id, APPROVAL_TYPE_LABEL: { leave: '휴가' } });
   const escape = script.slice(script.indexOf('  function escapeAttribute'), script.indexOf('  function isStandardShift'));
   const own = script.slice(script.indexOf('  function renderOwnApprovalInbox'), script.indexOf('  function renderApprovalInbox'));
   const render = script.slice(script.indexOf('  function renderApprovalInbox'), script.indexOf('  function renderApprovalHistory'));
-  vm.runInContext(escape + own + render + '\nrenderApprovalInbox();', context);
+  function run(employee, locked = '') {
+    const nodes = { '#approvalActorSelect': { value: '', dataset: locked ? { lockedApprover: locked } : {} }, '#approvalActorPick': { hidden: true }, '#approvalList': {}, '#activityApprovalCount': {}, '#approveTitle': {}, '#approveSubtitle': {} };
+    const context = vm.createContext({ $: selector => nodes[selector], STATE: { approvals, requests: [{ id: 'r1', empId: 'e1', startDate: '2099-01-01', status: 'pending', submittedAt: 'x' }], protects: [] }, getApprovers: () => [{ id: 'a', name: '팀장' }, { id: 'b', name: '부장' }, { id: 'c', name: '무관' }], activityViewer: () => ({ admin: false, employee }), approverName: id => id, APPROVAL_TYPE_LABEL: { leave: '휴가' } });
+    vm.runInContext(escape + own + render + '\nrenderApprovalInbox();', context);
+    return nodes;
+  }
+  // 근무자로 로그인: 다른 사람 신청은 보이지 않고 내 신청만 보인다.
+  let nodes = run('e1');
+  assert.equal(nodes['#approvalActorPick'].hidden, true);
+  assert.doesNotMatch(nodes['#approvalList'].innerHTML, /다른 사람 휴가|B 담당 휴가/);
+  assert.match(nodes['#approvalList'].innerHTML, /data-id="r1"/);
+  assert.equal(nodes['#approveTitle'].textContent, '내 신청');
+  // 담당자 화면(직원 로그인 없음): 전체 승인 대기 건과 담당자 선택칸이 보인다.
+  nodes = run('');
   assert.equal(nodes['#approvalActorPick'].hidden, false);
-  assert.match(nodes['#approvalList'].innerHTML, /다른 사람 휴가/);
   assert.match(nodes['#approvalList'].innerHTML, /data-security-action="approve" data-id="other"/);
-  assert.doesNotMatch(nodes['#approvalList'].innerHTML, /data-id="mine"/);
+  assert.match(nodes['#approvalList'].innerHTML, /data-id="forB"/);
   assert.match(nodes['#approvalActorSelect'].innerHTML, /팀장/);
-  assert.doesNotMatch(nodes['#approvalActorSelect'].innerHTML, /무관/);  // 처리할 건이 내 신청보다 먼저 나오고, 카드 숫자도 처리할 건을 보여준다.
-  assert.ok(nodes['#approvalList'].innerHTML.indexOf('data-id="other"') < nodes['#approvalList'].innerHTML.indexOf('<h3>내 신청</h3>'));
-  assert.equal(nodes['#activityApprovalCount'].textContent, '처리 1건');
-  assert.equal(nodes['#approveTitle'].textContent, '처리할 신청 1건');
+  assert.doesNotMatch(nodes['#approvalActorSelect'].innerHTML, /무관/);
+  assert.equal(nodes['#approveTitle'].textContent, '처리할 신청 2건');
+  // 담당자 이름으로 로그인: 그 담당자 건만 보이고 선택칸은 고정된다.
+  nodes = run('', 'b');
+  assert.equal(nodes['#approvalActorPick'].hidden, true);
+  assert.doesNotMatch(nodes['#approvalList'].innerHTML, /data-id="other"/);
+  assert.match(nodes['#approvalList'].innerHTML, /data-id="forB"/);
+  assert.equal(nodes['#approvalActorSelect'].value, 'b');
 });
 
 test('validation rejects duplicate IDs, prototype keys and deeply nested payloads', () => {
