@@ -2763,8 +2763,8 @@
       if (subtitle) subtitle.textContent = decidable.length
         ? `'이 이름으로 처리'에서 담당자를 고르고 승인·반려를 누르면 담당자 PIN을 물어봐요.${employee ? ' 내 신청은 아래에 있어요.' : ''}`
         : employee ? '승인 대기 중인 내 신청과 처리 결과를 볼 수 있어요.' : '지금 처리할 승인 대기 건이 없어요.';
-      $('#activityApprovalCount').textContent = decidable.length
-        ? `처리 ${decidable.length}건${employee ? ` · 내 대기 ${ownPending}건` : ''}`
+      // 좁은 화면에서도 한 줄에 들어가도록 처리할 건이 있으면 그 숫자만 보여준다(내 신청은 아래 목록에 있다).
+      $('#activityApprovalCount').textContent = decidable.length ? `처리 ${decidable.length}건`
         : employee ? `내 대기 ${ownPending}건` : '대기 0건';
       $('#approveTitle').textContent = decidable.length ? `처리할 신청 ${decidable.length}건` : employee ? '내 신청' : '처리할 신청이 없어요';
       wrap.innerHTML = decidable.map(approvalCard).join('')
