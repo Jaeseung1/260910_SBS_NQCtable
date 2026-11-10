@@ -310,7 +310,10 @@ test('관리자가 아닌 담당자도 승인함에서 PIN으로 처리할 건�
   assert.match(nodes['#approvalList'].innerHTML, /data-security-action="approve" data-id="other"/);
   assert.doesNotMatch(nodes['#approvalList'].innerHTML, /data-id="mine"/);
   assert.match(nodes['#approvalActorSelect'].innerHTML, /팀장/);
-  assert.doesNotMatch(nodes['#approvalActorSelect'].innerHTML, /무관/);
+  assert.doesNotMatch(nodes['#approvalActorSelect'].innerHTML, /무관/);  // 처리할 건이 내 신청보다 먼저 나오고, 카드 숫자도 처리할 건을 보여준다.
+  assert.ok(nodes['#approvalList'].innerHTML.indexOf('data-id="other"') < nodes['#approvalList'].innerHTML.indexOf('<h3>내 신청</h3>'));
+  assert.equal(nodes['#activityApprovalCount'].textContent, '처리 1건 · 내 대기 0건');
+  assert.equal(nodes['#approveTitle'].textContent, '처리할 신청 1건');
 });
 
 test('validation rejects duplicate IDs, prototype keys and deeply nested payloads', () => {
