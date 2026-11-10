@@ -10,17 +10,19 @@ const path = require('node:path');
 const dir = path.join(__dirname, '..', 'windows');
 const read = name => readFileSync(path.join(dir, name));
 
-test('tray.ps1 은 UTF-8 BOM 으로 시작한다 (Windows PowerShell 5.1 이 한글을 깨뜨리지 않게)', () => {
-  const bytes = read('tray.ps1');
-  assert.deepEqual([...bytes.subarray(0, 3)], [0xef, 0xbb, 0xbf]);
+test('tray.ps1·update.ps1 은 UTF-8 BOM 으로 시작한다 (Windows PowerShell 5.1 이 한글을 깨뜨리지 않게)', () => {
+  for (const name of ['tray.ps1', 'update.ps1']) {
+    const bytes = read(name);
+    assert.deepEqual([...bytes.subarray(0, 3)], [0xef, 0xbb, 0xbf], name);
+  }
 });
 
 test('start.vbs 는 ASCII 로만 쓴다 (wscript 는 시스템 코드 페이지로 읽는다)', () => {
   assert.ok([...read('start.vbs')].every(byte => byte < 0x80));
 });
 
-test('설치·제거 cmd 는 BOM 이 없다 (첫 줄 @echo off 가 깨진다)', () => {
-  for (const name of ['설치.cmd', '제거.cmd']) {
+test('설치·제거·업데이트 cmd 는 BOM 이 없다 (첫 줄 @echo off 가 깨진다)', () => {
+  for (const name of ['설치.cmd', '제거.cmd', '업데이트.cmd']) {
     const bytes = read(name);
     assert.notDeepEqual([...bytes.subarray(0, 3)], [0xef, 0xbb, 0xbf], name);
     assert.match(bytes.toString('utf8'), /^@echo off/, name);
@@ -32,9 +34,26 @@ test('상태 확인은 127.0.0.1 로 한다 (localhost 는 IPv6 로 먼저 가�
   assert.match(source, /http:\/\/127\.0\.0\.1:\$Port\/api\/lock/);
 });
 
-test('tray.ps1 은 PowerShell 문법 오류가 없다', { skip: process.platform !== 'win32' && 'Windows 에서만' }, () => {
-  const file = path.join(dir, 'tray.ps1').replace(/'/g, "''");
-  const script = "$t=$null;$e=$null;[void][System.Management.Automation.Language.Parser]::ParseFile('" + file + "',[ref]$t,[ref]$e);" +
-    "if($e.Count){$e|ForEach-Object{$_.ToString()};exit 1}";
-  execFileSync('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command', script], { stdio: 'pipe' });
+test('업데이트.cmd 는 실행·멈춤·끝내기를 마지막 한 줄에 둔다 (git pull 이 실행 중인 파일을 바꿔도 안전하게)', () => {
+  const lines = read('업데이트.cmd').toString('utf8').split(/\r?\n/).filter(line => line.trim());
+  const last = lines[lines.length - 1];
+  assert.match(last, /update\.ps1/);
+  assert.match(last, /& exit \/b\s*$/);
 });
+
+test('update.ps1 은 이 폴더의 tray.ps1 을 끄고 같은 방식으로 다시 켠다', () => {
+  const source = read('update.ps1').toString('utf8');
+  assert.match(source, /Join-Path \$PSScriptRoot 'tray\.ps1'/);
+  assert.match(source, /taskkill\.exe \/PID \$proc\.ProcessId \/T \/F/);
+  assert.match(source, /pull --ff-only/);
+  assert.match(source, /http:\/\/127\.0\.0\.1:\$Port\/api\/lock/);
+});
+
+for (const name of ['tray.ps1', 'update.ps1']) {
+  test(`${name} 은 PowerShell 문법 오류가 없다`, { skip: process.platform !== 'win32' && 'Windows 에서만' }, () => {
+    const file = path.join(dir, name).replace(/'/g, "''");
+    const script = "$t=$null;$e=$null;[void][System.Management.Automation.Language.Parser]::ParseFile('" + file + "',[ref]$t,[ref]$e);" +
+      "if($e.Count){$e|ForEach-Object{$_.ToString()};exit 1}";
+    execFileSync('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command', script], { stdio: 'pipe' });
+  });
+}
