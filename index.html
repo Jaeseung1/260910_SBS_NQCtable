@@ -434,11 +434,12 @@
     <span class="kicker">통합관제실 근무표</span>
     <h1>로그인</h1>
     <label for="loginRole">로그인 유형</label>
-    <select id="loginRole"><option value="employee">근무자</option><option value="admin">관리자</option></select>
+    <select id="loginRole"><option value="employee">근무자</option><option value="admin">관리자</option><option value="approver">승인 담당자</option></select>
     <label id="loginNameLabel" for="employeeLoginSelect">근무자 이름</label>
     <select id="employeeLoginSelect"><option value="">이름 선택</option></select>
-    <label for="employeeLoginPin">PIN</label>
+    <label id="loginPinLabel" for="employeeLoginPin">PIN</label>
     <input id="employeeLoginPin" type="password" maxlength="128" autocomplete="current-password" required>
+    <p id="loginApproverNote" class="muted" hidden>승인함만 열립니다. 승인·반려할 때 담당자 PIN을 입력해요.</p>
     <button id="employeeLoginBtn" type="submit" class="btn" disabled>로그인</button>
   </form>
 </div>
@@ -908,11 +909,20 @@
 </div>
 
 <script>
+  // 로그인 유형에 맞게 이름·PIN 칸을 보여준다. 승인 담당자는 서버 로그인 없이 승인함만 연다
+  // (담당자 PIN은 승인·반려할 때 security.decide가 건마다 확인한다).
+  function updateLoginRoleFields() {
+    const role = $('#loginRole').value;
+    $('#loginNameLabel').hidden = role !== 'employee';
+    $('#employeeLoginSelect').hidden = role !== 'employee';
+    $('#loginPinLabel').hidden = role === 'approver';
+    $('#employeeLoginPin').hidden = role === 'approver';
+    $('#employeeLoginPin').required = role !== 'approver';
+    $('#loginApproverNote').hidden = role !== 'approver';
+  }
   document.getElementById('loginRole').addEventListener('change', () => {
-    const isAdmin = $('#loginRole').value === 'admin';
-    $('#loginNameLabel').hidden = isAdmin;
-    $('#employeeLoginSelect').hidden = isAdmin;
     $('#employeeLoginPin').value = '';
+    updateLoginRoleFields();
   });
   document.getElementById('loginForm').addEventListener('submit', async event => {
     event.preventDefault();
@@ -920,7 +930,9 @@
     if (button.disabled) return;
     button.disabled = true;
     try {
-      if ($('#loginRole').value === 'admin') await loginAdmin($('#employeeLoginPin').value);
+      const role = $('#loginRole').value;
+      if (role === 'admin') await loginAdmin($('#employeeLoginPin').value);
+      else if (role === 'approver') enterApproverView();
       else await loginEmployee();
     } finally {
       button.disabled = false;
@@ -1010,6 +1022,8 @@
 
   // Credentials live only in memory. Shared state/localStorage never contain PINs.
   let adminToken = '', adminUntil = 0;
+  // 승인 담당자 화면: 서버 세션 없이 승인함만 보여준다. 처리할 때마다 담당자 PIN을 확인한다.
+  let approverViewing = false;
   let employeeToken = '', employeeUntil = 0, employeeId = '', employeeDisplayName = '';
   const pendingApproverPins = Object.create(null);
   const pendingEmployeePins = Object.create(null);
@@ -1194,6 +1208,7 @@
     releaseLockNow(adminToken, employeeToken);
     if (adminToken) { adminToken = ''; adminUntil = 0; securityMessage('관리자 인증을 해제했습니다.'); }
     employeeToken = ''; employeeUntil = 0; employeeId = ''; employeeDisplayName = '';
+    approverViewing = false;
     pendingChain = null;
     $('#modalBg').classList.remove('show');
     for (const selector of ['#reqDate', '#proDate', '#proReason', '#employeeLoginPin']) {
@@ -1209,12 +1224,12 @@
     if (!employeeLoggedIn && employeeToken) { employeeToken = ''; employeeId = ''; employeeDisplayName = ''; }
     const adminLoggedIn = !!adminToken && Date.now() < adminUntil;
     const loggedIn = employeeLoggedIn || adminLoggedIn;
-    employeeMessage(employeeLoggedIn ? `${employeeDisplayName}님으로 로그인됨` : adminLoggedIn ? '관리자로 로그인됨' : '로그인이 필요합니다.');
+    employeeMessage(employeeLoggedIn ? `${employeeDisplayName}님으로 로그인됨` : adminLoggedIn ? '관리자로 로그인됨' : approverViewing ? '승인 담당자 화면' : '로그인이 필요합니다.');
     const selectEl = $('#employeeLoginSelect'), pinEl = $('#employeeLoginPin'), loginBtn = $('#employeeLoginBtn'), logoutBtn = $('#employeeLogoutBtn');
     if (selectEl) selectEl.hidden = loggedIn;
     if (pinEl) pinEl.hidden = loggedIn || selectEl?.value === '__admin__';
     if (loginBtn) loginBtn.hidden = loggedIn;
-    if (logoutBtn) logoutBtn.hidden = !loggedIn;
+    if (logoutBtn) logoutBtn.hidden = !loggedIn && !approverViewing;
     ['#reqEmp', '#proEmp'].forEach(sel => {
       const select = $(sel);
       if (!select) return;
@@ -1236,15 +1251,21 @@
       gateNote.textContent = adminLoggedIn ? '관리자로 로그인됨 · 15분 동안 바꿀 수 있어요.' : '보기만 할 수 있어요. 바꾸려면 오른쪽 위 로그인에서 “관리자”를 고르세요.';
       gateNote.classList.toggle('is-admin', adminLoggedIn);
     }
-    const showApp = loggedIn || LOCAL_MODE;
+    const showApp = loggedIn || LOCAL_MODE || approverViewing;
     $('#loginPage').hidden = showApp;
     $('main').hidden = !showApp;
     $('#tabbar').hidden = !showApp;
-    $('#refreshHolidayBtn').hidden = !showApp && !!stateSync?.info().ready;
-    $('#loginNameLabel').hidden = $('#loginRole').value === 'admin';
-    $('#employeeLoginSelect').hidden = $('#loginNameLabel').hidden;
+    $('#refreshHolidayBtn').hidden = !showApp;
+    updateLoginRoleFields();
   }
   let gateAppliedEmp = '';
+  function enterApproverView() {
+    approverViewing = true;
+    applyEmployeeGate();
+    const tabBtn = document.querySelector('#tabbar button[data-tab="approve"]');
+    if (tabBtn) tabBtn.click();
+    openApprovalFromLink();
+  }
   function finishLogin() {
     scheduleFocusEmp = null;
     $('#mainTitleBtn').click();
@@ -4070,9 +4091,24 @@
     $('#employeeLoginBtn').disabled = false;
     updateLiveClock();
     setInterval(updateLiveClock, 1000);
-    setInterval(() => {
-      if ((adminToken && Date.now() >= adminUntil) || (employeeToken && Date.now() >= employeeUntil)) {
+    // 메일 승인 링크로 들어오면 로그인 유형을 승인 담당자로 먼저 골라 둔다.
+    if (new URLSearchParams(location.search).get('approve')) { $('#loginRole').value = 'approver'; updateLoginRoleFields(); }
+    let expirySaveTried = false;
+    setInterval(async () => {
+      const until = adminToken ? adminUntil : employeeToken ? employeeUntil : 0;
+      if (!until) { expirySaveTried = false; return; }
+      // 세션이 끝나기 30초 전에 저장 대기 중인 변경을 먼저 보낸다.
+      if (!expirySaveTried && until - Date.now() <= 30000 && stateSync?.info().dirty) {
+        expirySaveTried = true;
+        try { await flushPendingState(); } catch {}
+      }
+      if (Date.now() >= until) {
+        const unsaved = !!stateSync?.info().dirty;
         logoutEmployee();
+        expirySaveTried = false;
+        showToast(unsaved
+          ? '로그인 시간(15분)이 끝나 로그아웃했습니다. 저장하지 못한 변경은 이 브라우저에 보관되어 있으니 다시 로그인해 확인해주세요.'
+          : '로그인 시간(15분)이 끝나 로그아웃했습니다.', unsaved ? 'warn' : undefined);
       }
     }, 1000);
 

@@ -49,3 +49,21 @@ test('사람별로 보기: 처음엔 로그인한 직원, [전체] 를 고르면
 test('화면에 인라인 이벤트 처리기를 쓰지 않는다 (CSP script-src-attr none)', () => {
   assert.ok(!/\son[a-z]+=/i.test(html.replace(/<script>[\s\S]*?<\/script>/, '')));
 });
+
+test('로그인 유형: 승인 담당자는 이름·PIN 없이 승인함만 연다', () => {
+  const start = script.indexOf('  function updateLoginRoleFields()');
+  const fn = script.slice(start, script.indexOf('\n  }\n', start) + 4);
+  const node = () => ({ hidden: false, required: true });
+  const nodes = { '#loginRole': { value: 'approver' }, '#loginNameLabel': node(), '#employeeLoginSelect': node(), '#loginPinLabel': node(), '#employeeLoginPin': node(), '#loginApproverNote': node() };
+  const context = vm.createContext({ $: selector => nodes[selector] });
+  vm.runInContext(fn + '\nupdateLoginRoleFields();', context);
+  assert.equal(nodes['#employeeLoginSelect'].hidden, true);
+  assert.equal(nodes['#employeeLoginPin'].hidden, true);
+  assert.equal(nodes['#employeeLoginPin'].required, false);
+  assert.equal(nodes['#loginApproverNote'].hidden, false);
+  nodes['#loginRole'].value = 'employee';
+  vm.runInContext('updateLoginRoleFields();', context);
+  assert.equal(nodes['#employeeLoginSelect'].hidden, false);
+  assert.equal(nodes['#employeeLoginPin'].required, true);
+  assert.match(html, /<option value="approver">승인 담당자<\/option>/);
+});
