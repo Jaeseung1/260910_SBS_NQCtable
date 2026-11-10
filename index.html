@@ -407,7 +407,6 @@
     </button>
     <nav id="tabbar" inert aria-label="메뉴">
       <button type="button" data-tab="schedule" class="active">근무표</button>
-      <button type="button" data-tab="apply">신청하기</button>
       <button type="button" data-tab="cover">내 대근</button>
       <button type="button" data-tab="approve">승인함 <span class="nav-count" id="approvalCountBadge" hidden>0</span></button>
       <button type="button" data-tab="notif">기록</button>
@@ -1677,6 +1676,8 @@
     if (!['day', 'set'].includes(type) || Number.isNaN(startDate.getTime())) return { error: '신청 종류와 날짜를 확인해주세요.' };
     if (fmt(startDate) < fmt(getToday())) return { error: '지난 날짜에는 휴가를 신청할 수 없습니다.' };
     if (!employee || !isEmployeeActiveOnDate(employee, startDate)) return { error: '직원의 적용 기간 안에서 신청해주세요.' };
+    const horizonError = requestHorizonError(startDate);
+    if (horizonError) return { error: horizonError };
     const d0 = startDate, d1 = addDays(startDate, 1);
     if (type === 'day'){
       if (effectiveShift(empId, d0) !== '일') return { error: '일근인 날짜에만 일근 휴가를 신청할 수 있습니다.' };
@@ -1733,8 +1734,17 @@
     if (Number.isNaN(date.getTime()) || fmt(date) < fmt(getToday())) return '오늘 이후 날짜를 선택해주세요.';
     const employee = EMPLOYEES.find(e => e.id === empId);
     if (!employee || !isEmployeeActiveOnDate(employee, date)) return '직원의 적용 기간 안에서 신청해주세요.';
+    const horizonError = requestHorizonError(date);
+    if (horizonError) return horizonError;
     if (effectiveShift(empId, date) !== 'O') return '본인이 비번(O)인 날짜만 보장 신청할 수 있습니다.';
     if (isProtectedOn(empId, date)) return '이미 비번 보장을 신청한 날짜입니다.';
+    return '';
+  }
+
+  // 근무표 칸에서 바로 신청하므로 먼 달 칸도 눌릴 수 있다. 예전 신청 달력과 같이 오늘부터 92일까지만 받는다.
+  function requestHorizonError(date){
+    const horizonDays = 92;
+    if (fmt(date) > fmt(addDays(getToday(), horizonDays - 1))) return `오늘부터 ${horizonDays}일 안의 날짜만 신청할 수 있습니다.`;
     return '';
   }
 
@@ -3677,7 +3687,6 @@
     populateEmpSelects();
     populateYearSelect();
     populateMonthSelect();
-    $('#tabbar button[data-tab="apply"]').remove();
     initTabs();
     // 사람별로 보기: 고른 사람 줄만 진하게, 오른쪽에 그 사람의 이번 주. 저장하지 않는 화면 표시다.
     $('#personFilters').addEventListener('click', event => {

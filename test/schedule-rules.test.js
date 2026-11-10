@@ -14,7 +14,7 @@ function source(name) {
 }
 const functions = ['fmt', 'addDays', 'empName', 'isEmployeeActiveOnDate',
   'isActiveProtection', 'isProtectedOn', 'findByBaseShift', 'substituteNote', 'buildChain',
-  'protectCountInMonth', 'protectionRequestError', 'confirmChain', 'submitProtect'];
+  'protectCountInMonth', 'requestHorizonError', 'protectionRequestError', 'confirmChain', 'submitProtect'];
 const d0 = '2099-01-31', d1 = '2099-02-01';
 const date = value => new Date(value + 'T00:00:00');
 function setup() {
@@ -106,6 +106,14 @@ test('invalid, past and inactive request dates are rejected', () => {
   assert.ok(c.buildChain('a', 'set', new Date('invalid')).error);
   assert.ok(c.buildChain('a', 'set', date('2098-12-31')).error);
   assert.ok(c.buildChain('missing', 'set', date(d0)).error);
+});
+test('근무표 칸 신청도 오늘부터 92일까지만 받는다', () => {
+  const { c } = setup();
+  // getToday는 2099-01-01이므로 92일째는 2099-04-02, 93일째는 2099-04-03이다.
+  assert.equal(c.requestHorizonError(date('2099-04-02')), '');
+  assert.match(c.requestHorizonError(date('2099-04-03')), /92일/);
+  assert.match(c.buildChain('a', 'set', date('2099-04-03')).error, /92일/);
+  assert.match(c.protectionRequestError('b', date('2099-04-03')), /92일/);
 });
 test('rejected/cancelled protection frees the day and quota; legacy duplicates count once', () => {
   const { c } = setup();
