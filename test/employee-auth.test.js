@@ -88,10 +88,38 @@ async function fixture(t) {
   return { api, loginAdmin, state, setEmployeePin, loginEmployee, cancel };
 }
 
-test('PIN이 설정되지 않은 직원은 로그인할 수 없다', async t => {
+test('PIN을 정하지 않은 직원은 기본 PIN 0000으로 들어와 PIN부터 바꿔야 한다', async t => {
   const f = await fixture(t);
-  const res = await f.loginEmployee('e1', 'anything');
-  assert.equal(res.status, 403);
+  assert.equal((await f.loginEmployee('e1', 'anything')).status, 401);
+  const first = await f.loginEmployee('e1', '0000');
+  assert.equal(first.status, 200, JSON.stringify(first.data));
+  assert.equal(first.data.mustChangePin, true);
+  const token = first.data.token;
+  // 바꾸기 전에는 직원 권한이 없다(잠금 획득·취소 모두 거부).
+  assert.equal((await f.api('/api/lock/acquire', {}, { 'X-Employee-Token': token })).status, 401);
+  assert.equal((await f.cancel('request', 'r1', token)).status, 401);
+  // 너무 짧거나 같은 PIN은 거부, 현재 PIN이 틀려도 거부
+  assert.equal((await f.api('/api/auth/employee/pin', { currentPin: '0000', newPin: '1234' }, { 'X-Employee-Token': token })).status, 400);
+  assert.equal((await f.api('/api/auth/employee/pin', { currentPin: 'wrong', newPin: 'new-pin-1' }, { 'X-Employee-Token': token })).status, 401);
+  assert.equal((await f.api('/api/auth/employee/pin', { currentPin: '0000', newPin: 'new-pin-1' }, { 'X-Employee-Token': token })).status, 200);
+  // 같은 세션은 바로 직원 권한을 얻고, 다음 로그인부터는 새 PIN만 통한다.
+  assert.equal((await f.api('/api/lock/acquire', {}, { 'X-Employee-Token': token })).status, 200);
+  assert.equal((await f.loginEmployee('e1', '0000')).status, 401);
+  const again = await f.loginEmployee('e1', 'new-pin-1');
+  assert.equal(again.status, 200);
+  assert.equal(again.data.mustChangePin, false);
+});
+
+test('직원은 로그인한 상태에서 본인 PIN을 바꿀 수 있고, 로그인 없이는 못 바꾼다', async t => {
+  const f = await fixture(t);
+  await f.loginAdmin();
+  await f.setEmployeePin('e1', 'correct-pin-1');
+  assert.equal((await f.api('/api/auth/employee/pin', { currentPin: 'correct-pin-1', newPin: 'changed-pin-1' })).status, 401);
+  const login = await f.loginEmployee('e1', 'correct-pin-1');
+  assert.equal(login.data.mustChangePin, false);
+  assert.equal((await f.api('/api/auth/employee/pin', { currentPin: 'correct-pin-1', newPin: 'changed-pin-1' }, { 'X-Employee-Token': login.data.token })).status, 200);
+  assert.equal((await f.loginEmployee('e1', 'correct-pin-1')).status, 401);
+  assert.equal((await f.loginEmployee('e1', 'changed-pin-1')).status, 200);
 });
 
 test('로그인 성공/실패와 직원별 독립적인 잠금(5회)을 검증한다', async t => {
@@ -170,4 +198,18 @@ test('관리자가 employeePins로 설정한 PIN은 평문으로 노출되지 �
   assert.ok(!JSON.stringify(state).includes('super-secret-pin'));
   const login = await f.loginEmployee('e1', 'super-secret-pin');
   assert.equal(login.status, 200);
+});
+
+test('승인 담당자로 로그인하면 그 담당자 이름의 승인은 PIN을 다시 묻지 않는다', async t => {
+  const f = await fixture(t);
+  assert.equal((await f.api('/api/auth/approver', { approverId: 'a1', pin: 'wrong-pin' })).status, 401);
+  assert.equal((await f.api('/api/auth/approver', { approverId: 'nobody', pin: '123456' })).status, 400);
+  const login = await f.api('/api/auth/approver', { approverId: 'a1', pin: '123456' });
+  assert.equal(login.status, 200, JSON.stringify(login.data));
+  assert.equal(login.data.name, '담당');
+  // 토큰 없이 PIN도 없으면 거부, 담당자 토큰이 있으면 PIN 없이 처리된다.
+  assert.equal((await f.api('/api/approvals/decision', { id: 'ap1', approverId: 'a1', approved: true })).status, 400);
+  const decided = await f.api('/api/approvals/decision', { id: 'ap1', approverId: 'a1', approved: true }, { 'X-Approver-Token': login.data.token });
+  assert.equal(decided.status, 200, JSON.stringify(decided.data));
+  assert.equal((await f.state()).approvals.find(a => a.id === 'ap1').status, 'approved');
 });

@@ -390,6 +390,13 @@
   #loginForm{display:grid;gap:10px;}
   #loginForm h1{margin:0 0 8px;}
   #loginForm label{margin:0;}
+  dialog.modal{border:0;}
+  dialog.modal::backdrop{background:rgba(36,25,15,.38);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);}
+  .pin-change{display:grid;gap:10px;}
+  .pin-change h2{margin:0;font-size:19px;}
+  .pin-change p{margin:0;}
+  .pin-change label{display:grid;gap:6px;margin:0;}
+  .pin-change .error{color:var(--danger, #b42318);font-size:13px;}
 </style>
 </head>
 <body>
@@ -410,6 +417,7 @@
     <div class="account">
       <span id="lockStatus" class="lock-pill" role="status" hidden></span>
       <span id="employeeStatus" class="account-status" role="status">로그인이 필요합니다.</span>
+      <button id="employeePinChangeBtn" type="button" class="btn secondary" hidden>PIN 변경</button>
       <button id="employeeLogoutBtn" type="button" class="btn secondary" hidden>로그아웃</button>
       <button class="btn secondary refresh-btn" id="refreshHolidayBtn" type="button" title="서버의 최신 근무표와 휴일 정보를 다시 불러옵니다">↻ 새로고침</button>
     </div>
@@ -437,9 +445,12 @@
     <select id="loginRole"><option value="employee">근무자</option><option value="admin">관리자</option><option value="approver">승인 담당자</option></select>
     <label id="loginNameLabel" for="employeeLoginSelect">근무자 이름</label>
     <select id="employeeLoginSelect"><option value="">이름 선택</option></select>
+    <label id="loginApproverLabel" for="loginApproverSelect" hidden>담당자 이름</label>
+    <select id="loginApproverSelect" hidden><option value="">담당자 선택</option></select>
     <label id="loginPinLabel" for="employeeLoginPin">PIN</label>
     <input id="employeeLoginPin" type="password" maxlength="128" autocomplete="current-password" required>
-    <p id="loginApproverNote" class="muted" hidden>승인함만 열립니다. 승인·반려할 때 담당자 PIN을 입력해요.</p>
+    <p id="loginPinHint" class="muted">처음 로그인할 때 PIN은 0000이에요. 로그인하면 새 PIN으로 바꿔요.</p>
+    <p id="loginApproverNote" class="muted" hidden>승인함만 열려요. 로그인한 15분 동안은 승인·반려할 때 PIN을 다시 묻지 않아요.</p>
     <button id="employeeLoginBtn" type="submit" class="btn" disabled>로그인</button>
   </form>
 </div>
@@ -909,15 +920,14 @@
 </div>
 
 <script>
-  // 로그인 유형에 맞게 이름·PIN 칸을 보여준다. 승인 담당자는 서버 로그인 없이 승인함만 연다
-  // (담당자 PIN은 승인·반려할 때 security.decide가 건마다 확인한다).
+  // 로그인 유형에 맞게 이름·PIN 칸을 보여준다. 승인 담당자는 담당자 이름과 PIN으로 로그인하고 승인함만 연다.
   function updateLoginRoleFields() {
     const role = $('#loginRole').value;
     $('#loginNameLabel').hidden = role !== 'employee';
     $('#employeeLoginSelect').hidden = role !== 'employee';
-    $('#loginPinLabel').hidden = role === 'approver';
-    $('#employeeLoginPin').hidden = role === 'approver';
-    $('#employeeLoginPin').required = role !== 'approver';
+    $('#loginApproverLabel').hidden = role !== 'approver';
+    $('#loginApproverSelect').hidden = role !== 'approver';
+    $('#loginPinHint').hidden = role !== 'employee';
     $('#loginApproverNote').hidden = role !== 'approver';
   }
   document.getElementById('loginRole').addEventListener('change', () => {
@@ -932,13 +942,14 @@
     try {
       const role = $('#loginRole').value;
       if (role === 'admin') await loginAdmin($('#employeeLoginPin').value);
-      else if (role === 'approver') enterApproverView();
+      else if (role === 'approver') await loginApprover();
       else await loginEmployee();
     } finally {
       button.disabled = false;
     }
   });
   document.getElementById('employeeLogoutBtn').addEventListener('click', logoutEmployee);
+  document.getElementById('employeePinChangeBtn').addEventListener('click', () => changeOwnPin(false));
   document.addEventListener('click', async event => {
     const button = event.target.closest('[data-security-action]');
     if (!button) return;
@@ -1022,8 +1033,8 @@
 
   // Credentials live only in memory. Shared state/localStorage never contain PINs.
   let adminToken = '', adminUntil = 0;
-  // 승인 담당자 화면: 서버 세션 없이 승인함만 보여준다. 처리할 때마다 담당자 PIN을 확인한다.
-  let approverViewing = false;
+  // 승인 담당자 화면: 담당자 이름+PIN으로 로그인하면 승인함만 보여준다. 15분 동안 승인·반려에 PIN을 다시 묻지 않는다.
+  let approverViewing = false, approverToken = '', approverUntil = 0, approverLoginId = '';
   let employeeToken = '', employeeUntil = 0, employeeId = '', employeeDisplayName = '';
   const pendingApproverPins = Object.create(null);
   const pendingEmployeePins = Object.create(null);
@@ -1035,7 +1046,7 @@
     if (LOCAL_MODE) throw new Error('승인·관리자 기능은 공유 서버에서 열어주세요.');
     const response = await fetch(url, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-Admin-Token': adminToken },
+      headers: { 'Content-Type': 'application/json', 'X-Admin-Token': adminToken, 'X-Approver-Token': approverToken },
       body: JSON.stringify(body)
     });
     const result = await response.json().catch(() => ({}));
@@ -1188,6 +1199,14 @@
       employeeUntil = Date.now() + 15 * 60 * 1000;
       employeeId = result.empId;
       employeeDisplayName = result.name;
+      // 기본 PIN(0000)으로 들어왔으면 새 PIN으로 바꾸기 전에는 진행하지 않는다(서버도 그전엔 권한을 주지 않는다).
+      if (result.mustChangePin && !(await changeOwnPin(true, pin))) {
+        employeeToken = ''; employeeUntil = 0; employeeId = ''; employeeDisplayName = '';
+        $('#employeeLoginPin').value = '';
+        employeeMessage('PIN을 바꿔야 로그인할 수 있어요.');
+        renderAll();
+        return;
+      }
       try {
         await requestLock('/api/lock/acquire');
       } catch (error) {
@@ -1210,7 +1229,9 @@
     releaseLockNow(adminToken, employeeToken);
     if (adminToken) { adminToken = ''; adminUntil = 0; securityMessage('관리자 인증을 해제했습니다.'); }
     employeeToken = ''; employeeUntil = 0; employeeId = ''; employeeDisplayName = '';
-    approverViewing = false;
+    approverViewing = false; approverToken = ''; approverUntil = 0; approverLoginId = '';
+    const actorSelect = $('#approvalActorSelect');
+    if (actorSelect) delete actorSelect.dataset.lockedApprover;
     pendingChain = null;
     $('#modalBg').classList.remove('show');
     for (const selector of ['#reqDate', '#proDate', '#proReason', '#employeeLoginPin']) {
@@ -1226,7 +1247,7 @@
     if (!employeeLoggedIn && employeeToken) { employeeToken = ''; employeeId = ''; employeeDisplayName = ''; }
     const adminLoggedIn = !!adminToken && Date.now() < adminUntil;
     const loggedIn = employeeLoggedIn || adminLoggedIn;
-    employeeMessage(employeeLoggedIn ? `${employeeDisplayName}님으로 로그인됨` : adminLoggedIn ? '관리자로 로그인됨' : approverViewing ? '승인 담당자 화면' : '로그인이 필요합니다.');
+    employeeMessage(employeeLoggedIn ? `${employeeDisplayName}님으로 로그인됨` : adminLoggedIn ? '관리자로 로그인됨' : approverViewing ? `${approverName(approverLoginId)} 담당자로 로그인됨` : '로그인이 필요합니다.');
     const selectEl = $('#employeeLoginSelect'), pinEl = $('#employeeLoginPin'), loginBtn = $('#employeeLoginBtn'), logoutBtn = $('#employeeLogoutBtn');
     if (selectEl) selectEl.hidden = loggedIn;
     if (pinEl) pinEl.hidden = loggedIn || selectEl?.value === '__admin__';
@@ -1253,6 +1274,14 @@
       gateNote.textContent = adminLoggedIn ? '관리자로 로그인됨 · 15분 동안 바꿀 수 있어요.' : '보기만 할 수 있어요. 바꾸려면 오른쪽 위 로그인에서 “관리자”를 고르세요.';
       gateNote.classList.toggle('is-admin', adminLoggedIn);
     }
+    const pinChangeBtn = $('#employeePinChangeBtn');
+    if (pinChangeBtn) pinChangeBtn.hidden = !employeeLoggedIn;
+    const approverSelect = $('#loginApproverSelect');
+    if (approverSelect) {
+      const current = approverSelect.value;
+      approverSelect.innerHTML = '<option value="">담당자 선택</option>' + getApprovers().map(a => `<option value="${escapeAttribute(a.id)}">${escapeAttribute(a.name)}</option>`).join('');
+      if (getApprovers().some(a => a.id === current)) approverSelect.value = current;
+    }
     const showApp = loggedIn || LOCAL_MODE || approverViewing;
     $('#loginPage').hidden = showApp;
     $('main').hidden = !showApp;
@@ -1263,6 +1292,67 @@
     if (logoutBtn && approverViewing) logoutBtn.hidden = false;
   }
   let gateAppliedEmp = '';
+  async function loginApprover() {
+    const approverId = $('#loginApproverSelect').value;
+    if (!approverId) { employeeMessage('담당자를 선택해주세요.'); return; }
+    if (LOCAL_MODE) { employeeMessage('로그인 기능은 공유 서버에서 열어주세요.'); return; }
+    const response = await fetch('/api/auth/approver', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ approverId, pin: $('#employeeLoginPin').value })
+    });
+    const result = await response.json().catch(() => ({}));
+    if (!response.ok) { employeeMessage(result.error || '로그인에 실패했습니다.'); return; }
+    $('#employeeLoginPin').value = '';
+    approverToken = result.token;
+    approverUntil = Date.now() + 15 * 60 * 1000;
+    approverLoginId = result.approverId;
+    // 승인함은 이 담당자의 건만 보여주고, '이 이름으로 처리'를 이 담당자로 고정한다.
+    const actorSelect = $('#approvalActorSelect');
+    if (actorSelect) { actorSelect.dataset.lockedApprover = approverLoginId; actorSelect.value = approverLoginId; }
+    enterApproverView();
+  }
+  // 직원 본인 PIN 변경. forced면 기본 PIN으로 처음 로그인한 경우라 현재 PIN은 다시 묻지 않는다.
+  async function changeOwnPin(forced, currentPin = '') {
+    const dialog = document.createElement('dialog');
+    dialog.className = 'modal';
+    dialog.innerHTML = `<form class="pin-change"><h2></h2><p class="muted"></p>
+      <label class="current">지금 PIN<input type="password" name="current" maxlength="128" autocomplete="current-password"></label>
+      <label>새 PIN (6자 이상)<input type="password" name="next" minlength="6" maxlength="128" autocomplete="new-password" required></label>
+      <label>새 PIN 확인<input type="password" name="confirm" minlength="6" maxlength="128" autocomplete="new-password" required></label>
+      <p class="error" role="alert" hidden></p>
+      <div class="actions"><button type="button" class="btn secondary">취소</button><button type="submit" class="btn">PIN 바꾸기</button></div></form>`;
+    dialog.querySelector('h2').textContent = forced ? '새 PIN을 정해주세요' : 'PIN 변경';
+    dialog.querySelector('p.muted').textContent = forced ? '처음 로그인이라 기본 PIN(0000)을 내 PIN으로 바꿔야 해요.' : '지금 PIN을 확인한 뒤 새 PIN으로 바꿔요.';
+    dialog.querySelector('.current').hidden = forced;
+    dialog.querySelector('[name=current]').required = !forced;
+    const error = dialog.querySelector('.error');
+    const showError = message => { error.textContent = message; error.hidden = false; };
+    return new Promise(resolve => {
+      const done = value => { dialog.close(); dialog.remove(); resolve(value); };
+      dialog.querySelector('form').addEventListener('submit', async event => {
+        event.preventDefault();
+        const next = dialog.querySelector('[name=next]').value;
+        if (next !== dialog.querySelector('[name=confirm]').value) { showError('새 PIN이 서로 달라요.'); return; }
+        if (next === '0000') { showError('0000이 아닌 PIN을 정해주세요.'); return; }
+        const submit = dialog.querySelector('[type=submit]');
+        submit.disabled = true;
+        try {
+          const response = await fetch('/api/auth/employee/pin', {
+            method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Employee-Token': employeeToken },
+            body: JSON.stringify({ currentPin: forced ? currentPin : dialog.querySelector('[name=current]').value, newPin: next })
+          });
+          const result = await response.json().catch(() => ({}));
+          if (!response.ok) { showError(result.error || 'PIN을 바꾸지 못했어요.'); return; }
+          showToast('PIN을 바꿨습니다.');
+          done(true);
+        } finally { submit.disabled = false; }
+      });
+      dialog.querySelector('[type=button]').addEventListener('click', () => done(false));
+      dialog.addEventListener('cancel', event => { event.preventDefault(); done(false); });
+      document.body.append(dialog);
+      dialog.showModal();
+    });
+  }
   function enterApproverView() {
     approverViewing = true;
     applyEmployeeGate();
@@ -2717,7 +2807,8 @@
       await flushPendingState();
       // 관리자는 PIN 없이 바로 처리한다. 반려 사유만 필요하면 입력받는다.
       let secret = '', reason = '';
-      if (isAdminSession) {
+      const approverLoggedIn = !!approverToken && Date.now() < approverUntil && approverLoginId === actor.id;
+      if (isAdminSession || approverLoggedIn) {
         if (!ok) {
           const input = await askCredential(actor.name + ' 명의로 반려 — 반려 사유', true, false);
           if (!input) return;
@@ -4099,7 +4190,7 @@
     if (new URLSearchParams(location.search).get('approve')) { $('#loginRole').value = 'approver'; updateLoginRoleFields(); }
     let expirySaveTried = false;
     setInterval(async () => {
-      const until = adminToken ? adminUntil : employeeToken ? employeeUntil : 0;
+      const until = adminToken ? adminUntil : employeeToken ? employeeUntil : approverToken ? approverUntil : 0;
       if (!until) { expirySaveTried = false; return; }
       // 세션이 끝나기 30초 전에 저장 대기 중인 변경을 먼저 보낸다.
       if (!expirySaveTried && until - Date.now() <= 30000 && stateSync?.info().dirty) {
