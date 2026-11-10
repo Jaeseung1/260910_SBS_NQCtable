@@ -323,8 +323,7 @@ function createSecurity({ db, getState, setState, adminPassword = process.env.AD
       const item = items?.find(x => x.id === id);
       if (!item) fail(404, '신청을 찾을 수 없습니다.');
       if (item.empId !== employeeId) fail(403, '본인 신청만 취소할 수 있습니다.');
-      const cancellable = kind === 'request' ? ['pending', 'confirmed'] : ['pending', 'approved'];
-      if (!cancellable.includes(item.status)) fail(409, '이미 처리되었거나 취소할 수 없는 상태입니다.');
+      if (item.status !== 'pending') fail(409, '이미 처리되었거나 취소할 수 없는 상태입니다.');
       const at = new Date().toISOString();
       item.status = 'cancelled';
       item.cancelledAt = at;

@@ -282,7 +282,7 @@ test('UI compiles and renders untrusted approval strings as text without inline 
   const nodes = { '#approvalActorSelect': { value: '' }, '#approvalList': {}, '#approvalHistory': {}, '#approverList': {} };
   const approval = { id: 'id', status: 'pending', type: 'leave', title: payload, summary: payload, approverIds: ['a'], requestedAt: new Date().toISOString() };
   const actors = [{ id: 'a', name: payload, email: payload }];
-  const context = vm.createContext({ $: selector => nodes[selector], STATE: { approvals: [approval] }, getApprovers: () => actors, pendingApprovals: () => [approval], approverName: () => payload, APPROVAL_TYPE_LABEL: { leave: '휴가' } });
+  const context = vm.createContext({ $: selector => nodes[selector], STATE: { approvals: [approval] }, getApprovers: () => actors, activityViewer: () => ({admin:true,employee:''}), pendingApprovals: () => [approval], approverName: () => payload, APPROVAL_TYPE_LABEL: { leave: '휴가' } });
   const escape = script.slice(script.indexOf('  function escapeAttribute'), script.indexOf('  function isStandardShift'));
   const render = script.slice(script.indexOf('  function renderApprovalInbox'), script.indexOf('  function addApprover'));
   vm.runInContext(escape + render + '\nrenderApprovalInbox();renderApproverAdmin();', context);

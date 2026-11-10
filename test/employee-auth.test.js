@@ -20,7 +20,8 @@ function seed() {
       { id: 'r1', empId: 'e1', startDate: '2026-11-01', chain: [], status: 'pending' },
       { id: 'r2', empId: 'e2', startDate: '2026-11-02', chain: [], status: 'confirmed' }
     ],
-    protects: [{ id: 'p1', empId: 'e1', date: '2026-11-05', status: 'approved', needsApproval: false }],
+    protects: [{ id: 'p1', empId: 'e1', date: '2026-11-05', status: 'approved', needsApproval: false },
+      { id: 'p2', empId: 'e1', date: '2026-11-06', status: 'pending', needsApproval: true }],
     approvals: [{ id: 'ap1', refId: 'r1', type: 'leave', requestedBy: 'e1', approverIds: ['a1'], title: '휴가', summary: '', status: 'pending', decidedBy: null, decidedAt: null, decisionReason: '' }],
     settings: { quotaMax: 3 },
     monthlyApprovals: {}, auditLogs: [], excuses: []
@@ -144,21 +145,25 @@ test('타인 명의 취소, 비로그인 취소, 이미 처리된 건 취소는 
   // 로그인 없이 취소하려 하면 거부된다.
   assert.equal((await f.cancel('request', 'r1', '')).status, 401);
 
+  assert.equal((await f.cancel('request', 'r2', asE2.data.token)).status, 409);
+
   const asE1 = await f.loginEmployee('e1', 'correct-pin-1');
   assert.equal((await f.cancel('request', 'r1', asE1.data.token)).status, 200);
   // 이미 취소된 건을 다시 취소하려 하면 거부된다.
   assert.equal((await f.cancel('request', 'r1', asE1.data.token)).status, 409);
 });
 
-test('비번 보장 신청도 본인 확인 후 취소할 수 있다', async t => {
+test('승인 대기 비번 보장만 본인이 취소할 수 있다', async t => {
   const f = await fixture(t);
   await f.loginAdmin();
   await f.setEmployeePin('e1', 'correct-pin-1');
   const login = await f.loginEmployee('e1', 'correct-pin-1');
-  const res = await f.cancel('protect', 'p1', login.data.token);
+  assert.equal((await f.cancel('protect', 'p1', login.data.token)).status, 409);
+  const res = await f.cancel('protect', 'p2', login.data.token);
   assert.equal(res.status, 200);
   const state = await f.state();
-  assert.equal(state.protects.find(p => p.id === 'p1').status, 'cancelled');
+  assert.equal(state.protects.find(p => p.id === 'p1').status, 'approved');
+  assert.equal(state.protects.find(p => p.id === 'p2').status, 'cancelled');
 });
 
 test('관리자가 employeePins로 설정한 PIN은 평문으로 노출되지 않는다', async t => {
