@@ -14,24 +14,25 @@ function source(name) {
 }
 const functions = ['fmt', 'addDays', 'empName', 'isEmployeeActiveOnDate',
   'isActiveProtection', 'isProtectedOn', 'findByBaseShift', 'substituteNote', 'buildChain',
-  'protectCountInMonth', 'protectionRequestError', 'getSelectableRequestDates', 'confirmChain', 'submitProtect'];
+  'protectCountInMonth', 'protectionRequestError', 'confirmChain', 'submitProtect'];
 const d0 = '2099-01-31', d1 = '2099-02-01';
 const date = value => new Date(value + 'T00:00:00');
 function setup() {
   const shifts = { a: ['야', '조'], b: ['O', '일'], c: ['일', 'O'], d: ['조', '야'] };
-  const fields = { '#proEmp': { value: 'b' }, '#proDate': { value: d0 }, '#proReason': { value: '' }, '#modalBg': { classList: { remove() {} } } };
+  const fields = { '#proReason': { value: '', focus() {} }, '#proReasonWrap': {}, '#modalConfirm': {} };
   let saves = 0;
   const context = vm.createContext({
     EMPLOYEES: Object.keys(shifts).map(id => ({ id, name: id, routine: true, startDate: '2099-01-01' })),
     STATE: { requests: [], protects: [], settings: { quotaMax: 3 } },
-    REQUEST_HORIZON_DAYS: 92, pendingChain: null, alerts: [], approvals: [],
+    employeeId: 'b', pendingChain: null, pendingProtection: { empId: 'b', dateKey: d0 }, alerts: [], approvals: [],
     getToday: () => date('2099-01-01'),
     isRoutineWorker: employee => employee.routine !== false,
     effectiveShift: (id, day) => shifts[id]?.[day.getMonth() === 0 ? 0 : 1],
     $: selector => fields[selector],
     uid: () => 'request' + saves,
     getApprovers: () => [],
-    notify() {}, renderAll() {}, saveState: () => saves++, requireEmployeeLogin: () => true,
+    notify() {}, renderAll() {}, showToast() {}, requestError: message => context.alerts.push(message),
+    closeScheduleRequest: () => { context.pendingChain = null; context.pendingProtection = null; }, saveState: () => saves++, requireEmployeeLogin: () => true,
     createApproval: value => context.approvals.push(value)
   });
   context.alert = message => context.alerts.push(message);
@@ -90,14 +91,13 @@ test('protected or non-routine secondary substitutes cannot be assigned', () => 
     f => { f.c.EMPLOYEES.find(e => e.id === 'c').endDate = d0; }
   ]) { const f = setup(); change(f); assert.ok(f.build().error); }
 });
-test('applicant must have both active night and morning shifts; date picker agrees', () => {
+test('applicant must have both active night and morning shifts', () => {
   for (const change of [
     f => { f.shifts.a[1] = '휴가'; },
     f => { f.c.EMPLOYEES[0].endDate = d0; }
   ]) {
     const f = setup(); change(f);
     assert.ok(f.build().error);
-    assert.equal(f.c.getSelectableRequestDates('a', 'set', date(d0), 1).length, 0);
   }
 });
 test('invalid, past and inactive request dates are rejected', () => {
@@ -122,15 +122,15 @@ test('rejected/cancelled protection frees the day and quota; legacy duplicates c
   assert.equal(c.isProtectedOn('b', date(d0)), false);
   assert.equal(c.protectionRequestError('b', date(d0)), '');
 });
-test('direct date input and double submission cannot duplicate protection', () => {
+test('confirming protection twice cannot create two requests', () => {
   const f = setup(); f.c.submitProtect(); f.c.submitProtect();
   assert.equal(f.c.STATE.protects.length, 1);
   assert.equal(f.saves(), 1);
-  assert.match(f.c.alerts[0], /이미/);
+  assert.equal(f.c.pendingProtection, null);
 });
 test('protection validates past dates, inactive employees and non-off-duty shifts before saving', () => {
   for (const change of [
-    f => { f.fields['#proDate'].value = '2098-12-31'; },
+    f => { f.c.pendingProtection.dateKey = '2098-12-31'; },
     f => { f.c.EMPLOYEES[1].startDate = d1; },
     f => { f.c.EMPLOYEES[1].endDate = '2099-01-30'; },
     f => { f.shifts.b[0] = '교육'; }
@@ -150,7 +150,7 @@ test('quota overflow creates a pending request only with a reason', () => {
   assert.equal(f.c.approvals.length, 1);
 });
 test('a changed preview is not silently confirmed and successful confirmation is single-use', () => {
-  const f = setup();
+  const f = setup(); f.c.employeeId = 'a';
   f.c.pendingChain = { empId: 'a', type: 'set', startDate: d0, chain: f.build().chain };
   f.shifts.d = ['O', 'O'];
   f.c.STATE.protects.push({ empId: 'b', date: d1, status: 'pending' });
