@@ -2746,13 +2746,19 @@
     const rail = $('#activityApprovalHistoryRail');
     if (rail) rail.hidden = !admin;
     if (!admin) {
-      renderOwnApprovalInbox(employee, wrap);
       // 관리자가 아니어도 담당자는 PIN으로 승인할 수 있다(security.decide). 처리할 건은 따로 보여준다.
       const decidable = approverDecidableApprovals(employee);
+      if (employee) renderOwnApprovalInbox(employee, wrap);
+      else {
+        // 직원 로그인 없이 연 화면(승인 담당자)에는 '내 신청'이 없으므로 처리할 건만 보여준다.
+        $('#activityApprovalCount').textContent = `대기 ${decidable.length}건`;
+        $('#approveTitle').textContent = decidable.length ? `처리할 신청 ${decidable.length}건` : '처리할 신청이 없어요';
+        wrap.innerHTML = decidable.length ? '' : '<div class="activity-empty"><p class="empty">승인 대기 건이 없습니다.</p></div>';
+      }
       if (actorPick) actorPick.hidden = !decidable.length;
       if (decidable.length) {
         fillApprovalActorSelect(decidable);
-        wrap.innerHTML += `<h3>담당자로 처리할 신청 ${decidable.length}건</h3><p class="muted">위에서 담당자 이름을 고르고 승인·반려를 누르면 담당자 PIN을 물어봐요.</p>${decidable.map(approvalCard).join('')}`;
+        wrap.innerHTML += `${employee ? `<h3>담당자로 처리할 신청 ${decidable.length}건</h3>` : ''}<p class="muted">위에서 담당자 이름을 고르고 승인·반려를 누르면 담당자 PIN을 물어봐요.</p>${decidable.map(approvalCard).join('')}`;
       }
       return;
     }

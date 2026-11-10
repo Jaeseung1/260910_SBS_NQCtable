@@ -414,3 +414,22 @@ test('editing lock auto-releases after the heartbeat times out', async t => {
   assert.equal((await f.api('/api/lock')).data.locked, false, '하트비트가 끊긴 지 오래됐으면 자동 해제되어야 한다');
   assert.equal((await f.api('/api/lock/acquire', {})).status, 200, '해제된 뒤에는 직원도 새로 잠글 수 있어야 한다');
 });
+
+test('직원 로그인 없이 연 승인함에는 처리할 건만 보이고 내 신청 안내는 없다', () => {
+  const html = readFileSync(path.join(root, 'index.html'), 'utf8');
+  const script = html.match(/<script>([\s\S]*?)<\/script>/)[1];
+  const nodes = { '#approvalActorSelect': { value: '' }, '#approvalActorPick': { hidden: true }, '#approvalList': {}, '#activityApprovalCount': {}, '#approveTitle': {} };
+  const approvals = [{ id: 'x', status: 'pending', type: 'leave', title: '휴가', summary: '', requestedBy: 'e2', approverIds: ['a'], requestedAt: new Date().toISOString() }];
+  const context = vm.createContext({ $: selector => nodes[selector], STATE: { approvals, requests: [], protects: [] }, getApprovers: () => [{ id: 'a', name: '팀장' }], activityViewer: () => ({ admin: false, employee: '' }), approverName: id => id, APPROVAL_TYPE_LABEL: { leave: '휴가' } });
+  const escape = script.slice(script.indexOf('  function escapeAttribute'), script.indexOf('  function isStandardShift'));
+  const own = script.slice(script.indexOf('  function renderOwnApprovalInbox'), script.indexOf('  function renderApprovalInbox'));
+  const render = script.slice(script.indexOf('  function renderApprovalInbox'), script.indexOf('  function renderApprovalHistory'));
+  vm.runInContext(escape + own + render + '\nrenderApprovalInbox();', context);
+  assert.equal(nodes['#approveTitle'].textContent, '처리할 신청 1건');
+  assert.doesNotMatch(nodes['#approvalList'].innerHTML, /로그인하면 내 신청/);
+  assert.match(nodes['#approvalList'].innerHTML, /data-id="x"/);
+  approvals.length = 0;
+  vm.runInContext('renderApprovalInbox();', context);
+  assert.match(nodes['#approvalList'].innerHTML, /승인 대기 건이 없습니다/);
+  assert.equal(nodes['#approvalActorPick'].hidden, true);
+});
