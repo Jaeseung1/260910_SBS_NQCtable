@@ -1356,9 +1356,15 @@
   function enterApproverView() {
     approverViewing = true;
     applyEmployeeGate();
-    const tabBtn = document.querySelector('#tabbar button[data-tab="approve"]');
-    if (tabBtn) tabBtn.click();
+    openApproverInbox();
     openApprovalFromLink();
+  }
+  // 승인함 열기: '승인함' 탭이 있으면 그 탭, 탭이 '대근 · 승인 · 기록'으로 합쳐져 있으면 그 안의 승인함을 연다.
+  function openApproverInbox() {
+    const approveTab = document.querySelector('#tabbar button[data-tab="approve"]');
+    if (approveTab) { approveTab.click(); return; }
+    document.querySelector('#tabbar button[data-tab="activity"]')?.click();
+    document.querySelector('[data-activity="approve"]')?.click();
   }
   function finishLogin() {
     scheduleFocusEmp = null;
