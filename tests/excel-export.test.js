@@ -70,7 +70,7 @@ test('XML special characters are text and no extra workers silently disappear', 
 });
 test('browser export uses visible month, monthly order, active dates and effective shifts', async () => {
   const html = await fs.readFile(path.join(__dirname,'../index.html'),'utf8');
-  const fn = html.slice(html.indexOf('  function isDispatchedDayWorker(employee){'),html.indexOf('  async function exportPdf(){'));
+  const fn = html.slice(html.indexOf('  // 이름으로 판별하므로 앞뒤 공백'),html.indexOf('  async function exportPdf(){'));
   let body; let downloaded; let revoked; const button={disabled:false};
   const context = {
     STATE:{settings:{dayWorkerName:'변경한 일근자'}},
@@ -92,6 +92,15 @@ test('browser export uses visible month, monthly order, active dates and effecti
   assert.equal(body.tcStaff[0].shifts.length,29); assert.equal(body.tcStaff[0].shifts[0],'야');
   assert.equal(body.holidays[8],true); assert.match(downloaded,/2028년 2월.*xlsx$/);
   assert.equal(button.disabled,false); assert.equal(revoked,'blob:test');
+  // 이름으로 찾지 못하면(공백 차이는 무시) 아무도 빼지 않고 경고한다.
+  const toasts=[];
+  for (const [name, excluded] of [['  변경한   일근자 ',true],['없는 이름',false]]) {
+    toasts.length=0; context.STATE.settings.dayWorkerName=name; context.showToast=(m,t)=>toasts.push([m,t]);
+    await vm.runInContext('exportExcel()',context);
+    assert.equal(/변경한 일근자/.test(JSON.stringify(body)), !excluded);
+    assert.equal(toasts[0][1], excluded ? 'ok' : 'warn');
+    if (!excluded) assert.match(toasts[0][0], /찾지 못해/);
+  }
 });
 
 for (const count of [0,1,3]) {
