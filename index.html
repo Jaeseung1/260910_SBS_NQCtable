@@ -335,6 +335,9 @@
   .stat-row b{font-size:18px;color:var(--text);}
   .tip-card h2{margin:0 0 6px;}
   .tip-card p{margin:0 0 14px;font-size:13.5px;line-height:1.6;color:var(--muted);}
+  .activity-nav{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px;}
+  .activity-nav [aria-pressed="true"]{color:var(--accent-text);border-color:var(--accent-text);}
+
   /* 승인함 */
   .approval-card{background:var(--panel);border-radius:var(--radius);box-shadow:var(--shadow);border:1px solid rgba(226,213,199,.6);padding:20px 24px;margin-bottom:14px;display:flex;flex-direction:column;gap:12px;}
   .approval-card-head{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;}
@@ -398,9 +401,7 @@
     <nav id="tabbar" inert aria-label="메뉴">
       <button type="button" data-tab="schedule" class="active">근무표</button>
       <button type="button" data-tab="apply">신청하기</button>
-      <button type="button" data-tab="cover">내 대근</button>
-      <button type="button" data-tab="approve">승인함 <span class="nav-count" id="approvalCountBadge" hidden>0</span></button>
-      <button type="button" data-tab="notif">기록</button>
+      <button type="button" data-tab="activity">대근 · 승인 · 기록 <span class="nav-count" id="approvalCountBadge" hidden>0</span></button>
       <button type="button" data-tab="settings">설정</button>
     </nav>
     <div class="account">
@@ -590,7 +591,13 @@
     </div>
   </section>
 
-  <section id="tab-cover" style="display:none;">
+  <section id="tab-activity" style="display:none;">
+    <nav id="activityNav" class="activity-nav" aria-label="대근 · 승인 · 기록">
+      <button type="button" class="btn secondary" data-activity="cover" aria-controls="activity-cover" aria-pressed="true">내 대근</button>
+      <button type="button" class="btn secondary" data-activity="approve" aria-controls="activity-approve" aria-pressed="false">승인함</button>
+      <button type="button" class="btn secondary" data-activity="notif" aria-controls="activity-notif" aria-pressed="false">기록</button>
+    </nav>
+    <div id="activity-cover" data-activity-panel>
     <div class="page-head">
       <div>
         <span class="kicker">내 대근</span>
@@ -615,9 +622,9 @@
         </div>
       </aside>
     </div>
-  </section>
+    </div>
 
-  <section id="tab-approve" style="display:none;">
+    <div id="activity-approve" data-activity-panel hidden>
     <div class="page-head">
       <div>
         <span class="kicker">승인함</span>
@@ -637,9 +644,9 @@
         </div>
       </aside>
     </div>
-  </section>
+    </div>
 
-  <section id="tab-notif" style="display:none;">
+    <div id="activity-notif" data-activity-panel hidden>
     <div class="page-head page-head-stack">
       <span class="kicker">기록</span>
       <h1>알림 기록</h1>
@@ -648,6 +655,7 @@
       <h2>보낸 알림</h2>
       <p style="font-size:12.5px;color:var(--muted);margin-top:-6px;">화면에서 발생한 알림 내역입니다. 실제 메일은 승인 요청이 생길 때 담당자에게 즉시 발송되고, 변경된 대근·휴가·비번 보장 내용은 매일 정해진 시각에 근무자와 담당자에게 요약 메일로 발송됩니다(서버 .env 설정 필요).</p>
       <div id="notifList"><p class="empty">발송 로그가 없습니다.</p></div>
+    </div>
     </div>
   </section>
 
@@ -2882,13 +2890,24 @@
     showToast('담당자에게 월 근무표 확정 요청을 보냈습니다.');
   }
 
+  function selectActivity(name){
+    $$('#activityNav [data-activity]').forEach(button => {
+      button.setAttribute('aria-pressed', String(button.dataset.activity === name));
+    });
+    $$('[data-activity-panel]').forEach(panel => { panel.hidden = panel.id !== 'activity-' + name; });
+  }
+
+  function openApprovalInbox(){
+    selectActivity('approve');
+    $('#tabbar button[data-tab="activity"]').click();
+  }
+
   // 사내메일로 받은 승인 링크(?approve=<id>)로 들어오면 승인함 탭을 바로 열어준다.
   function openApprovalFromLink(){
     const params = new URLSearchParams(location.search);
     const approvalId = params.get('approve');
     if (!approvalId) return;
-    const tabBtn = document.querySelector('#tabbar button[data-tab="approve"]');
-    if (tabBtn) tabBtn.click();
+    openApprovalInbox();
     const approval = STATE.approvals.find(a => a.id === approvalId);
     if (!approval){
       showToast('해당 승인 건을 찾을 수 없습니다. 이미 처리되었거나 삭제된 건일 수 있습니다.', 'warn');
@@ -3898,8 +3917,10 @@
       scheduleFocusEmp = chip.dataset.person;
       renderScheduleTab();
     });
-    $('#railApprovalLink').addEventListener('click', () => {
-      document.querySelector('#tabbar button[data-tab="approve"]').click();
+    $('#railApprovalLink').addEventListener('click', openApprovalInbox);
+    $('#activityNav').addEventListener('click', event => {
+      const button = event.target.closest('[data-activity]');
+      if (button) selectActivity(button.dataset.activity);
     });
 
     const initMonth = new Date();
