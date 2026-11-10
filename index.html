@@ -318,6 +318,11 @@
   .cal-legend i{display:inline-block;width:12px;height:12px;border-radius:4px;margin-right:5px;vertical-align:-1px;border:1.5px solid var(--accent);background:#fff;}
   .cal-legend i.sel{background:var(--accent);}
   .cal-legend i.taken{border-style:dashed;border-color:var(--line2);background:var(--sunk);}
+  #scheduleRequests{margin-top:20px;}
+  #scheduleRequests summary,.shift[data-request-date]{cursor:pointer;}
+  button.shift[data-request-date]{border:0;font:inherit;font-weight:700;}
+  button.shift[data-request-date]:focus-visible{outline:2px solid var(--accent-text);}
+
   /* 내 대근 */
   .cover-card{display:flex;gap:18px;align-items:flex-start;background:var(--panel);border-radius:var(--radius);box-shadow:var(--shadow);border:1px solid rgba(226,213,199,.6);padding:20px 22px;margin-bottom:14px;}
   .cover-date{width:64px;flex:none;display:flex;flex-direction:column;align-items:center;padding:10px 0;border-radius:14px;background:var(--bg);}
@@ -504,9 +509,9 @@
     </aside>
       </div>
     </div>
-  </section>
-
-  <section id="tab-apply" style="display:none;">
+    <details id="scheduleRequests">
+      <summary class="panel">휴가 · 비번 보장 신청 및 내역</summary>
+      <div id="scheduleRequestForm">
     <div class="page-head page-head-stack">
       <span class="kicker">신청하기</span>
       <h1>무엇을 신청할까요?</h1>
@@ -588,6 +593,8 @@
         </div>
       </aside>
     </div>
+      </div>
+    </details>
   </section>
 
   <section id="tab-cover" style="display:none;">
@@ -1970,7 +1977,13 @@
         // 칸 안의 둥근 칩이 근무를 말한다.
         const chipClasses = ['shift', cellClass];
         if (isProtectedOn(emp.id, date)) chipClasses.push('cell-protected');
-        r += `<td class="${escapeAttribute(dateColClass)}"${span > 1 ? ` colspan="${span}"` : ''}><span class="${escapeAttribute(chipClasses.join(' '))}">${escapeAttribute(sh)}</span></td>`;
+        const canRequest = span === 1 && employeeToken && Date.now() < employeeUntil && emp.id === employeeId
+          && ['일', '야', '조', 'O'].includes(sh) && fmt(date) >= todayKey;
+        const chipClass = escapeAttribute(chipClasses.join(' '));
+        const chip = canRequest
+          ? `<button type="button" class="${chipClass}" data-request-date="${fmt(date)}" aria-label="${fmt(date)} ${escapeAttribute(sh)} 신청">${escapeAttribute(sh)}</button>`
+          : `<span class="${chipClass}">${escapeAttribute(sh)}</span>`;
+        r += `<td class="${escapeAttribute(dateColClass)}"${span > 1 ? ` colspan="${span}"` : ''}>${chip}</td>`;
       }
       r += '</tr>';
       rows += r;
@@ -3851,6 +3864,22 @@
     }
   }
 
+  function openScheduleRequest(kind, date){
+    const details = $('#scheduleRequests');
+    details.open = true;
+    setApplyKind(kind);
+    if (date) {
+      const input = $(kind === 'protect' ? '#proDate' : '#reqDate');
+      if (kind === 'protect' && input.value !== fmt(date)) $('#proReason').value = '';
+      const host = $(kind === 'protect' ? '#proAvailableDatePills' : '#availableDatePills');
+      pickCalMonth[host.id] = new Date(date.getFullYear(), date.getMonth(), 1);
+      input.value = fmt(date);
+      input.dispatchEvent(new Event('change'));
+    }
+    details.querySelector('summary').focus();
+    details.scrollIntoView({ block: 'start' });
+  }
+
   function initTabs(){
     $$('#tabbar button').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -3890,6 +3919,7 @@
     populateEmpSelects();
     populateYearSelect();
     populateMonthSelect();
+    $('#tabbar button[data-tab="apply"]').remove();
     initTabs();
     // 사람별로 보기: 고른 사람 줄만 진하게, 오른쪽에 그 사람의 이번 주. 저장하지 않는 화면 표시다.
     $('#personFilters').addEventListener('click', event => {
@@ -3963,8 +3993,24 @@
       if (card) setApplyKind(card.dataset.applyKind);
     });
     $('#coverToProtectBtn').addEventListener('click', () => {
-      document.querySelector('#tabbar button[data-tab="apply"]').click();
-      setApplyKind('protect');
+      $('#tabbar button[data-tab="schedule"]').click();
+      openScheduleRequest('protect');
+    });
+    $('#scheduleTable').addEventListener('click', event => {
+      const cell = event.target.closest('[data-request-date]');
+      if (!cell || !requireEmployeeLogin('신청')) return;
+      const date = new Date(cell.dataset.requestDate + 'T00:00:00');
+      const shift = effectiveShift(employeeId, date);
+      if (shift === '일') openScheduleRequest('day', date);
+      else if (shift === 'O') openScheduleRequest('protect', date);
+      else if (shift === '야' || shift === '조') {
+        const night = shift === '조' ? addDays(date, -1) : date;
+        if (!getSelectableRequestDates(employeeId, 'set', night, 1).length || fmt(night) < fmt(getToday())) {
+          showToast('신청 가능한 야·조 세트가 아닙니다. 야근일과 다음 날 조근을 확인해주세요.', 'warn');
+          return;
+        }
+        openScheduleRequest('set', night);
+      }
     });
     // 설정: 왼쪽 메뉴로 한 영역씩 보여 준다.
     $('#settingsNav').addEventListener('click', event => {

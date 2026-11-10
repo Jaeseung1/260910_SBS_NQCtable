@@ -7,7 +7,7 @@ const vm = require('node:vm');
 
 const html = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
 const script = html.match(/<script>([\s\S]*?)<\/script>/)[1];
-const scheduleTab = html.slice(html.indexOf('<section id="tab-schedule">'), html.indexOf('<section id="tab-apply"'));
+const scheduleTab = html.match(/<section id="tab-schedule">[\s\S]*?<\/section>/)[0];
 
 test('근무표 탭 안에는 section 이 하나뿐이다 (탭 전환이 main 안의 section 을 전부 숨긴다)', () => {
   assert.equal(scheduleTab.match(/<section/g).length, 1);
