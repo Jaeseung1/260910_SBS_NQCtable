@@ -2747,25 +2747,46 @@
     if (rail) rail.hidden = !admin;
     if (!admin) {
       renderOwnApprovalInbox(employee, wrap);
+      // 관리자가 아니어도 담당자는 PIN으로 승인할 수 있다(security.decide). 처리할 건은 따로 보여준다.
+      const decidable = approverDecidableApprovals(employee);
+      if (actorPick) actorPick.hidden = !decidable.length;
+      if (decidable.length) {
+        fillApprovalActorSelect(decidable);
+        wrap.innerHTML += `<h3>담당자로 처리할 신청 ${decidable.length}건</h3><p class="muted">위에서 담당자 이름을 고르고 승인·반려를 누르면 담당자 PIN을 물어봐요.</p>${decidable.map(approvalCard).join('')}`;
+      }
       return;
     }
-    const actorSel = $('#approvalActorSelect');
-    if (actorSel){
-      const prev = actorSel.value;
-      const approvers = getApprovers();
-      actorSel.innerHTML = approvers.length
-        ? approvers.map(a => `<option value="${escapeAttribute(a.id)}">${escapeAttribute(a.name)}</option>`).join('')
-        : '<option value="">등록된 담당자가 없습니다 — 설정 탭에서 등록</option>';
-      if (prev && approvers.some(a => a.id === prev)) actorSel.value = prev;
-    }
+    fillApprovalActorSelect();
     const pend = pendingApprovals();
     const count = $('#activityApprovalCount');
     if (count) count.textContent = `대기 ${pend.length}건`;
     const title = $('#approveTitle');
     if (title) title.textContent = pend.length ? `처리할 신청 ${pend.length}건` : '처리할 신청이 없어요';
     if (pend.length === 0){ wrap.innerHTML = '<div class="panel"><p class="empty">승인 대기 건이 없습니다.</p></div>'; return; }
+    wrap.innerHTML = pend.map(approvalCard).join('');
+  }
+
+  // 담당자 PIN으로 처리할 수 있는 승인 대기 건. 본인이 낸 신청은 본인이 처리하지 않도록 뺀다.
+  function approverDecidableApprovals(employee){
+    return STATE.approvals.filter(a => a.status === 'pending' && a.requestedBy !== employee && a.approverIds?.length);
+  }
+
+  // approvals를 넘기면 그 건들의 담당자만, 없으면 전체 담당자를 고를 수 있게 한다.
+  function fillApprovalActorSelect(approvals){
+    const actorSel = $('#approvalActorSelect');
+    if (!actorSel) return;
+    const prev = actorSel.value;
+    const ids = approvals ? new Set(approvals.flatMap(a => a.approverIds || [])) : null;
+    const approvers = getApprovers().filter(a => !ids || ids.has(a.id));
+    actorSel.innerHTML = approvers.length
+      ? approvers.map(a => `<option value="${escapeAttribute(a.id)}">${escapeAttribute(a.name)}</option>`).join('')
+      : '<option value="">등록된 담당자가 없습니다 — 설정 탭에서 등록</option>';
+    if (prev && approvers.some(a => a.id === prev)) actorSel.value = prev;
+  }
+
+  function approvalCard(a){
     const typeClass = { leave: 'leave', protect: 'set', monthly: 'day' };
-    wrap.innerHTML = pend.map(a => `<article class="approval-card">
+    return `<article class="approval-card">
       <div class="approval-card-head">
         <span class="tag ${typeClass[a.type] || 'warn'}">${escapeAttribute(APPROVAL_TYPE_LABEL[a.type] || a.type)}</span><b>${escapeAttribute(a.title)}</b>
         <time>${new Date(a.requestedAt).toLocaleString('ko-KR')} 요청</time>
@@ -2776,7 +2797,7 @@
         <button class="btn secondary" data-security-action="reject" data-id="${escapeAttribute(a.id)}">반려</button>
         <button class="btn" data-security-action="approve" data-id="${escapeAttribute(a.id)}">${a.type === 'monthly' ? '확정' : '승인'}</button>
       </div>
-    </article>`).join('');
+    </article>`;
   }
 
   function renderApprovalHistory(){
@@ -2988,7 +3009,8 @@
     const approvalId = params.get('approve');
     if (!approvalId) return;
     openApprovalInbox();
-    const approval = visibleActivityApprovals().find(a => a.id === approvalId);
+    // 메일 링크로 들어온 담당자는 관리자가 아닐 수 있으므로 전체 승인 목록에서 찾는다.
+    const approval = STATE.approvals.find(a => a.id === approvalId);
     if (!approval){
       showToast('해당 승인 건을 찾을 수 없습니다. 이미 처리되었거나 삭제된 건일 수 있습니다.', 'warn');
       return;

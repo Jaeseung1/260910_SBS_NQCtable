@@ -292,6 +292,27 @@ test('UI compiles and renders untrusted approval strings as text without inline 
   }
 });
 
+test('관리자가 아닌 담당자도 승인함에서 PIN으로 처리할 건을 볼 수 있다', () => {
+  const html = readFileSync(path.join(root, 'index.html'), 'utf8');
+  const script = html.match(/<script>([\s\S]*?)<\/script>/)[1];
+  const nodes = { '#approvalActorSelect': { value: '' }, '#approvalActorPick': { hidden: true }, '#approvalList': {}, '#activityApprovalCount': {}, '#approveTitle': {} };
+  const approvals = [
+    { id: 'other', status: 'pending', type: 'leave', title: '다른 사람 휴가', summary: '', requestedBy: 'e2', approverIds: ['a'], requestedAt: new Date().toISOString() },
+    { id: 'mine', status: 'pending', type: 'leave', title: '내 휴가', summary: '', requestedBy: 'e1', approverIds: ['a'], requestedAt: new Date().toISOString() }
+  ];
+  const context = vm.createContext({ $: selector => nodes[selector], STATE: { approvals, requests: [], protects: [] }, getApprovers: () => [{ id: 'a', name: '팀장' }, { id: 'b', name: '무관' }], activityViewer: () => ({ admin: false, employee: 'e1' }), approverName: id => id, APPROVAL_TYPE_LABEL: { leave: '휴가' } });
+  const escape = script.slice(script.indexOf('  function escapeAttribute'), script.indexOf('  function isStandardShift'));
+  const own = script.slice(script.indexOf('  function renderOwnApprovalInbox'), script.indexOf('  function renderApprovalInbox'));
+  const render = script.slice(script.indexOf('  function renderApprovalInbox'), script.indexOf('  function renderApprovalHistory'));
+  vm.runInContext(escape + own + render + '\nrenderApprovalInbox();', context);
+  assert.equal(nodes['#approvalActorPick'].hidden, false);
+  assert.match(nodes['#approvalList'].innerHTML, /다른 사람 휴가/);
+  assert.match(nodes['#approvalList'].innerHTML, /data-security-action="approve" data-id="other"/);
+  assert.doesNotMatch(nodes['#approvalList'].innerHTML, /data-id="mine"/);
+  assert.match(nodes['#approvalActorSelect'].innerHTML, /팀장/);
+  assert.doesNotMatch(nodes['#approvalActorSelect'].innerHTML, /무관/);
+});
+
 test('validation rejects duplicate IDs, prototype keys and deeply nested payloads', () => {
   const old = publicState(seed()), state = structuredClone(old);
   state.approvers.push(state.approvers[0]);
