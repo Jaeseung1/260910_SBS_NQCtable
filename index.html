@@ -1229,7 +1229,7 @@
     if (selectEl) selectEl.hidden = loggedIn;
     if (pinEl) pinEl.hidden = loggedIn || selectEl?.value === '__admin__';
     if (loginBtn) loginBtn.hidden = loggedIn;
-    if (logoutBtn) logoutBtn.hidden = !loggedIn && !approverViewing;
+    if (logoutBtn) logoutBtn.hidden = !loggedIn;
     ['#reqEmp', '#proEmp'].forEach(sel => {
       const select = $(sel);
       if (!select) return;
@@ -1257,6 +1257,8 @@
     $('#tabbar').hidden = !showApp;
     $('#refreshHolidayBtn').hidden = !showApp;
     updateLoginRoleFields();
+    // 승인 담당자 화면에서도 로그아웃 버튼으로 로그인 화면에 돌아갈 수 있게 한다.
+    if (logoutBtn && approverViewing) logoutBtn.hidden = false;
   }
   let gateAppliedEmp = '';
   function enterApproverView() {
