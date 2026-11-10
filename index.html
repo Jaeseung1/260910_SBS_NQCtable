@@ -386,6 +386,10 @@
     .schedule-sheet-header{flex-direction:column;align-items:stretch;}
     .approval-block{justify-content:flex-start;}
   }
+  .login-page{max-width:420px;margin:48px auto;padding:0 16px;}
+  #loginForm{display:grid;gap:10px;}
+  #loginForm h1{margin:0 0 8px;}
+  #loginForm label{margin:0;}
 </style>
 </head>
 <body>
@@ -395,7 +399,7 @@
       <img src="./sbs-logo.png" alt="SBS">
       <span class="brand-name">통합관제실 근무표</span>
     </button>
-    <nav id="tabbar" inert aria-label="메뉴">
+    <nav id="tabbar" hidden inert aria-label="메뉴">
       <button type="button" data-tab="schedule" class="active">근무표</button>
       <button type="button" data-tab="apply">신청하기</button>
       <button type="button" data-tab="cover">내 대근</button>
@@ -406,9 +410,6 @@
     <div class="account">
       <span id="lockStatus" class="lock-pill" role="status" hidden></span>
       <span id="employeeStatus" class="account-status" role="status">로그인이 필요합니다.</span>
-      <select id="employeeLoginSelect" aria-label="이름"><option value="">이름 선택</option><option value="__admin__">관리자</option></select>
-      <input id="employeeLoginPin" type="password" placeholder="PIN" maxlength="128" aria-label="PIN" style="width:96px">
-      <button id="employeeLoginBtn" type="button" class="btn">로그인</button>
       <button id="employeeLogoutBtn" type="button" class="btn secondary" hidden>로그아웃</button>
       <button class="btn secondary refresh-btn" id="refreshHolidayBtn" type="button" title="서버의 최신 근무표와 휴일 정보를 다시 불러옵니다">↻ 새로고침</button>
     </div>
@@ -428,7 +429,21 @@
     <button class="btn secondary" id="storageKeepBtn" type="button">계속 편집</button>
   </div>
 </div>
-<main inert>
+<div id="loginPage" class="login-page">
+  <form id="loginForm" class="panel">
+    <span class="kicker">통합관제실 근무표</span>
+    <h1>로그인</h1>
+    <label for="loginRole">로그인 유형</label>
+    <select id="loginRole"><option value="employee">근무자</option><option value="admin">관리자</option></select>
+    <label id="loginNameLabel" for="employeeLoginSelect">근무자 이름</label>
+    <select id="employeeLoginSelect"><option value="">이름 선택</option></select>
+    <label for="employeeLoginPin">PIN</label>
+    <input id="employeeLoginPin" type="password" maxlength="128" autocomplete="current-password" required>
+    <button id="employeeLoginBtn" type="submit" class="btn" disabled>로그인</button>
+  </form>
+</div>
+
+<main hidden inert>
   <section id="tab-schedule">
     <div id="schedulePageRoot">
       <div class="schedule-toolbar">
@@ -524,7 +539,7 @@
         </div>
 
         <div id="applyLeavePane">
-          <p id="reqLoginNotice" class="login-notice" hidden>오른쪽 위에서 내 이름으로 로그인하면 내 근무가 달력에 나오고 신청할 수 있어요.</p>
+          <p id="reqLoginNotice" class="login-notice" hidden>근무자로 로그인하면 내 근무가 달력에 나오고 신청할 수 있어요.</p>
           <div class="panel">
             <div class="step-head"><span class="step-no">2</span><h2 id="reqDateLabel">날짜</h2></div>
             <p id="reqHint" class="quota step-hint"></p>
@@ -551,7 +566,7 @@
         </div>
 
         <div id="applyProtectPane" hidden>
-          <p id="proLoginNotice" class="login-notice" hidden>오른쪽 위에서 내 이름으로 로그인하면 내 비번일이 달력에 나오고 신청할 수 있어요.</p>
+          <p id="proLoginNotice" class="login-notice" hidden>근무자로 로그인하면 내 비번일이 달력에 나오고 신청할 수 있어요.</p>
           <div class="panel">
             <div class="step-head"><span class="step-no">2</span><h2>날짜 — 내가 비번인 날</h2></div>
             <p class="quota step-hint">고른 날에는 휴가가 나도 내게 대근이 잡히지 않아요.</p>
@@ -893,11 +908,23 @@
 </div>
 
 <script>
-  document.getElementById('employeeLoginSelect').addEventListener('change', () => {
-    $('#employeeLoginPin').hidden = $('#employeeLoginSelect').value === '__admin__';
+  document.getElementById('loginRole').addEventListener('change', () => {
+    const isAdmin = $('#loginRole').value === 'admin';
+    $('#loginNameLabel').hidden = isAdmin;
+    $('#employeeLoginSelect').hidden = isAdmin;
+    $('#employeeLoginPin').value = '';
   });
-  document.getElementById('employeeLoginBtn').addEventListener('click', () => {
-    if ($('#employeeLoginSelect').value === '__admin__') loginAdmin(); else loginEmployee();
+  document.getElementById('loginForm').addEventListener('submit', async event => {
+    event.preventDefault();
+    const button = $('#employeeLoginBtn');
+    if (button.disabled) return;
+    button.disabled = true;
+    try {
+      if ($('#loginRole').value === 'admin') await loginAdmin($('#employeeLoginPin').value);
+      else await loginEmployee();
+    } finally {
+      button.disabled = false;
+    }
   });
   document.getElementById('employeeLogoutBtn').addEventListener('click', logoutEmployee);
   document.addEventListener('click', async event => {
@@ -1075,11 +1102,14 @@
     lockPollTimer = setInterval(pollLockStatus, 12000);
   }
 
-  async function loginAdmin() {
-    const input = await askCredential('서버 관리자 인증');
-    if (!input) return;
+  async function loginAdmin(secret) {
+    if (secret === undefined) {
+      const input = await askCredential('서버 관리자 인증');
+      if (!input) return;
+      secret = input.secret;
+    }
     try {
-      const result = await securityRequest('/api/auth/admin', { password: input.secret });
+      const result = await securityRequest('/api/auth/admin', { password: secret });
       adminToken = result.token;
       adminUntil = Date.now() + 15 * 60 * 1000;
       try {
@@ -1091,10 +1121,11 @@
         applyEmployeeGate();
         return;
       }
+      $('#employeeLoginPin').value = '';
       startLockHeartbeat();
       showLockBanner(null);
       securityMessage('관리자 인증 완료(15분). 하려던 작업을 다시 눌러주세요.');
-      applyEmployeeGate();
+      finishLogin();
       // 인증 전에는 저장이 막혀 있었을 수 있으니, 밀린 변경이 있으면 지금 바로 반영한다.
       if (stateSync && stateSync.info().dirty) await stateSync.retry();
     } catch (error) { securityMessage(error.message); }
@@ -1155,15 +1186,17 @@
       startLockHeartbeat();
       showLockBanner(null);
       $('#employeeLoginPin').value = '';
-      renderAll();
+      finishLogin();
     } catch (error) { employeeMessage(error.message); }
   }
-  // 로그인 선택 목록에 "관리자"도 함께 들어있으므로, 로그아웃도 현재 로그인된 쪽(관리자/직원)을
-  // 함께 정리한다 — 위젯이 하나뿐이라 사용자가 어느 쪽인지 신경 쓸 필요가 없다.
+  // 관리자와 근무자 모두 같은 로그아웃 버튼을 사용한다.
   function logoutEmployee() {
     releaseLockNow(adminToken, employeeToken);
     if (adminToken) { adminToken = ''; adminUntil = 0; securityMessage('관리자 인증을 해제했습니다.'); }
     employeeToken = ''; employeeUntil = 0; employeeId = ''; employeeDisplayName = '';
+    pendingChain = null;
+    $('#modalBg').classList.remove('show');
+    for (const selector of ['#reqDate', '#proDate', '#proReason', '#employeeLoginPin']) $(selector).value = '';
     renderAll();
     showToast('로그아웃했습니다.');
   }
@@ -1174,11 +1207,12 @@
     const adminLoggedIn = !!adminToken && Date.now() < adminUntil;
     const loggedIn = employeeLoggedIn || adminLoggedIn;
     employeeMessage(employeeLoggedIn ? `${employeeDisplayName}님으로 로그인됨` : adminLoggedIn ? '관리자로 로그인됨' : '로그인이 필요합니다.');
-    const selectEl = $('#employeeLoginSelect'), pinEl = $('#employeeLoginPin'), loginBtn = $('#employeeLoginBtn'), logoutBtn = $('#employeeLogoutBtn');
-    if (selectEl) selectEl.hidden = loggedIn;
-    if (pinEl) pinEl.hidden = loggedIn || selectEl?.value === '__admin__';
-    if (loginBtn) loginBtn.hidden = loggedIn;
-    if (logoutBtn) logoutBtn.hidden = !loggedIn;
+    const showApp = loggedIn || LOCAL_MODE;
+    $('#loginPage').hidden = showApp;
+    $('main').hidden = !showApp;
+    $('#tabbar').hidden = !showApp;
+    $('#refreshHolidayBtn').hidden = !showApp && !!stateSync?.info().ready;
+    $('#employeeLogoutBtn').hidden = !loggedIn;
     ['#reqEmp', '#proEmp'].forEach(sel => {
       const select = $(sel);
       if (!select) return;
@@ -1202,6 +1236,11 @@
     }
   }
   let gateAppliedEmp = '';
+  function finishLogin() {
+    scheduleFocusEmp = null;
+    $('#mainTitleBtn').click();
+    openApprovalFromLink();
+  }
 
   const STORE_KEY = 'ncq_schedule_v1';
   let STATE = normalizeState();
@@ -1855,8 +1894,8 @@
     const loginSelect = $('#employeeLoginSelect');
     if (loginSelect) {
       const current = loginSelect.value;
-      loginSelect.innerHTML = '<option value="">이름 선택</option><option value="__admin__">관리자</option>' + opts;
-      if (current === '__admin__' || EMPLOYEES.some(e => e.id === current)) loginSelect.value = current;
+      loginSelect.innerHTML = '<option value="">이름 선택</option>' + opts;
+      if (EMPLOYEES.some(e => e.id === current)) loginSelect.value = current;
     }
     applyEmployeeGate();
   }
@@ -3992,7 +4031,7 @@
     $('#exportExcelBtn').addEventListener('click', exportExcel);
     $('#requestMonthlyBtn').addEventListener('click', requestMonthlyApproval);
     $('#approverAddBtn').addEventListener('click', addApprover);
-    openApprovalFromLink();
+    if (LOCAL_MODE) openApprovalFromLink();
     $('#settingsSaveBtn').addEventListener('click', saveSettings);
     $('#adminSettingsSaveBtn').addEventListener('click', saveSettings);
     $('#quotaSaveBtn').addEventListener('click', saveQuota);
@@ -4019,8 +4058,14 @@
     renderSettings();
     renderAll();
 
+    $('#employeeLoginBtn').disabled = false;
     updateLiveClock();
     setInterval(updateLiveClock, 1000);
+    setInterval(() => {
+      if ((adminToken && Date.now() >= adminUntil) || (employeeToken && Date.now() >= employeeUntil)) {
+        logoutEmployee();
+      }
+    }, 1000);
 
     await refreshHolidayData({ silent: true });
     setInterval(() => refreshHolidayData({ silent: true }), Math.max(1, Number(STATE.settings.holidaySyncHours || 24)) * 60 * 60 * 1000);
