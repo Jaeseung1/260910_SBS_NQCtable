@@ -1689,8 +1689,8 @@
         { date: fmt(d0), empId: sub.id, shift: '대일', label: '대일(일근 대근)' }
       ] };
     }
-    if (effectiveShift(empId, d0) !== '야') return { error: '야·조 세트는 야근일부터 신청해주세요.' };
-    if (!isEmployeeActiveOnDate(employee, d1) || effectiveShift(empId, d1) !== '조') return { error: '다음 날이 적용 기간 내 조근인 경우에만 야·조 세트 휴가를 신청할 수 있습니다.' };
+    if (effectiveShift(empId, d0) !== '야') return { error: '야+조근 휴가는 야근 다음 날이 조근일 때만 신청할 수 있습니다.' };
+    if (!isEmployeeActiveOnDate(employee, d1) || effectiveShift(empId, d1) !== '조') return { error: '다음 날이 적용 기간 내 조근인 경우에만 야+조근 휴가를 신청할 수 있습니다.' };
     const first = findByBaseShift(d0, 'O', [empId]);
     if (!first.id) return { error: '1차 대근 가능한 루틴 근무자가 없습니다.' + substituteNote(first) };
     const unavailable = [];
