@@ -407,6 +407,7 @@
     </button>
     <nav id="tabbar" inert aria-label="메뉴">
       <button type="button" data-tab="schedule" class="active">근무표</button>
+      <button type="button" data-tab="apply">신청하기</button>
       <button type="button" data-tab="cover">내 대근</button>
       <button type="button" data-tab="approve">승인함 <span class="nav-count" id="approvalCountBadge" hidden>0</span></button>
       <button type="button" data-tab="notif">기록</button>
@@ -3687,6 +3688,8 @@
     populateEmpSelects();
     populateYearSelect();
     populateMonthSelect();
+    // 신청은 근무표 칸에서 한다. 탭 버튼은 다른 탭 PR과 충돌하지 않도록 실행 중에 뺀다.
+    $('#tabbar button[data-tab="apply"]').remove();
     initTabs();
     // 사람별로 보기: 고른 사람 줄만 진하게, 오른쪽에 그 사람의 이번 주. 저장하지 않는 화면 표시다.
     $('#personFilters').addEventListener('click', event => {
