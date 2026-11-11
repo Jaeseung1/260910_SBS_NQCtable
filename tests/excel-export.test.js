@@ -20,15 +20,15 @@ async function contents(data) {
 function cell(sheet, address) {
   return sheet.match(new RegExp(`<c r="${address}"[^>]*?(?:/>|>[\\s\\S]*?</c>)`))?.[0];
 }
-test('NC four, no TC row, one day worker and actual overrides', async () => {
+test('NC four, no TC or day-worker output, and actual overrides', async () => {
   const data = payload(); data.staff[0].shifts[0] = '휴가'; data.staff[1].shifts[1] = '대일'; data.holidays[8] = true;
   const {sheet} = await contents(data);
   assert.match(cell(sheet,'D13'),/최도인/); assert.match(cell(sheet,'D16'),/김건호/);
   assert.match(cell(sheet,'E13'),/휴가/); assert.match(cell(sheet,'F14'),/대일/);
   assert.doesNotMatch(sheet,/>TC</);
-  assert.match(cell(sheet,'C17'),/>일근</);
-  assert.match(cell(sheet,'D17'),/서예찬/); assert.match(cell(sheet,'E17'),/>일</);
-  assert.match(cell(sheet,'G17'),/>O</); assert.match(cell(sheet,'M17'),/>O</);
+  assert.match(sheet, /<row\b[^>]*\br="17"[^>]* hidden="1">/);
+  for (const column of ['C', 'D', 'E', 'G', 'M']) assert.match(cell(sheet, column + '17'), /\/>$/);
+  assert.doesNotMatch(sheet, /서예찬/);
   assert.match(cell(sheet,'AI10'),/<v>31<\/v>/);
 });
 for (const [year, month, days, firstBlank] of [[2026,2,28,'AG'],[2028,2,29,'AH'],[2026,4,30,'AI']]) {
@@ -70,12 +70,12 @@ test('XML special characters are text and no extra workers silently disappear', 
 });
 test('browser export uses visible month, monthly order, active dates and effective shifts', async () => {
   const html = await fs.readFile(path.join(__dirname,'../index.html'),'utf8');
-  const fn = html.slice(html.indexOf('  async function exportExcel(){'),html.indexOf('  async function exportPdf(){'));
+  const fn = html.slice(html.indexOf('  // 이름으로 판별하므로 앞뒤 공백'),html.indexOf('  async function exportPdf(){'));
   let body; let downloaded; let revoked; const button={disabled:false};
   const context = {
     STATE:{settings:{dayWorkerName:'변경한 일근자'}},
     $:()=>button, getCurrentMonthView:()=>({year:2028,monthIndex:1}),
-    getActiveStaff:()=>[{id:'b',name:'B',routine:true},{id:'day',name:'일근자',routine:false},{id:'a',name:'A',routine:true}],
+    getActiveStaff:()=>[{id:'b',name:'B',routine:true},{id:'day',name:'변경한 일근자',routine:false},{id:'tc',name:'교육생',routine:false},{id:'a',name:'A',routine:true}],
     isRoutineWorker:e=>e.routine, isEmployeeActiveOnDate:(e,d)=>e.id!=='b'||d.getDate()>1,
     effectiveShift:(id,d)=>id==='a'&&d.getDate()===2?'휴가':'야', getHolidayInfo:d=>d.getDate()===9?{}:null,
     fetch:async (url,options)=>{assert.equal(url,'/api/export/excel');body=JSON.parse(options.body);return {ok:true,blob:async()=>({})};},
@@ -85,13 +85,22 @@ test('browser export uses visible month, monthly order, active dates and effecti
   };
   vm.createContext(context); await vm.runInContext(fn+';exportExcel()',context);
   assert.equal(body.month,2); assert.equal(body.year,2028); assert.equal(body.staff[0].name,'B');
-  assert.equal(body.dayWorkerName,'변경한 일근자');
+  assert.doesNotMatch(JSON.stringify(body), /변경한 일근자/);
   assert.equal(body.staff.length,2); assert.equal(body.staff[0].shifts.length,29);
   assert.equal(body.staff[0].shifts[0],''); assert.equal(body.staff[1].shifts[1],'휴가');
-  assert.equal(body.tcStaff.length,1); assert.equal(body.tcStaff[0].name,'일근자');
+  assert.equal(body.tcStaff.length,1); assert.equal(body.tcStaff[0].name,'교육생');
   assert.equal(body.tcStaff[0].shifts.length,29); assert.equal(body.tcStaff[0].shifts[0],'야');
   assert.equal(body.holidays[8],true); assert.match(downloaded,/2028년 2월.*xlsx$/);
   assert.equal(button.disabled,false); assert.equal(revoked,'blob:test');
+  // 이름으로 찾지 못하면(공백 차이는 무시) 아무도 빼지 않고 경고한다.
+  const toasts=[];
+  for (const [name, excluded] of [['  변경한   일근자 ',true],['없는 이름',false]]) {
+    toasts.length=0; context.STATE.settings.dayWorkerName=name; context.showToast=(m,t)=>toasts.push([m,t]);
+    await vm.runInContext('exportExcel()',context);
+    assert.equal(/변경한 일근자/.test(JSON.stringify(body)), !excluded);
+    assert.equal(toasts[0][1], excluded ? 'ok' : 'warn');
+    if (!excluded) assert.match(toasts[0][0], /찾지 못해/);
+  }
 });
 
 for (const count of [0,1,3]) {
@@ -107,7 +116,7 @@ for (const count of [0,1,3]) {
       assert.match(cell(sheet,`AH${17+i}`),/\/>$/);
     }
     if(count) { assert.match(cell(sheet,'E17'),/\/>$/); assert.match(cell(sheet,'F17'),/휴가/); }
-    assert.match(cell(sheet,`D${17+count}`),/서예찬/);
+    assert.match(cell(sheet,`D${17+count}`),/\/>$/);
     assert.match(cell(sheet,`C${21+count}`),/09:00/);
     assert.match(cell(sheet,'AM10'),/&lt;휴가신청절차&gt;/);
     assert.match(cell(sheet,'AM14'),/대일/); assert.match(cell(sheet,'AM15'),/휴가/);
@@ -127,16 +136,17 @@ test('invalid TC payload is rejected', async () => {
   await assert.rejects(createWorkbook({...payload(),tcStaff:[{name:'교육생',shifts:[]}]}),{status:400});
 });
 
-test('configured day worker name replaces default with and without TC', async () => {
+test('legacy day worker name and shifts are not exported with or without TC', async () => {
   for (const count of [0,2]) {
     const data={...payload(),dayWorkerName:'  김일근 & 교육  ',tcStaff:Array.from({length:count},()=>({name:'교육생',shifts:Array(31).fill('일')}))};
     const {sheet}=await contents(data);
-    assert.match(cell(sheet,`D${17+count}`),/>김일근 &amp; 교육</);
+    assert.match(cell(sheet,`D${17+count}`),/\/>$/);
+    assert.doesNotMatch(sheet,/김일근/);
     assert.doesNotMatch(sheet,/서예찬/);
-    assert.match(cell(sheet,`E${17+count}`),/>일</);
+    assert.match(cell(sheet,`E${17+count}`),/\/>$/);
   }
   const {sheet}=await contents({...payload(),dayWorkerName:'   '});
-  assert.match(cell(sheet,'D17'),/서예찬/);
+  assert.match(cell(sheet,'D17'),/\/>$/);
   await assert.rejects(createWorkbook({...payload(),dayWorkerName:123}),{status:400});
   await assert.rejects(createWorkbook({...payload(),dayWorkerName:'가'.repeat(51)}),{status:400});
 });

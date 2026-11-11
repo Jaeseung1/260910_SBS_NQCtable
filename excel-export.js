@@ -54,6 +54,12 @@ async function fillTemplate(bytes, cells, grid = new Map(), tcCount = null) {
     sheet = sheet.replace(tcRow, Array.from({length:tcCount}, (_, i) =>
       tcRow.replace(/\br="([A-Z]*)17"/g, (_, col) => `r="${col}${17 + i}"`)).join(''));
   }
+  if (tcCount !== null) {
+    // Keep the template references intact; the old day-worker row has no exported values.
+    const dayRow = 17 + tcCount;
+    sheet = sheet.replace(new RegExp(`<row\\b[^>]*\\br="${dayRow}"[^>]*>`), row =>
+      row.replace(/\s+hidden="[^"]*"/, '').replace(/>$/, ' hidden="1">'));
+  }
   const seen = new Set();
   sheet = sheet.replace(/<c\b([^>]*?)(?:\/>|>[\s\S]*?<\/c>)/g, (whole, attrs) => {
     const address = /\br="([A-Z]+\d+)"/.exec(attrs)?.[1];
@@ -102,7 +108,7 @@ async function fillTemplate(bytes, cells, grid = new Map(), tcCount = null) {
 }
 
 const headings = () => new Map([
-  ['AA2','담        당'], ['AE2','팀        장'], ['C13','NC'], ['C17','TC'], ['C18','일근'], ['C22',LEGEND],
+  ['AA2','담        당'], ['AE2','팀        장'], ['C13','NC'], ['C17','TC'], ['C22',LEGEND],
   ['AM10','<휴가신청절차>'], ['AL12','1)'], ['AM12','휴가\n신청'], ['AO12','휴가신청'],
   ['AL14','2-1)'], ['AM14','대일'], ['AO14','대근 해당자가 직접 표기'], ['AM15','휴가']
 ]);
@@ -117,7 +123,6 @@ async function createWorkbook(data, templateBytes) {
   const grid = new Map();
   cells.set('K6', `${data.month}월  통합관제실 근무표`);
   cells.set('C10', `${data.year}년 ${data.month}월`);
-  cells.set(`D${dayRow}`, data.dayWorkerName?.trim() || '서예찬');
   tcStaff.forEach((person, i) => { cells.set(`C${17 + i}`, 'TC'); cells.set(`D${17 + i}`, person.name); });
   data.staff.forEach((person, i) => cells.set(`D${13 + i}`, person.name));
   for (let day = 1; day <= 31; day++) {
@@ -127,11 +132,10 @@ async function createWorkbook(data, templateBytes) {
     if (day <= days) {
       cells.set(`${col}10`, day);
       cells.set(`${col}12`, WEEKDAYS[weekday]);
-      cells.set(`${col}${dayRow}`, off ? 'O' : '일');
       tcStaff.forEach((person, i) => cells.set(`${col}${17 + i}`, person.shifts[day - 1]));
       data.staff.forEach((person, i) => cells.set(`${col}${13 + i}`, person.shifts[day - 1]));
     }
-    for (let row = 10; row <= dayRow; row++) {
+    for (let row = 10; row < dayRow; row++) {
       const value = cells.get(`${col}${row}`);
       grid.set(`${col}${row}`, {header:row <= 12, fill:value === '휴가' ? 3 : off ? 6 : 2});
     }
