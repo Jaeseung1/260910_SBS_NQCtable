@@ -127,12 +127,28 @@ function validateSave(previous, incoming, admin, employeeId = null) {
 function createSecurity({ db, getState, setState, adminPassword = process.env.ADMIN_PASSWORD || '' }) {
   db.exec('CREATE TABLE IF NOT EXISTS approval_credentials (id TEXT PRIMARY KEY, salt TEXT NOT NULL, hash TEXT NOT NULL)');
   db.exec('CREATE TABLE IF NOT EXISTS employee_credentials (id TEXT PRIMARY KEY, salt TEXT NOT NULL, hash TEXT NOT NULL)');
-  const sessions = new Map(), employeeSessions = new Map(), attempts = new Map();
+  // 기본 PIN(0000) 상태인 직원. 이 목록에 있으면 첫 로그인 때 PIN을 바꾸기 전에는 다른 일을 할 수 없다.
+  db.exec('CREATE TABLE IF NOT EXISTS employee_default_pins (id TEXT PRIMARY KEY)');
+  const DEFAULT_EMPLOYEE_PIN = '0000';
+  const sessions = new Map(), employeeSessions = new Map(), approverSessions = new Map(), attempts = new Map();
   const adminSalt = randomBytes(16).toString('hex');
   const adminHash = scryptSync(adminPassword, adminSalt, 32).toString('hex');
   function writePin(table, id, pin) {
     const salt = randomBytes(16).toString('hex');
     db.prepare(`INSERT INTO ${table} VALUES (?, ?, ?) ON CONFLICT(id) DO UPDATE SET salt=excluded.salt, hash=excluded.hash`).run(id, salt, scryptSync(pin, salt, 32).toString('hex'));
+  }
+  // PIN이 없는 직원에게 기본 PIN을 넣는다. 처음 등록할 때와, 서버가 뜰 때 PIN 없는 기존 직원에게 쓴다.
+  function ensureDefaultEmployeePin(id) {
+    if (db.prepare('SELECT id FROM employee_credentials WHERE id=?').get(id)) return;
+    writePin('employee_credentials', id, DEFAULT_EMPLOYEE_PIN);
+    db.prepare('INSERT OR IGNORE INTO employee_default_pins VALUES (?)').run(id);
+  }
+  function setEmployeePin(id, pin) {
+    writePin('employee_credentials', id, pin);
+    db.prepare('DELETE FROM employee_default_pins WHERE id=?').run(id);
+  }
+  function hasDefaultPin(id) {
+    return !!db.prepare('SELECT id FROM employee_default_pins WHERE id=?').get(id);
   }
   function transaction(work) {
     db.exec('BEGIN IMMEDIATE');
@@ -153,9 +169,10 @@ function createSecurity({ db, getState, setState, adminPassword = process.env.AD
       if (typeof a.pin === 'string' && a.pin && !db.prepare('SELECT id FROM approval_credentials WHERE id=?').get(a.id)) writePin('approval_credentials', a.id, a.pin);
       return { ...publicState(a), pinConfigured: !!db.prepare('SELECT id FROM approval_credentials WHERE id=?').get(a.id) };
     });
-    state.employees = (row.state.employees || []).map(e => ({
-      ...publicState(e), pinConfigured: !!db.prepare('SELECT id FROM employee_credentials WHERE id=?').get(e.id)
-    }));
+    state.employees = (row.state.employees || []).map(e => {
+      ensureDefaultEmployeePin(e.id);
+      return { ...publicState(e), pinConfigured: true };
+    });
     // .env에 기본 담당자(DEFAULT_APPROVER_*)를 설정해두면, 담당자가 0명이 되지 않도록 서버가
     // 뜰 때마다 그 담당자를 등록/동기화한다. PIN은 화면에서 직접 정하지 않는 한 자동 생성되며,
     // 실사용은 관리자 로그인으로 처리(PIN 불필요)하는 걸 전제로 한다.
@@ -175,11 +192,23 @@ function createSecurity({ db, getState, setState, adminPassword = process.env.AD
     sessions.delete(token);
     return false;
   }
-  function isEmployee(req) {
+  // 기본 PIN으로 로그인한 세션(mustChange)은 PIN을 바꾸기 전까지 직원 권한으로 인정하지 않는다.
+  function employeeSession(req) {
     const token = req.get('X-Employee-Token');
     const session = employeeSessions.get(token);
-    if (session && session.expires > Date.now()) return session.empId;
+    if (session && session.expires > Date.now()) return session;
     employeeSessions.delete(token);
+    return null;
+  }
+  function isEmployee(req) {
+    const session = employeeSession(req);
+    return session && !session.mustChange ? session.empId : null;
+  }
+  function approverSession(req) {
+    const token = req.get('X-Approver-Token');
+    const session = approverSessions.get(token);
+    if (session && session.expires > Date.now()) return session.approverId;
+    approverSessions.delete(token);
     return null;
   }
   function verify(key, value, salt, hash) {
@@ -208,14 +237,44 @@ function createSecurity({ db, getState, setState, adminPassword = process.env.AD
     const row = getState();
     const employee = row?.state?.employees?.find(e => e.id === empId);
     if (!employee) fail(400, '등록된 직원이 아닙니다.');
+    ensureDefaultEmployeePin(empId);
     const credentials = db.prepare('SELECT salt, hash FROM employee_credentials WHERE id=?').get(empId);
-    if (!credentials) fail(403, 'PIN이 설정되지 않았습니다. 관리자에게 설정을 요청해주세요.');
     verify('employee:' + empId, pin, credentials.salt, credentials.hash);
     for (const [token, session] of employeeSessions) if (session.expires <= Date.now()) employeeSessions.delete(token);
     if (employeeSessions.size >= 100) employeeSessions.delete(employeeSessions.keys().next().value);
     const token = randomBytes(32).toString('hex');
-    employeeSessions.set(token, { empId, expires: Date.now() + 15 * 60 * 1000 });
-    return { token, empId, name: employee.name };
+    const mustChange = hasDefaultPin(empId);
+    employeeSessions.set(token, { empId, mustChange, expires: Date.now() + 15 * 60 * 1000 });
+    return { token, empId, name: employee.name, mustChangePin: mustChange };
+  }
+  // 직원 본인 PIN 변경. 로그인 토큰과 현재 PIN을 함께 확인한다. 기본 PIN 상태도 여기서 풀린다.
+  function changeEmployeePin(req) {
+    const session = employeeSession(req);
+    if (!session) fail(401, '로그인이 필요합니다.');
+    const { currentPin, newPin } = req.body || {};
+    const credentials = db.prepare('SELECT salt, hash FROM employee_credentials WHERE id=?').get(session.empId);
+    if (!credentials) fail(403, 'PIN이 설정되지 않았습니다. 관리자에게 설정을 요청해주세요.');
+    verify('employee:' + session.empId, currentPin, credentials.salt, credentials.hash);
+    if (typeof newPin !== 'string' || newPin.length < 6 || newPin.length > 128) fail(400, '새 PIN은 6~128자로 입력해주세요.');
+    if (newPin === currentPin) fail(400, '지금 PIN과 다른 PIN을 입력해주세요.');
+    setEmployeePin(session.empId, newPin);
+    session.mustChange = false;
+    return { ok: true };
+  }
+  // 승인 담당자 로그인: 담당자 PIN을 한 번 확인하고 15분 동안 승인·반려에 PIN을 다시 묻지 않는다.
+  function approverLogin(req) {
+    const { approverId, pin } = req.body || {};
+    if (typeof approverId !== 'string' || !approverId) fail(400, '담당자를 선택해주세요.');
+    const approver = getState()?.state?.approvers?.find(a => a.id === approverId);
+    if (!approver) fail(400, '등록된 담당자가 아닙니다.');
+    const credentials = db.prepare('SELECT salt, hash FROM approval_credentials WHERE id=?').get(approverId);
+    if (!credentials) fail(403, '담당자 PIN이 없습니다. 관리자에게 PIN 설정을 요청해주세요.');
+    verify('approver:' + approverId, pin, credentials.salt, credentials.hash);
+    for (const [token, session] of approverSessions) if (session.expires <= Date.now()) approverSessions.delete(token);
+    if (approverSessions.size >= 100) approverSessions.delete(approverSessions.keys().next().value);
+    const token = randomBytes(32).toString('hex');
+    approverSessions.set(token, { approverId, expires: Date.now() + 15 * 60 * 1000 });
+    return { token, approverId, name: approver.name };
   }
   function save(req) {
     return transaction(() => {
@@ -247,11 +306,14 @@ function createSecurity({ db, getState, setState, adminPassword = process.env.AD
         const pin = employeePins[e.id];
         if (pin !== undefined) {
           if (typeof pin !== 'string' || pin.length < 6 || pin.length > 128) fail(400, '직원 PIN은 6~128자로 입력해주세요.');
-          writePin('employee_credentials', e.id, pin);
-        }
-        return { ...e, pinConfigured: !!(pin || existing) };
+          setEmployeePin(e.id, pin);
+        } else if (!existing) ensureDefaultEmployeePin(e.id); // 새로 등록한 직원은 기본 PIN(0000)으로 시작
+        return { ...e, pinConfigured: true };
       });
-      for (const e of list(row?.state || {}, 'employees')) if (!next.employees.some(n => n.id === e.id)) db.prepare('DELETE FROM employee_credentials WHERE id=?').run(e.id);
+      for (const e of list(row?.state || {}, 'employees')) if (!next.employees.some(n => n.id === e.id)) {
+        db.prepare('DELETE FROM employee_credentials WHERE id=?').run(e.id);
+        db.prepare('DELETE FROM employee_default_pins WHERE id=?').run(e.id);
+      }
 
       persist(next, row);
       activityLog.logNewSubmissions(row?.state, next);
@@ -269,7 +331,8 @@ function createSecurity({ db, getState, setState, adminPassword = process.env.AD
       if (admin) {
         // 관리자는 PIN 없이도 처리할 수 있다 — 다만 기록(decidedBy)에 남길 담당자는 골라야 한다.
         if (!actor) fail(400, '기록에 남길 담당자를 선택해주세요.');
-      } else {
+      } else if (!actor || approverSession(req) !== actor.id) {
+        // 담당자로 로그인한 세션이면 그 담당자 이름의 처리는 PIN을 다시 묻지 않는다.
         const credentials = actor && db.prepare('SELECT salt, hash FROM approval_credentials WHERE id=?').get(actor.id);
         if (!credentials) fail(403, '담당자 PIN이 없습니다. 관리자에게 PIN 설정을 요청해주세요.');
         verify('approver:' + actor.id, pin, credentials.salt, credentials.hash);
@@ -390,6 +453,6 @@ function createSecurity({ db, getState, setState, adminPassword = process.env.AD
     if (l && (!who || l.holderKey === who.key)) lock = null;
     return { ok: true };
   }
-  return { login, save, decide, isAdmin, employeeLogin, cancelOwn, lockStatus, acquireLock, heartbeatLock, releaseLock };
+  return { login, save, decide, isAdmin, employeeLogin, changeEmployeePin, approverLogin, cancelOwn, lockStatus, acquireLock, heartbeatLock, releaseLock };
 }
 module.exports = { createSecurity, publicState, validateSave, targets };

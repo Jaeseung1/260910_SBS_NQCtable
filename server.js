@@ -56,6 +56,8 @@ app.use((req, res, next) => {
 
 app.post('/api/auth/admin', (req, res) => res.json(security.login(req)));
 app.post('/api/auth/employee', (req, res) => res.json(security.employeeLogin(req)));
+app.post('/api/auth/employee/pin', (req, res) => res.json(security.changeEmployeePin(req)));
+app.post('/api/auth/approver', (req, res) => res.json(security.approverLogin(req)));
 app.post('/api/approvals/decision', (req, res) => res.json(security.decide(req)));
 app.post('/api/requests/cancel', (req, res) => res.json(security.cancelOwn(req)));
 
