@@ -199,15 +199,6 @@
   .meter > div{height:100%;border-radius:4px;background:var(--accent);}
 
   /* ── 신청 폼 ── */
-  .date-selection-panel{margin-bottom:16px;padding:14px 16px;border:0;border-radius:14px;background:var(--bg);}
-  .date-selection-header{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:10px;font-size:13px;color:var(--faint);}
-  .date-selection-header strong{color:var(--text);}
-  .date-pills{display:flex;flex-wrap:wrap;gap:8px;}
-  .date-pill{padding:8px 12px;border-radius:999px;border:1px solid var(--line2);background:#fff;color:var(--muted);font-weight:600;cursor:pointer;min-width:52px;text-align:center;transition:.15s ease;font-family:inherit;}
-  .date-pill:hover:not(:disabled){border-color:var(--accent);color:var(--accent-text);}
-  .date-pill.allowed{background:var(--green-bg);border-color:transparent;color:var(--green);}
-  .date-pill.selected{background:var(--accent);color:#fff;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft);}
-  .date-pill:disabled{opacity:.35;cursor:not-allowed;background:var(--sunk);color:var(--faint);}
 
   /* ── 목록·태그 ── */
   .list-item{border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin-bottom:10px;font-size:14px;background:#fff;}
@@ -221,11 +212,13 @@
   .quota{font-size:12.5px;color:var(--faint);margin-top:6px;line-height:1.6;}
 
   /* ── 창·알림 ── */
-  .modalbg{position:fixed;inset:0;background:rgba(36,25,15,.38);display:none;align-items:center;justify-content:center;z-index:50;-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);}
-  .modalbg.show{display:flex;}
-  .modal{background:#fff;border-radius:20px;padding:24px;max-width:460px;width:92%;box-shadow:0 24px 64px rgba(36,25,15,.22);}
-  .modal h3{margin:0 0 12px;font-size:17px;}
-  .modal .chain{background:var(--bg);border-radius:12px;padding:12px 14px;font-size:13px;margin:10px 0;line-height:1.7;}
+  .modal{background:#fff;color:var(--text);border:1px solid var(--line2);border-radius:20px;padding:24px;width:min(460px,calc(100% - 32px));max-height:85vh;overflow:auto;box-shadow:0 24px 64px rgba(36,25,15,.22);}
+  .modal::backdrop{background:rgba(36,25,15,.38);backdrop-filter:blur(4px);}
+  .modal h2{margin:0 0 12px;font-size:20px;}
+  .modal .chain{background:var(--bg);border-radius:12px;padding:12px 14px;font-size:14px;margin:10px 0;line-height:1.6;}
+  .modal .chain ul{margin:6px 0 0;padding-left:20px;}
+  #requestError{color:var(--red);margin:8px 0;}
+  #requestHistory h3{font-size:15px;margin:18px 0 4px;}
   .modal .actions{display:flex;justify-content:flex-end;gap:8px;margin-top:16px;}
   #toastHost{position:fixed;top:84px;left:50%;transform:translateX(-50%);z-index:80;display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none;}
   /* opacity는 애니메이션에 맡기지 않는다. 애니메이션이 진행되지 않는 환경에서 토스트가 안 보이게 되기 때문. */
@@ -275,49 +268,10 @@
   .page-rail{flex:1 1 300px;max-width:380px;display:flex;flex-direction:column;gap:20px;}
   .rail-list .list-item{border:0;border-top:1px solid var(--line);border-radius:0;padding:12px 0;margin:0;background:none;}
   .rail-list .list-item:first-child{border-top:0;}
-  .login-notice{margin:0 0 16px;padding:12px 16px;border-radius:14px;background:var(--amber-bg);color:var(--amber);font-size:13.5px;font-weight:600;}
-  .step-head{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
-  .step-head h2{margin:0;}
-  .step-no{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:var(--accent-soft);color:var(--accent-text);font-size:13px;font-weight:800;flex:none;}
-  .step-hint{margin:-6px 0 12px;}
-  .type-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;}
-  .type-card{display:flex;flex-direction:column;align-items:flex-start;gap:6px;text-align:left;padding:16px 18px;border-radius:16px;border:1.5px solid var(--line2);background:#fff;color:var(--text);font-family:inherit;cursor:pointer;transition:.15s ease;}
-  .type-card strong{font-size:15.5px;font-weight:700;}
-  .type-card span{font-size:13px;line-height:1.55;color:var(--faint);}
-  .type-card:hover{border-color:var(--accent);}
-  .type-card[aria-checked="true"]{border-color:var(--accent);background:var(--accent-soft);box-shadow:0 0 0 3px rgba(165,96,61,.12);}
-  .type-card[aria-checked="true"] strong{color:var(--accent-text);}
-  .date-direct{display:flex;flex-wrap:wrap;align-items:center;gap:10px;font-size:13px;color:var(--faint);}
-  .date-direct label{margin:0;font-weight:500;color:var(--faint);}
-  .date-direct input{padding:8px 12px;}
-  .confirm-box{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px 16px;padding:16px 18px;border-radius:14px;background:var(--bg);}
-  .confirm-text{margin:0;font-size:14.5px;line-height:1.6;color:var(--muted);}
-  .confirm-text b{color:var(--text);}
-  /* 달력 */
-  .cal-host{display:block;}
-  .cal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
-  .cal-head strong{font-size:15px;}
-  .cal-nav{width:34px;height:34px;border-radius:50%;border:1px solid var(--line2);background:#fff;color:var(--muted);font-size:16px;cursor:pointer;font-family:inherit;}
-  .cal-nav:disabled{opacity:.35;cursor:default;}
-  .cal-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;}
-  .cal-wd{font-size:12px;color:var(--faint);text-align:center;padding:2px 0 4px;}
-  .cal-wd:nth-child(6){color:var(--blue);}
-  .cal-wd:nth-child(7){color:var(--red);}
-  .cal-day{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-height:62px;padding:6px 2px;border-radius:12px;border:1.5px solid transparent;background:transparent;font-family:inherit;color:var(--text);}
-  .cal-day .cal-num{font-size:13px;font-weight:600;line-height:1;}
-  .cal-day .shift{max-width:34px;height:24px;font-size:12px;border-radius:7px;}
-  .cal-day.is-past,.cal-day.is-other{opacity:.38;}
-  button.cal-day{cursor:pointer;background:#fff;border-color:var(--accent);box-shadow:0 1px 2px rgba(60,35,15,.06);}
-  button.cal-day:hover{background:var(--accent-soft);}
-  button.cal-day.selected{background:var(--accent);border-color:var(--accent);}
-  button.cal-day.selected .cal-num{color:#fff;}
-  button.cal-day.selected .shift{background:#fff;}
-  button.cal-day:disabled{cursor:not-allowed;border-style:dashed;border-color:var(--line2);background:var(--sunk);box-shadow:none;}
-  .cal-day.is-today .cal-num{color:var(--accent-text);text-decoration:underline;text-underline-offset:3px;}
-  .cal-legend{display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:10px;font-size:12px;color:var(--faint);}
-  .cal-legend i{display:inline-block;width:12px;height:12px;border-radius:4px;margin-right:5px;vertical-align:-1px;border:1.5px solid var(--accent);background:#fff;}
-  .cal-legend i.sel{background:var(--accent);}
-  .cal-legend i.taken{border-style:dashed;border-color:var(--line2);background:var(--sunk);}
+  .shift[data-request-date]{cursor:pointer;}
+  button.shift[data-request-date]{border:0;font:inherit;font-weight:700;}
+  button.shift[data-request-date]:focus-visible{outline:2px solid var(--accent-text);}
+
   /* 내 대근 */
   .cover-card{display:flex;gap:18px;align-items:flex-start;background:var(--panel);border-radius:var(--radius);box-shadow:var(--shadow);border:1px solid rgba(226,213,199,.6);padding:20px 22px;margin-bottom:14px;}
   .cover-date{width:64px;flex:none;display:flex;flex-direction:column;align-items:center;padding:10px 0;border-radius:14px;background:var(--bg);}
@@ -373,7 +327,63 @@
     *{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
     @page{size:A4 landscape;margin:8mm;}
   }
-  @media(max-width:900px){
+  .mobile-grid-tip{display:none;}
+  @media screen and (max-width:640px){
+    .app-header-inner{padding:8px 12px;gap:6px 10px;justify-content:space-between;}
+    .brand{gap:7px;min-height:44px;}
+    .brand img{height:20px;}
+    .brand-name{font-size:14px;}
+    nav#tabbar{order:2;flex:1 1 100%;justify-content:flex-start;flex-wrap:wrap;overflow:visible;gap:4px;}
+    nav#tabbar button{height:44px;padding:0 10px;font-size:13px;justify-content:center;}
+    .account{justify-content:flex-start;gap:6px;}
+    .account .btn{min-height:44px;height:auto;padding:0 10px;font-size:13px;}
+    .account-status,.lock-pill{white-space:normal;height:auto;overflow-wrap:anywhere;}
+    .security-note{padding-inline:12px;}
+    main{padding:16px 12px 36px;}
+    .storage-status{margin-inline:12px;}
+    .schedule-toolbar,.page-head{gap:12px;margin-bottom:16px;}
+    .schedule-title,.page-head h1{font-size:26px;white-space:normal;}
+    .schedule-controls,.export-actions{justify-content:flex-start;}
+    .schedule-controls{width:100%;}
+    .schedule-nav{width:100%;justify-content:space-between;}
+    .month-nav,.year-nav,.month-pickers select{height:44px;}
+    .month-nav,.year-nav{min-width:44px;font-size:16px;}
+    .month-pickers{min-width:0;}
+    .month-pickers select{padding-inline:3px;}
+    .grid2,.grid3{grid-template-columns:1fr;}
+    .schedule-layout,.page-layout,.settings-layout{gap:12px;}
+    .schedule-rail,.page-rail{gap:12px;max-width:none;}
+    .panel,.rail-card{padding:14px;}
+    .sheet-head{padding:14px;}
+    #lockBanner,.schedule-sheet-header{padding-inline:12px;}
+    .schedule-sheet-header{flex-direction:column;align-items:stretch;}
+    .approval-block{margin-left:0;justify-content:flex-start;}
+    .approval-cell{min-width:0;flex:1 1 86px;}
+    .shift-filters{flex-wrap:nowrap;overflow-x:auto;width:100%;padding:2px;}
+    .person-chip{flex:none;min-height:44px;}
+    .mobile-grid-tip{display:block;margin:0;padding:0 12px 8px;color:var(--muted);font-size:12px;}
+    .gridwrap{overscroll-behavior-x:contain;}
+    table.grid{min-width:1522px;}
+    table.grid th:first-child,table.grid td.name{width:96px;padding-left:10px;padding-right:4px;}
+    table.grid th:first-child,table.grid td.name{box-shadow:2px 0 0 var(--line);}
+    table.grid tr.is-focus td.name{box-shadow:inset 3px 0 0 var(--accent),2px 0 0 var(--line);}
+    table.grid td{padding-inline:1px;}
+    table.grid button.shift[data-request-date]{height:44px;max-width:none;}
+    .modal{width:calc(100% - 24px);max-width:460px;max-height:calc(100dvh - 24px);padding:16px;}
+    .modal .actions > button{flex:1;}
+    .activity-nav{gap:6px;margin-bottom:16px;}
+    .activity-choice{padding:9px 7px;}
+    .activity-choice strong{font-size:14px;}
+    .cover-card,.approval-card{padding:12px;gap:10px;}
+    .cover-date{width:48px;}
+    .approval-card-head time{margin-left:0;}
+    .head-pick{flex-wrap:wrap;max-width:100%;}
+    .settings-nav{max-width:none;position:static;flex-direction:row;flex-wrap:wrap;gap:4px;}
+    .settings-nav .side-group{display:none;}
+    .settings-nav .side-item{width:auto;min-height:44px;}
+    input,select,textarea{font-size:16px;}
+  }
+  @media screen and (min-width:641px) and (max-width:900px){
     .app-header-inner,main,.security-note{padding-left:16px;padding-right:16px;}
     nav#tabbar{justify-content:flex-start;overflow-x:auto;flex-wrap:nowrap;}
     .grid2,.grid3{grid-template-columns:1fr;}
@@ -485,6 +495,7 @@
           </div>
           <div class="schedule-actions-row">
             <div class="export-actions">
+              <button class="btn secondary" id="requestHistoryBtn" type="button">신청 내역</button>
               <button class="btn secondary export" id="exportPdfBtn" type="button">PDF</button>
               <button class="btn secondary export" id="exportExcelBtn" type="button" title="샘플 양식 · NC 교대근무자 최대 4명 · TC 추가 인원 · 설정된 일근자">엑셀</button>
               <button class="btn" id="requestMonthlyBtn" type="button">이 달 근무표 확정 요청</button>
@@ -498,7 +509,7 @@
       <div class="sheet-card">
         <div class="sheet-head">
           <h2>전체 근무</h2>
-          <span class="sheet-hint" data-html2canvas-ignore="true">이름을 고르면 그 사람 근무가 진하게 보여요</span>
+          <span class="sheet-hint" data-html2canvas-ignore="true">내 근무 칸을 누르면 휴가·비번 보장을 신청할 수 있어요</span>
           <div class="shift-filters" id="personFilters" role="group" aria-label="사람별로 보기" data-html2canvas-ignore="true"></div>
         </div>
         <div id="lockBanner"></div>
@@ -506,6 +517,7 @@
           <div></div>
           <div class="approval-block" id="approvalBlock" aria-live="polite"></div>
         </div>
+        <p class="mobile-grid-tip" data-html2canvas-ignore="true">날짜를 더 보려면 표를 좌우로 밀어주세요.</p>
         <div class="gridwrap"><table class="grid" id="scheduleTable"></table></div>
         <div class="legend"><span>일 09:00~18:30</span><span>야·조 18:00~09:00</span><span>O 비번</span><span><span class="shift cell-휴가">휴가</span>휴가</span><span><span class="shift cell-대일">대일</span>대일·대근</span><span><span class="shift cell-protected">O</span>비번 보장</span><span style="color:var(--blue);font-weight:600;">토요일</span><span style="color:var(--red);font-weight:600;">일요일·휴일</span></div>
         <div class="notes-panel">
@@ -538,89 +550,14 @@
     </div>
   </section>
 
-  <section id="tab-apply" style="display:none;">
-    <div class="page-head page-head-stack">
-      <span class="kicker">신청하기</span>
-      <h1>무엇을 신청할까요?</h1>
-      <p>종류를 고르고 달력에서 날짜를 누르세요. 대근자는 저절로 정해지고, 신청 전에 미리 보여 드려요.</p>
-    </div>
-    <div class="page-layout">
-      <div class="page-main">
-        <div class="panel">
-          <div class="step-head"><span class="step-no">1</span><h2>종류</h2></div>
-          <div class="type-cards" id="applyKindCards" role="radiogroup" aria-label="신청 종류">
-            <button type="button" class="type-card" role="radio" data-apply-kind="day" aria-checked="true"><strong>일근 휴가</strong><span>일근인 하루를 쉬어요. 그날 비번인 사람이 대신 서요.</span></button>
-            <button type="button" class="type-card" role="radio" data-apply-kind="set" aria-checked="false"><strong>야+조 세트 휴가</strong><span>야근일을 고르면 다음 날 조근까지 이틀을 함께 쉬어요.</span></button>
-            <button type="button" class="type-card" role="radio" data-apply-kind="protect" aria-checked="false"><strong>비번 보장</strong><span>비번인 날 대근에 불리지 않게 미리 막아요. 한 달 <b id="quotaMaxLabel">3</b>번까지는 사유 없이 돼요.</span></button>
-          </div>
-        </div>
-
-        <div id="applyLeavePane">
-          <p id="reqLoginNotice" class="login-notice" hidden>오른쪽 위에서 내 이름으로 로그인하면 내 근무가 달력에 나오고 신청할 수 있어요.</p>
-          <div class="panel">
-            <div class="step-head"><span class="step-no">2</span><h2 id="reqDateLabel">날짜</h2></div>
-            <p id="reqHint" class="quota step-hint"></p>
-            <div class="date-selection-panel" id="dateSelectionPanel">
-              <div class="date-selection-header"><span id="dateSelectionStatus">로그인하면 고를 수 있는 날짜가 표시됩니다.</span></div>
-              <div class="date-pills cal-host" id="availableDatePills"></div>
-            </div>
-            <div class="date-direct"><label for="reqDate">달력에 없는 날짜는 직접</label><input type="date" id="reqDate"></div>
-            <div hidden>
-              <select id="reqEmp" aria-label="신청자"></select>
-              <select id="reqType" aria-label="휴가 종류">
-                <option value="day">일근 휴가</option>
-                <option value="set">야+조 세트 휴가</option>
-              </select>
-            </div>
-          </div>
-          <div class="panel">
-            <div class="step-head"><span class="step-no">3</span><h2>확인</h2></div>
-            <div class="confirm-box">
-              <p class="confirm-text" id="reqConfirmText">날짜를 고르면 여기에 요약이 나와요.</p>
-              <button class="btn" id="reqPreviewBtn">대근자 보고 신청하기</button>
-            </div>
-          </div>
-        </div>
-
-        <div id="applyProtectPane" hidden>
-          <p id="proLoginNotice" class="login-notice" hidden>오른쪽 위에서 내 이름으로 로그인하면 내 비번일이 달력에 나오고 신청할 수 있어요.</p>
-          <div class="panel">
-            <div class="step-head"><span class="step-no">2</span><h2>날짜 — 내가 비번인 날</h2></div>
-            <p class="quota step-hint">고른 날에는 휴가가 나도 내게 대근이 잡히지 않아요.</p>
-            <div class="date-selection-panel" id="proDateSelectionPanel">
-              <div class="date-selection-header"><span id="proDateSelectionStatus">로그인하면 비번인 날짜가 표시됩니다.</span></div>
-              <div class="date-pills cal-host" id="proAvailableDatePills"></div>
-            </div>
-            <div class="date-direct"><label for="proDate">달력에 없는 날짜는 직접</label><input type="date" id="proDate"></div>
-            <div hidden><select id="proEmp" aria-label="신청자"></select></div>
-          </div>
-          <div class="panel">
-            <div class="step-head"><span class="step-no">3</span><h2>확인</h2></div>
-            <div id="proQuotaInfo" class="confirm-text"></div>
-            <div id="proReasonWrap" style="display:none;margin-top:12px;">
-              <label for="proReason">한 달 한도를 넘었어요 — 팀장·담당이 볼 사유 (필수)</label>
-              <textarea id="proReason" placeholder="예: 개인 사정으로 이날은 대근이 어렵습니다."></textarea>
-            </div>
-            <div class="confirm-box" style="margin-top:12px;">
-              <p class="confirm-text" id="proConfirmText">날짜를 고르면 여기에 요약이 나와요.</p>
-              <button class="btn" id="proSubmitBtn">비번 보장 신청하기</button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <aside class="page-rail">
-        <div class="rail-card">
-          <div class="rail-head"><h2>휴가 신청 내역</h2></div>
-          <div id="reqList" class="rail-list"><p class="empty">아직 신청 내역이 없습니다.</p></div>
-        </div>
-        <div class="rail-card">
-          <div class="rail-head"><h2>비번 보장 내역</h2></div>
-          <div id="proList" class="rail-list"><p class="empty">아직 신청 내역이 없습니다.</p></div>
-        </div>
-      </aside>
-    </div>
-  </section>
+  <dialog class="modal" id="requestHistory" aria-labelledby="requestHistoryTitle">
+    <h2 id="requestHistoryTitle">신청 내역</h2>
+    <h3>휴가</h3>
+    <div id="reqList" class="rail-list"></div>
+    <h3>비번 보장</h3>
+    <div id="proList" class="rail-list"></div>
+    <form method="dialog" class="actions"><button class="btn secondary">닫기</button></form>
+  </dialog>
 
   <section id="tab-cover" style="display:none;">
     <div class="page-head">
@@ -913,16 +850,21 @@
   </section>
 </main>
 
-<div class="modalbg" id="modalBg">
-  <div class="modal">
-    <h3 id="modalTitle">대근 배정 미리보기</h3>
+<dialog class="modal" id="modalBg" aria-labelledby="modalTitle">
+  <form id="requestConfirmForm">
+    <h2 id="modalTitle"></h2>
     <div class="chain" id="modalChain"></div>
-    <div class="actions">
-      <button class="btn secondary" id="modalCancel">취소</button>
-      <button class="btn" id="modalConfirm">신청 확정 (대근자 알림 발송)</button>
+    <p id="requestError" role="alert" hidden></p>
+    <div id="proReasonWrap" hidden>
+      <label for="proReason">승인 요청 사유</label>
+      <textarea id="proReason" placeholder="사유를 입력해 주세요"></textarea>
     </div>
-  </div>
-</div>
+    <div class="actions">
+      <button class="btn secondary" id="modalCancel" type="button" autofocus>닫기</button>
+      <button class="btn" id="modalConfirm" type="submit">신청하기</button>
+    </div>
+  </form>
+</dialog>
 
 <script>
   // 로그인 유형에 맞게 이름·PIN 칸을 보여준다. 승인 담당자는 담당자 이름과 PIN으로 로그인하고 승인함만 연다.
@@ -1250,6 +1192,7 @@
   function applyEmployeeGate() {
     const employeeLoggedIn = !!employeeToken && Date.now() < employeeUntil;
     if (!employeeLoggedIn && employeeToken) { employeeToken = ''; employeeId = ''; employeeDisplayName = ''; }
+    if (!employeeLoggedIn && $('#modalBg').open) closeScheduleRequest();
     const adminLoggedIn = !!adminToken && Date.now() < adminUntil;
     const loggedIn = employeeLoggedIn || adminLoggedIn;
     employeeMessage(employeeLoggedIn ? `${employeeDisplayName}님으로 로그인됨` : adminLoggedIn ? '관리자로 로그인됨' : approverViewing ? `${approverName(approverLoginId)} 담당자로 로그인됨` : '로그인이 필요합니다.');
@@ -1258,18 +1201,6 @@
     if (pinEl) pinEl.hidden = loggedIn || selectEl?.value === '__admin__';
     if (loginBtn) loginBtn.hidden = loggedIn;
     if (logoutBtn) logoutBtn.hidden = !loggedIn;
-    ['#reqEmp', '#proEmp'].forEach(sel => {
-      const select = $(sel);
-      if (!select) return;
-      select.disabled = true;
-      select.value = employeeLoggedIn ? employeeId : '';
-    });
-    const reqBtn = $('#reqPreviewBtn'), proBtn = $('#proSubmitBtn');
-    if (reqBtn) reqBtn.disabled = !employeeLoggedIn;
-    if (proBtn) proBtn.disabled = !employeeLoggedIn;
-    const reqNotice = $('#reqLoginNotice'), proNotice = $('#proLoginNotice');
-    if (reqNotice) reqNotice.hidden = employeeLoggedIn;
-    if (proNotice) proNotice.hidden = employeeLoggedIn;
     // 내 대근: 로그인하면 내 이름이 먼저 골라져 있다(한 번만 — 그 뒤 다른 사람을 골라 볼 수 있다).
     const coverSel = $('#adminEmp');
     if (coverSel && employeeLoggedIn && gateAppliedEmp !== employeeId) coverSel.value = employeeId;
@@ -1639,7 +1570,8 @@
     pendingScheduleRanges = [];
     pendingBulkFills = [];
     scheduleEditorEdits = {};
-    document.getElementById('modalBg').classList.remove('show');
+    closeScheduleRequest();
+    $('#requestHistory').close();
     closeScheduleEditor();
     populateEmpSelects();
     renderManualEmployeeOptions();
@@ -1919,6 +1851,8 @@
     if (!['day', 'set'].includes(type) || Number.isNaN(startDate.getTime())) return { error: '신청 종류와 날짜를 확인해주세요.' };
     if (fmt(startDate) < fmt(getToday())) return { error: '지난 날짜에는 휴가를 신청할 수 없습니다.' };
     if (!employee || !isEmployeeActiveOnDate(employee, startDate)) return { error: '직원의 적용 기간 안에서 신청해주세요.' };
+    const horizonError = requestHorizonError(startDate);
+    if (horizonError) return { error: horizonError };
     const d0 = startDate, d1 = addDays(startDate, 1);
     if (type === 'day'){
       if (effectiveShift(empId, d0) !== '일') return { error: '일근인 날짜에만 일근 휴가를 신청할 수 있습니다.' };
@@ -1929,8 +1863,8 @@
         { date: fmt(d0), empId: sub.id, shift: '대일', label: '대일(일근 대근)' }
       ] };
     }
-    if (effectiveShift(empId, d0) !== '야') return { error: '야·조 세트는 야근일부터 신청해주세요.' };
-    if (!isEmployeeActiveOnDate(employee, d1) || effectiveShift(empId, d1) !== '조') return { error: '다음 날이 적용 기간 내 조근인 경우에만 야·조 세트 휴가를 신청할 수 있습니다.' };
+    if (effectiveShift(empId, d0) !== '야') return { error: '야+조근 휴가는 야근 다음 날이 조근일 때만 신청할 수 있습니다.' };
+    if (!isEmployeeActiveOnDate(employee, d1) || effectiveShift(empId, d1) !== '조') return { error: '다음 날이 적용 기간 내 조근인 경우에만 야+조근 휴가를 신청할 수 있습니다.' };
     const first = findByBaseShift(d0, 'O', [empId]);
     if (!first.id) return { error: '1차 대근 가능한 루틴 근무자가 없습니다.' + substituteNote(first) };
     const unavailable = [];
@@ -1975,8 +1909,17 @@
     if (Number.isNaN(date.getTime()) || fmt(date) < fmt(getToday())) return '오늘 이후 날짜를 선택해주세요.';
     const employee = EMPLOYEES.find(e => e.id === empId);
     if (!employee || !isEmployeeActiveOnDate(employee, date)) return '직원의 적용 기간 안에서 신청해주세요.';
+    const horizonError = requestHorizonError(date);
+    if (horizonError) return horizonError;
     if (effectiveShift(empId, date) !== 'O') return '본인이 비번(O)인 날짜만 보장 신청할 수 있습니다.';
     if (isProtectedOn(empId, date)) return '이미 비번 보장을 신청한 날짜입니다.';
+    return '';
+  }
+
+  // 근무표 칸에서 바로 신청하므로 먼 달 칸도 눌릴 수 있다. 예전 신청 달력과 같이 오늘부터 92일까지만 받는다.
+  function requestHorizonError(date){
+    const horizonDays = 92;
+    if (fmt(date) > fmt(addDays(getToday(), horizonDays - 1))) return `오늘부터 ${horizonDays}일 안의 날짜만 신청할 수 있습니다.`;
     return '';
   }
 
@@ -2019,7 +1962,7 @@
 
   function populateEmpSelects(){
     const opts = EMPLOYEES.map(e => `<option value="${escapeAttribute(e.id)}">${escapeAttribute(e.name)}</option>`).join('');
-    ['#reqEmp', '#proEmp', '#adminEmp'].forEach(sel => {
+    ['#adminEmp'].forEach(sel => {
       const select = $(sel);
       if (!select) return;
       const current = select.value; // 목록을 다시 그려도 사용자가 고른 직원을 유지한다
@@ -2144,7 +2087,13 @@
         // 칸 안의 둥근 칩이 근무를 말한다.
         const chipClasses = ['shift', cellClass];
         if (isProtectedOn(emp.id, date)) chipClasses.push('cell-protected');
-        r += `<td class="${escapeAttribute(dateColClass)}"${span > 1 ? ` colspan="${span}"` : ''}><span class="${escapeAttribute(chipClasses.join(' '))}">${escapeAttribute(sh)}</span></td>`;
+        const canRequest = span === 1 && employeeToken && Date.now() < employeeUntil && emp.id === employeeId
+          && ['일', '야', '조', 'O'].includes(sh) && fmt(date) >= todayKey;
+        const chipClass = escapeAttribute(chipClasses.join(' '));
+        const chip = canRequest
+          ? `<button type="button" class="${chipClass}" data-request-date="${fmt(date)}" aria-label="${fmt(date)} ${escapeAttribute(sh)} 신청">${escapeAttribute(sh)}</button>`
+          : `<span class="${chipClass}">${escapeAttribute(sh)}</span>`;
+        r += `<td class="${escapeAttribute(dateColClass)}"${span > 1 ? ` colspan="${span}"` : ''}>${chip}</td>`;
       }
       r += '</tr>';
       rows += r;
@@ -2308,164 +2257,80 @@
     renderScheduleTab();
   }
 
-  // 휴가 신청 후보는 "오늘"부터 앞으로 훑는다 (근무표에서 보고 있는 달과 무관).
-  // 바로가기 버튼은 이 기간만 보여주고, 그 이후 날짜는 달력에서 직접 고를 수 있다.
-  const REQUEST_HORIZON_DAYS = 92;
-
-  function getSelectableRequestDates(empId, type, fromDate, horizonDays = REQUEST_HORIZON_DAYS){
-    const emp = EMPLOYEES.find(e => e.id === empId);
-    if (!emp) return [];
-    const dates = [];
-    for (let i = 0; i < horizonDays; i += 1) {
-      const date = addDays(fromDate, i);
-      if (!isEmployeeActiveOnDate(emp, date)) continue;
-      const shift = effectiveShift(empId, date);
-      const nextDate = addDays(date, 1);
-      const isAllowed = type === 'day' ? shift === '일'
-        : type === 'set' && shift === '야' && isEmployeeActiveOnDate(emp, nextDate) && effectiveShift(empId, nextDate) === '조';
-      if (isAllowed) dates.push(date);
-    }
-    return dates;
-  }
-
-  // 신청 달력: 오늘부터 REQUEST_HORIZON_DAYS 안의 달을 한 달씩 보여 준다.
-  // 칸마다 내 근무가 나오고, 고를 수 있는 날만 버튼이다. 보고 있는 달은 화면 상태일 뿐 저장하지 않는다.
-  const pickCalMonth = {};
-  function pickCalRange(){
-    const today = stripTime(getToday());
-    const last = addDays(today, REQUEST_HORIZON_DAYS - 1);
-    return { today, first: new Date(today.getFullYear(), today.getMonth(), 1), last: new Date(last.getFullYear(), last.getMonth(), 1) };
-  }
-  function renderPickCalendar(container, { empId, selectable, taken, selected }){
-    const { today, first, last } = pickCalRange();
-    let view = pickCalMonth[container.id];
-    if (selected && (!view || selected.slice(0, 7) !== fmt(view).slice(0, 7))) {
-      const d = new Date(selected + 'T00:00:00');
-      if (d >= first) view = new Date(d.getFullYear(), d.getMonth(), 1);
-    }
-    if (!view || view < first) view = first;
-    pickCalMonth[container.id] = view;
-    const y = view.getFullYear(), m = view.getMonth();
-    const days = new Date(y, m + 1, 0).getDate();
-    const lead = (new Date(y, m, 1).getDay() + 6) % 7; // 월요일 시작
-    const emp = EMPLOYEES.find(e => e.id === empId);
-    const todayKey = fmt(today);
-    const cells = ['월', '화', '수', '목', '금', '토', '일'].map(w => `<div class="cal-wd">${w}</div>`);
-    for (let i = 0; i < lead; i += 1) cells.push('<div></div>');
-    for (let d = 1; d <= days; d += 1) {
-      const date = new Date(y, m, d);
-      const key = fmt(date);
-      const sh = emp && isEmployeeActiveOnDate(emp, date) ? effectiveShift(empId, date) : '';
-      const chip = sh ? `<span class="shift ${shiftClassFor(empId, date, sh)}">${escapeAttribute(sh)}</span>` : '<span class="shift"></span>';
-      const label = `${m + 1}월 ${d}일(${WEEKDAY_KO[date.getDay()]})`;
-      const cls = `cal-day${key === todayKey ? ' is-today' : ''}${date < today ? ' is-past' : ''}`;
-      if (taken.has(key)) {
-        cells.push(`<button type="button" class="${cls}" disabled title="이미 신청한 날짜입니다" aria-label="${label} 이미 신청함"><span class="cal-num">${d}</span>${chip}</button>`);
-      } else if (selectable.has(key)) {
-        cells.push(`<button type="button" class="${cls}${selected === key ? ' selected' : ''}" data-date="${key}" aria-pressed="${selected === key}" aria-label="${label} ${escapeAttribute(sh)}"><span class="cal-num">${d}</span>${chip}</button>`);
-      } else {
-        cells.push(`<div class="${cls}"><span class="cal-num">${d}</span>${chip}</div>`);
-      }
-    }
-    container.innerHTML = `<div class="cal-head">
-        <button type="button" class="cal-nav" data-cal-step="-1" aria-label="이전 달" ${view <= first ? 'disabled' : ''}>‹</button>
-        <strong>${y}년 ${m + 1}월</strong>
-        <button type="button" class="cal-nav" data-cal-step="1" aria-label="다음 달" ${view >= last ? 'disabled' : ''}>›</button>
-      </div>
-      <div class="cal-grid">${cells.join('')}</div>
-      <div class="cal-legend"><span><i></i>고를 수 있는 날</span><span><i class="sel"></i>고른 날</span>${taken.size ? '<span><i class="taken"></i>이미 신청함</span>' : ''}</div>`;
-  }
-  function shiftPickCalendar(container, step){
-    const { first, last } = pickCalRange();
-    const view = pickCalMonth[container.id] || first;
-    const next = new Date(view.getFullYear(), view.getMonth() + step, 1);
-    if (next < first || next > last) return;
-    pickCalMonth[container.id] = next;
-    if (container.id === 'availableDatePills') { $('#reqDate').value = ''; updateAvailableDatePills(); }
-    else { $('#proDate').value = ''; updateProtectDatePills(); updateProtectQuotaInfo(); }
-  }
   function pickLabel(value){
-    const d = new Date(value + 'T00:00:00');
-    return `${d.getMonth() + 1}월 ${d.getDate()}일(${WEEKDAY_KO[d.getDay()]})`;
-  }
-
-  function updateAvailableDatePills(){
-    const empId = $('#reqEmp').value;
-    const type = $('#reqType').value;
-    const container = document.getElementById('availableDatePills');
-    const status = document.getElementById('dateSelectionStatus');
-    if (!container) return;
-
-    const today = stripTime(getToday());
-    const dates = getSelectableRequestDates(empId, type, today);
-    const selectedDate = $('#reqDate').value;
-    const reqInput = $('#reqDate');
-    if (reqInput) {
-      reqInput.min = fmt(today);      // 오늘 포함, 지난 날짜는 선택 불가
-      reqInput.removeAttribute('max'); // 이후 날짜는 제한 없음
-    }
-
-    const typeLabel = type === 'day' ? '일근 휴가' : '야+조 세트 휴가';
-    renderReqConfirm();
-    if (!empId) {
-      container.innerHTML = '<div class="empty">로그인하면 내 근무와 고를 수 있는 날이 달력에 나와요.</div>';
-      if (status) status.textContent = '';
-      return;
-    }
-    renderPickCalendar(container, { empId, selectable: new Set(dates.map(fmt)), taken: new Set(), selected: selectedDate });
-    if (status) status.textContent = dates.length
-      ? `${type === 'day' ? '일근' : '야근'}인 날 ${dates.length}일 중에서 고를 수 있어요 · 앞으로 3개월`
-      : `앞으로 3개월 안에는 ${typeLabel}를 낼 수 있는 날이 없어요. 아래에서 날짜를 직접 고를 수 있어요.`;
-  }
-
-  function renderReqConfirm(){
-    const box = $('#reqConfirmText');
-    if (!box) return;
-    const value = $('#reqDate').value;
-    if (!value) { box.textContent = '날짜를 고르면 여기에 요약이 나와요.'; return; }
-    const type = $('#reqType').value;
-    const next = fmt(addDays(new Date(value + 'T00:00:00'), 1));
-    box.innerHTML = type === 'day'
-      ? `<b>${escapeAttribute(pickLabel(value))} 일근 휴가</b><br>그날 비번인 사람이 대신 서요. 다음 화면에서 대근자를 확인한 뒤 신청돼요.`
-      : `<b>${escapeAttribute(pickLabel(value))} 야근 ~ ${escapeAttribute(pickLabel(next))} 조근</b><br>이틀이 함께 휴가가 돼요. 다음 화면에서 대근자를 확인한 뒤 신청돼요.`;
-  }
-
-  function renderRequestHint(){
-    const type = $('#reqType').value;
-    $('#reqDateLabel').textContent = type === 'day' ? '날짜 — 내가 일근인 날' : '날짜 — 내가 야근인 날';
-    $('#reqHint').textContent = type === 'day'
-      ? '테두리가 있는 날을 누르세요.'
-      : '야근과 다음 날 조근은 늘 함께 쉬어요. 야근일을 누르면 다음 날 조근까지 이틀이 휴가가 돼요.';
-    updateAvailableDatePills();
+    const date = new Date(value + 'T00:00:00');
+    return `${date.getMonth() + 1}월 ${date.getDate()}일(${WEEKDAY_KO[date.getDay()]})`;
   }
 
   let pendingChain = null;
-  function previewChain(){
-    if (!requireEmployeeLogin('휴가 신청')) return;
-    const empId = $('#reqEmp').value;
-    const type = $('#reqType').value;
-    const dateVal = $('#reqDate').value;
-    if(!dateVal){ alert('날짜를 선택해주세요.'); return; }
-    const date = new Date(dateVal + 'T00:00:00');
-    const result = buildChain(empId, type, date);
-    if(result.error){ alert('⚠ ' + result.error); return; }
-    pendingChain = {empId, type, startDate: fmt(date), chain: result.chain};
-    const lines = result.chain.map(c => {
-      if(c.empId === empId) return `📅 ${escapeAttribute(c.date)} — <b>${escapeAttribute(empName(empId))}</b>: ${escapeAttribute(c.label)}`;
-      return `↳ 📅 ${escapeAttribute(c.date)} — <b>${escapeAttribute(empName(c.empId))}</b>: ${escapeAttribute(c.label)} (원래는 비번이었음)`;
-    });
-    $('#modalChain').innerHTML = lines.join('<br>');
-    $('#modalTitle').textContent = '대근 배정 미리보기 — 확정 시 즉시 알림 발송';
-    $('#modalBg').classList.add('show');
+  let pendingProtection = null;
+
+  function closeScheduleRequest(){
+    pendingChain = null;
+    pendingProtection = null;
+    $('#modalBg').close();
+  }
+
+  function requestError(message){
+    const error = $('#requestError');
+    error.textContent = message;
+    error.hidden = !message;
+  }
+
+  function openScheduleRequest(date){
+    if (!requireEmployeeLogin('신청')) return;
+    const shift = effectiveShift(employeeId, date);
+    if (!['일', '야', '조', 'O'].includes(shift)) return;
+    const kind = shift === 'O' ? 'protect' : shift === '일' ? 'day' : 'set';
+    const start = shift === '조' ? addDays(date, -1) : date;
+    const dateKey = fmt(start);
+    const dialog = $('#modalBg');
+    const reason = $('#proReason');
+    const reasonWrap = $('#proReasonWrap');
+    const summary = $('#modalChain');
+    const submit = $('#modalConfirm');
+    pendingChain = null;
+    pendingProtection = null;
+    reason.value = '';
+    reason.required = false;
+    reasonWrap.hidden = true;
+    const name = escapeAttribute(empName(employeeId));
+    const day = escapeAttribute(pickLabel(dateKey));
+    let error = '';
+    if (kind === 'protect') {
+      $('#modalTitle').textContent = '비번 보장 신청';
+      error = protectionRequestError(employeeId, start);
+      const used = protectCountInMonth(employeeId, start.getFullYear(), start.getMonth());
+      const max = STATE.settings.quotaMax;
+      const needsApproval = used >= max;
+      summary.innerHTML = `<strong>${day} · ${name}</strong><br>이번 달 ${used}/${max}회 사용<br>${needsApproval ? '사유를 입력하면 담당자 승인 뒤에 확정됩니다.' : '신청하면 이 날 대근에 배정되지 않습니다.'}`;
+      if (!error) {
+        pendingProtection = {empId: employeeId, dateKey};
+        reason.required = needsApproval;
+        reasonWrap.hidden = !needsApproval;
+      }
+    } else {
+      $('#modalTitle').textContent = kind === 'day' ? '일근 휴가 신청' : '야+조근 휴가 신청';
+      const dates = kind === 'day' ? day : `${day} 야근 · ${escapeAttribute(pickLabel(fmt(addDays(start, 1))))} 조근`;
+      const result = buildChain(employeeId, kind, start);
+      error = result.error || '';
+      const substitutes = error ? [] : result.chain.filter(entry => entry.empId !== employeeId);
+      const rows = substitutes.map(entry => `<li>${escapeAttribute(pickLabel(entry.date))} · ${escapeAttribute(empName(entry.empId))} (${escapeAttribute(entry.label)})</li>`);
+      summary.innerHTML = `<strong>${dates}</strong><br>신청자: ${name}${rows.length ? '<br>대근 배정 예정<ul>' + rows.join('') + '</ul>' : ''}`;
+      if (!error) pendingChain = {empId: employeeId, type: kind, startDate: dateKey, chain: result.chain};
+    }
+    requestError(error);
+    submit.hidden = !!error;
+    dialog.showModal();
   }
 
   function confirmChain(){
-    if(!pendingChain) return;
+    if (!pendingChain || !requireEmployeeLogin('휴가 신청') || employeeId !== pendingChain.empId) return;
     const checked = buildChain(pendingChain.empId, pendingChain.type, new Date(pendingChain.startDate + 'T00:00:00'));
     if (checked.error || JSON.stringify(checked.chain) !== JSON.stringify(pendingChain.chain)){
       pendingChain = null;
-      $('#modalBg').classList.remove('show');
-      alert(checked.error || '미리보기 이후 배정 조건이 바뀌었습니다. 다시 미리보기를 확인해주세요.');
+      $('#modalConfirm').hidden = true;
+      requestError(checked.error || '대근 배정이 바뀌었습니다. 닫고 근무 칸을 다시 선택해주세요.');
       return;
     }
     const req = {
@@ -2500,8 +2365,9 @@
       notify('email', req.empId, '✅ 휴가 신청 처리 완료', `${req.startDate} 휴가 신청이 접수되어 대근자 배정까지 완료되었습니다.`);
     }
     saveState();
-    $('#modalBg').classList.remove('show');
+    closeScheduleRequest();
     renderAll();
+    showToast('휴가 신청이 접수되었습니다.');
   }
 
   function renderRequestList(){
@@ -2536,81 +2402,23 @@
     } catch (error) { employeeMessage(error.message); }
   }
 
-  function renderProtectTab(){
-    $('#quotaMaxLabel').textContent = STATE.settings.quotaMax;
-    $('#setQuotaMax').value = STATE.settings.quotaMax;
-    updateProtectQuotaInfo();
-    updateProtectDatePills();
-  }
-
-  // 비번(O)인 날짜만, 오늘 포함 이후로 골라준다. 휴가 신청 탭과 같은 방식.
-  function getSelectableProtectDates(empId, fromDate, horizonDays = REQUEST_HORIZON_DAYS){
-    const emp = EMPLOYEES.find(e => e.id === empId);
-    if (!emp) return [];
-    const dates = [];
-    for (let i = 0; i < horizonDays; i += 1) {
-      const date = addDays(fromDate, i);
-      if (!isEmployeeActiveOnDate(emp, date)) continue;
-      if (effectiveShift(empId, date) === 'O') dates.push(date);
-    }
-    return dates;
-  }
-
-  function updateProtectDatePills(){
-    const container = document.getElementById('proAvailableDatePills');
-    const status = document.getElementById('proDateSelectionStatus');
-    if (!container) return;
-    const empId = $('#proEmp').value;
-    const today = stripTime(getToday());
-    const dates = getSelectableProtectDates(empId, today);
-    const selectedDate = $('#proDate').value;
-    const proInput = $('#proDate');
-    if (proInput) {
-      proInput.min = fmt(today);       // 오늘 포함, 지난 날짜는 선택 불가
-      proInput.removeAttribute('max'); // 이후 날짜는 제한 없음
-    }
-    if (!empId) {
-      container.innerHTML = '<div class="empty">로그인하면 내 비번일이 달력에 나와요.</div>';
-      if (status) status.textContent = '';
-      return;
-    }
-    const taken = new Set(dates.filter(date => isProtectedOn(empId, date)).map(fmt));
-    const open = dates.filter(date => !taken.has(fmt(date)));
-    renderPickCalendar(container, { empId, selectable: new Set(open.map(fmt)), taken, selected: selectedDate });
-    if (status) status.textContent = open.length
-      ? `비번인 날 ${open.length}일 중에서 고를 수 있어요 · 앞으로 3개월`
-      : '앞으로 3개월 안에는 고를 수 있는 비번일이 없어요. 아래에서 날짜를 직접 고를 수 있어요.';
-  }
-  function updateProtectQuotaInfo(){
-    const empId = $('#proEmp').value;
-    const dateVal = $('#proDate').value;
-    const today = getToday();
-    let y = today.getFullYear(), m = today.getMonth();
-    if(dateVal){ const d = new Date(dateVal + 'T00:00:00'); y = d.getFullYear(); m = d.getMonth(); }
-    const used = protectCountInMonth(empId, y, m);
-    const max = STATE.settings.quotaMax;
-    $('#proQuotaInfo').textContent = empId ? `${y}년 ${m + 1}월 비번 보장 ${used}/${max}번 사용${used >= max ? ' — 이번 것은 승인이 필요해요' : ''}` : '';
-    $('#proReasonWrap').style.display = empId && used >= max ? 'block' : 'none';
-    const confirmText = $('#proConfirmText');
-    if (confirmText) confirmText.innerHTML = dateVal
-      ? `<b>${escapeAttribute(pickLabel(dateVal))} 비번 보장</b><br>${used >= max ? '사유를 적으면 팀장·담당 승인 뒤에 확정돼요.' : '신청하면 바로 확정돼요.'}`
-      : '날짜를 고르면 여기에 요약이 나와요.';
-  }
   function submitProtect(){
-    if (!requireEmployeeLogin('비번 보장 신청')) return;
-    const empId = $('#proEmp').value;
-    const dateVal = $('#proDate').value;
-    if(!dateVal){ alert('날짜를 선택해주세요.'); return; }
-    const date = new Date(dateVal + 'T00:00:00');
-    // 화면(근무표)에 표시되는 값을 기준으로 판단한다.
-    // baseShift는 수동 입력·휴가 반영 전 값이라, 손으로 넣은 근무표에서는 비번인 날도 거절됐다.
+    if (!pendingProtection || !requireEmployeeLogin('비번 보장 신청') || employeeId !== pendingProtection.empId) return;
+    const { empId, dateKey } = pendingProtection;
+    const date = new Date(dateKey + 'T00:00:00');
     const error = protectionRequestError(empId, date);
-    if (error){ alert(error); return; }
+    if (error){ requestError(error); return; }
     const y = date.getFullYear(), m = date.getMonth();
     const used = protectCountInMonth(empId, y, m);
     const max = STATE.settings.quotaMax;
     const reason = $('#proReason').value.trim();
-    if(used >= max && !reason){ alert(`월 ${max}회를 초과했습니다. 팀장/담당 승인을 위한 사유를 입력해주세요.`); return; }
+    if (used >= max && !reason) {
+      $('#proReasonWrap').hidden = false;
+      $('#proReason').required = true;
+      requestError(`월 ${max}회를 초과했습니다. 승인 요청 사유를 입력해주세요.`);
+      $('#proReason').focus();
+      return;
+    }
     const rec = {
       id: uid(), empId, date: fmt(date), reason,
       needsApproval: used >= max, status: used >= max ? 'pending' : 'approved',
@@ -2627,8 +2435,9 @@
       });
     }
     saveState();
-    $('#proReason').value = '';
+    closeScheduleRequest();
     renderAll();
+    showToast(rec.needsApproval ? '비번 보장 신청이 접수되었습니다.' : '비번 보장이 확정되었습니다.');
   }
   function renderProtectList(){
     const wrap = $('#proList');
@@ -3240,6 +3049,7 @@
       await new Promise(resolve => requestAnimationFrame(resolve));
       const canvas = await html2canvas(element, {
         scale: Math.max(3, Math.min(4, window.devicePixelRatio * 2)),
+        windowWidth: Math.max(1280, window.innerWidth),
         useCORS: true,
         allowTaint: true,
         logging: false,
@@ -4006,24 +3816,12 @@
     renderApprovalBlock();
     renderMonthlyApprovalStatus();
     renderNotesSection();
-    renderRequestHint();
     renderRequestList();
-    renderProtectTab();
+    $('#setQuotaMax').value = STATE.settings.quotaMax;
     renderProtectList();
     renderAdminTab();
     renderApproverAdmin();
     renderNotifTab();
-  }
-
-  function setApplyKind(kind){
-    $$('#applyKindCards [data-apply-kind]').forEach(card => card.setAttribute('aria-checked', String(card.dataset.applyKind === kind)));
-    $('#applyLeavePane').hidden = kind === 'protect';
-    $('#applyProtectPane').hidden = kind !== 'protect';
-    if (kind !== 'protect' && $('#reqType').value !== kind) {
-      $('#reqType').value = kind;
-      $('#reqDate').value = '';
-      $('#reqType').dispatchEvent(new Event('change'));
-    }
   }
 
   function initTabs(){
@@ -4065,6 +3863,8 @@
     populateEmpSelects();
     populateYearSelect();
     populateMonthSelect();
+    // 신청은 근무표 칸에서 한다. 탭 버튼은 다른 탭 PR과 충돌하지 않도록 실행 중에 뺀다.
+    $('#tabbar button[data-tab="apply"]').remove();
     initTabs();
     // 사람별로 보기: 고른 사람 줄만 진하게, 오른쪽에 그 사람의 이번 주. 저장하지 않는 화면 표시다.
     $('#personFilters').addEventListener('click', event => {
@@ -4118,28 +3918,14 @@
       $$('main section').forEach(s => s.style.display = s.id === 'tab-schedule' ? 'block' : 'none');
       renderAll();
     });
-    $('#reqEmp').addEventListener('change', renderRequestHint);
-    $('#reqType').addEventListener('change', renderRequestHint);
-    $('#reqDate').addEventListener('change', updateAvailableDatePills);
-    // 달력: 날짜 칸과 ‹ › 는 다시 그려지므로 바깥에서 한 번만 받는다.
-    [['#availableDatePills', '#reqDate'], ['#proAvailableDatePills', '#proDate']].forEach(([host, input]) => {
-      $(host).addEventListener('click', event => {
-        const nav = event.target.closest('[data-cal-step]');
-        if (nav) { shiftPickCalendar($(host), Number(nav.dataset.calStep)); return; }
-        const day = event.target.closest('button[data-date]');
-        if (!day || day.disabled) return;
-        $(input).value = day.dataset.date;
-        $(input).dispatchEvent(new Event('change'));
-      });
-    });
-    // 신청하기: 종류 카드 — 휴가 두 가지는 기존 reqType 을, 비번 보장은 다른 칸을 보여 준다.
-    $('#applyKindCards').addEventListener('click', event => {
-      const card = event.target.closest('[data-apply-kind]');
-      if (card) setApplyKind(card.dataset.applyKind);
-    });
+    $('#requestHistoryBtn').addEventListener('click', () => $('#requestHistory').showModal());
     $('#coverToProtectBtn').addEventListener('click', () => {
-      document.querySelector('#tabbar button[data-tab="apply"]').click();
-      setApplyKind('protect');
+      $('#tabbar button[data-tab="schedule"]').click();
+      if (requireEmployeeLogin('비번 보장 신청')) showToast('근무표의 내 비번(O) 칸을 선택해주세요.', 'info');
+    });
+    $('#scheduleTable').addEventListener('click', event => {
+      const cell = event.target.closest('[data-request-date]');
+      if (cell) openScheduleRequest(new Date(cell.dataset.requestDate + 'T00:00:00'));
     });
     // 설정: 왼쪽 메뉴로 한 영역씩 보여 준다.
     $('#settingsNav').addEventListener('click', event => {
@@ -4150,15 +3936,13 @@
       $('#settingsTitle').textContent = item.textContent;
       renderAll();
     });
-    $('#reqPreviewBtn').addEventListener('click', previewChain);
-    $('#modalCancel').addEventListener('click', () => $('#modalBg').classList.remove('show'));
-    $('#modalConfirm').addEventListener('click', confirmChain);
-    $('#proEmp').addEventListener('change', () => { updateProtectQuotaInfo(); updateProtectDatePills(); });
-    $('#proDate').addEventListener('change', () => {
-      updateProtectQuotaInfo();
-      updateProtectDatePills();
+    $('#modalCancel').addEventListener('click', closeScheduleRequest);
+    $('#modalBg').addEventListener('cancel', event => { event.preventDefault(); closeScheduleRequest(); });
+    $('#requestConfirmForm').addEventListener('submit', event => {
+      event.preventDefault();
+      if (pendingProtection) submitProtect();
+      else confirmChain();
     });
-    $('#proSubmitBtn').addEventListener('click', submitProtect);
     $('#adminEmp').addEventListener('change', renderAdminTab);
     $('#editNotesBtn').addEventListener('click', editNotesSection);
     $('#applyNotesBtn').addEventListener('click', saveNotesSection);
@@ -4190,7 +3974,6 @@
     $('#anchorStartShift').addEventListener('change', renderRotationAnchorPreview);
     $('#refreshHolidayBtn').addEventListener('click', refreshSharedState);
 
-    renderRequestHint();
     renderSettings();
     renderAll();
 
