@@ -27,6 +27,7 @@
   *{box-sizing:border-box;}
   body{margin:0;font-family:"Inter","Noto Sans KR","Pretendard","Malgun Gothic",-apple-system,sans-serif;background:var(--bg);color:var(--text);letter-spacing:-0.01em;font-feature-settings:"tnum" 1;-webkit-font-smoothing:antialiased;}
   a{color:var(--accent-text);}
+  #tabbar:not(.admin-session) button[data-tab="settings"]{display:none;}
   [hidden]{display:none!important;}
   code{background:var(--sunk);padding:1px 6px;border-radius:6px;font-size:12px;}
 
@@ -645,7 +646,7 @@
     </div>
   </section>
 
-  <section id="tab-settings" style="display:none;">
+  <section id="tab-settings" hidden style="display:none;">
     <div class="page-head page-head-stack">
       <span class="kicker">설정 · 관리자만</span>
       <h1 id="settingsTitle">근무표·직원 편집</h1>
@@ -1230,6 +1231,15 @@
     const coverSel = $('#adminEmp');
     if (coverSel && employeeLoggedIn && gateAppliedEmp !== employeeId) coverSel.value = employeeId;
     gateAppliedEmp = employeeLoggedIn ? employeeId : '';
+    const settingsButton = $('#tabbar button[data-tab="settings"]');
+    $('#tabbar').classList.toggle('admin-session', adminLoggedIn);
+    $('#tab-settings').hidden = !adminLoggedIn;
+    if (!adminLoggedIn && settingsButton.classList.contains('active')) {
+      settingsButton.classList.remove('active');
+      $('#tabbar button[data-tab="schedule"]').classList.add('active');
+      $('#tab-settings').style.display = 'none';
+      $('#tab-schedule').style.display = 'block';
+    }
     const gateNote = $('#settingsGateNote');
     if (gateNote) {
       gateNote.textContent = adminLoggedIn ? '관리자로 로그인됨 · 15분 동안 바꿀 수 있어요.' : '보기만 할 수 있어요. 바꾸려면 오른쪽 위 로그인에서 “관리자”를 고르세요.';
@@ -2245,6 +2255,7 @@
   }
 
   async function updateLiveClock(){
+    if (adminToken && Date.now() >= adminUntil) applyEmployeeGate();
     const now = await getReferenceDate();
     const text = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`;
     const el = document.getElementById('liveDateTime');
@@ -3981,6 +3992,7 @@
   function initTabs(){
     $$('#tabbar button').forEach(btn => {
       btn.addEventListener('click', () => {
+        if (btn.dataset.tab === 'settings' && (!adminToken || Date.now() >= adminUntil)) return;
         $$('#tabbar button').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         $$('main section').forEach(s => s.style.display = 'none');
