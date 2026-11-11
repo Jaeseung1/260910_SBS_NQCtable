@@ -289,6 +289,23 @@
   .stat-row b{font-size:18px;color:var(--text);}
   .tip-card h2{margin:0 0 6px;}
   .tip-card p{margin:0 0 14px;font-size:13.5px;line-height:1.6;color:var(--muted);}
+  .activity-nav{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:0 0 24px;}
+  .activity-choice{display:flex;flex-direction:column;align-items:flex-start;gap:6px;min-width:0;padding:12px;border:1px solid var(--line2);border-radius:14px;background:var(--panel);color:var(--text);font:inherit;text-align:left;cursor:pointer;}
+  .activity-choice strong{font-size:15px;}
+  .activity-choice small{color:var(--muted);font-size:12px;}
+  .activity-choice:hover,.activity-choice[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);}
+  .activity-choice[aria-pressed="true"] strong{color:var(--accent-text);}
+  .activity-choice:focus-visible{outline:2px solid var(--accent-text);outline-offset:2px;}
+  .activity-section-head h2{margin:0 0 6px;font-size:21px;}
+  .activity-section-head p{margin:0;color:var(--muted);}
+  .activity-empty{background:var(--panel);border:1px dashed var(--line2);border-radius:var(--radius);padding:20px;}
+  .cover-excuse summary,.activity-log summary{cursor:pointer;}
+  .cover-excuse textarea{margin:8px 0;}
+  .activity-log{border-top:1px solid var(--line);padding:12px 0;}
+  .activity-log summary{font-weight:600;overflow-wrap:anywhere;}
+  .activity-log time{display:block;margin:5px 0 0;color:var(--faint);font-size:12px;}
+  .activity-log p{margin:10px 0 0;color:var(--muted);white-space:pre-wrap;overflow-wrap:anywhere;}
+
   /* 승인함 */
   .approval-card{background:var(--panel);border-radius:var(--radius);box-shadow:var(--shadow);border:1px solid rgba(226,213,199,.6);padding:20px 24px;margin-bottom:14px;display:flex;flex-direction:column;gap:12px;}
   .approval-card-head{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;}
@@ -424,9 +441,7 @@
     <nav id="tabbar" hidden inert aria-label="메뉴">
       <button type="button" data-tab="schedule" class="active">근무표</button>
       <button type="button" data-tab="apply">신청하기</button>
-      <button type="button" data-tab="cover">내 대근</button>
-      <button type="button" data-tab="approve">승인함 <span class="nav-count" id="approvalCountBadge" hidden>0</span></button>
-      <button type="button" data-tab="notif">기록</button>
+      <button type="button" data-tab="activity">대근 · 승인 · 기록 <span class="nav-count" id="approvalCountBadge" hidden>0</span></button>
       <button type="button" data-tab="settings">설정</button>
     </nav>
     <div class="account">
@@ -559,14 +574,24 @@
     <form method="dialog" class="actions"><button class="btn secondary">닫기</button></form>
   </dialog>
 
-  <section id="tab-cover" style="display:none;">
-    <div class="page-head">
+  <section id="tab-activity" style="display:none;">
+    <div class="page-head page-head-stack">
+      <span class="kicker">근무표 활동</span>
+      <h1>대근 · 승인 · 기록</h1>
+      <p>다가오는 대근, 처리할 신청, 지난 알림을 확인하세요.</p>
+    </div>
+    <nav id="activityNav" class="activity-nav" aria-label="활동 메뉴">
+      <button type="button" class="activity-choice" data-activity="cover" aria-controls="activity-cover" aria-pressed="true"><strong>내 대근</strong><small id="activityCoverCount">예정 0건</small></button>
+      <button type="button" class="activity-choice" data-activity="approve" aria-controls="activity-approve" aria-pressed="false"><strong>승인함</strong><small id="activityApprovalCount">대기 0건</small></button>
+      <button type="button" class="activity-choice" data-activity="notif" aria-controls="activity-notif" aria-pressed="false"><strong>기록</strong><small id="activityLogCount">알림 0건</small></button>
+    </nav>
+    <div id="activity-cover" data-activity-panel>
+    <div class="page-head activity-section-head">
       <div>
-        <span class="kicker">내 대근</span>
-        <h1 id="coverTitle">내게 잡힌 대근</h1>
-        <p>다른 사람 휴가로 내게 잡힌 근무예요. 못 서는 날은 그 달 25일 0시 전까지 사유를 내 주세요.</p>
+        <h2 id="coverTitle">다가오는 대근</h2>
+        <p>대근이 어렵다면 해당 월 25일 0시 전까지 사유를 제출하세요.</p>
       </div>
-      <label class="head-pick">누구의 대근 <select id="adminEmp"></select></label>
+      <label class="head-pick" id="coverPersonPick" hidden>대근 보기 <select id="adminEmp"></select></label>
     </div>
     <div class="page-layout">
       <div class="page-main">
@@ -584,39 +609,39 @@
         </div>
       </aside>
     </div>
-  </section>
+    </div>
 
-  <section id="tab-approve" style="display:none;">
-    <div class="page-head">
+    <div id="activity-approve" data-activity-panel hidden>
+    <div class="page-head activity-section-head">
       <div>
-        <span class="kicker">승인함</span>
-        <h1 id="approveTitle">처리할 신청</h1>
-        <p>사내메일로 받은 승인 요청이 여기 모여요. 관리자로 로그인하면 PIN 없이 대신 처리할 수 있어요.</p>
+        <h2 id="approveTitle">처리할 신청</h2>
+        <p id="approveSubtitle">대기 중인 신청을 먼저 확인하고, 최근 결과는 옆에서 볼 수 있어요.</p>
       </div>
-      <label class="head-pick">이 이름으로 처리 <select id="approvalActorSelect"></select></label>
+      <label class="head-pick" id="approvalActorPick" hidden>이 이름으로 처리 <select id="approvalActorSelect"></select></label>
     </div>
     <div class="page-layout">
       <div class="page-main">
         <div id="approvalList"><p class="empty">승인 대기 건이 없습니다.</p></div>
       </div>
-      <aside class="page-rail">
+      <aside class="page-rail" id="activityApprovalHistoryRail">
         <div class="rail-card">
           <div class="rail-head"><h2>최근 처리</h2></div>
           <div id="approvalHistory" class="rail-list"><p class="empty">처리된 승인 건이 없습니다.</p></div>
         </div>
       </aside>
     </div>
-  </section>
+    </div>
 
-  <section id="tab-notif" style="display:none;">
-    <div class="page-head page-head-stack">
-      <span class="kicker">기록</span>
-      <h1>알림 기록</h1>
+    <div id="activity-notif" data-activity-panel hidden>
+    <div class="page-head activity-section-head">
+      <div>
+        <h2>알림 기록</h2>
+        <p>최신 알림부터 표시합니다. 제목을 누르면 받는 사람과 내용을 볼 수 있어요.</p>
+      </div>
     </div>
     <div class="panel">
-      <h2>보낸 알림</h2>
-      <p style="font-size:12.5px;color:var(--muted);margin-top:-6px;">화면에서 발생한 알림 내역입니다. 실제 메일은 승인 요청이 생길 때 담당자에게 즉시 발송되고, 변경된 대근·휴가·비번 보장 내용은 매일 정해진 시각에 근무자와 담당자에게 요약 메일로 발송됩니다(서버 .env 설정 필요).</p>
       <div id="notifList"><p class="empty">발송 로그가 없습니다.</p></div>
+    </div>
     </div>
   </section>
 
@@ -1925,7 +1950,7 @@
 
   function notify(channel, toEmpId, title, body){
     STATE.notifications.unshift({
-      id: uid(), channel, to: empName(toEmpId), title, body,
+      id: uid(), channel, toEmpId, to: empName(toEmpId), title, body,
       at: new Date().toISOString()
     });
   }
@@ -2372,8 +2397,10 @@
 
   function renderRequestList(){
     const wrap = $('#reqList');
-    if(STATE.requests.length === 0){ wrap.innerHTML = '<p class="empty">아직 신청 내역이 없습니다.</p>'; return; }
-    wrap.innerHTML = [...STATE.requests].reverse().map(r => {
+    const {admin, employee} = activityViewer();
+    const requests = STATE.requests.filter(r => admin || (employee && r.empId === employee));
+    if(requests.length === 0){ wrap.innerHTML = '<p class="empty">아직 신청 내역이 없습니다.</p>'; return; }
+    wrap.innerHTML = requests.reverse().map(r => {
       const tag = r.type === 'day' ? '<span class="tag day">일근</span>' : '<span class="tag set">야+조</span>';
       const statusTag = r.status === 'pending' ? '<span class="tag warn">승인 대기</span>'
         : r.status === 'cancelled' ? (r.cancelledAt ? '<span class="tag muted">취소됨</span>' : '<span class="tag leave">반려됨</span>')
@@ -2382,24 +2409,37 @@
       return `<div class="list-item">${statusTag}${tag}<b>${escapeAttribute(empName(r.empId))}</b> · ${escapeAttribute(r.startDate)}
         <div class="meta">${escapeAttribute(chainTxt)}</div>
         <div class="meta">${new Date(r.submittedAt).toLocaleString('ko-KR')} 신청</div>
-        ${r.status !== 'cancelled' && employeeId && employeeId === r.empId ? `<div class="row" style="margin-top:6px;"><button class="btn ghost" data-security-action="cancel-request" data-id="${escapeAttribute(r.id)}">신청 취소</button></div>` : ''}
+        ${r.status === 'pending' && employee === r.empId ? `<div class="row" style="margin-top:6px;"><button class="btn ghost" data-security-action="cancel-request" data-id="${escapeAttribute(r.id)}">신청 취소</button></div>` : ''}
       </div>`;
     }).join('');
   }
 
-  // 로그인한 본인이 자신의 휴가 신청을 취소한다. 서버(cancelOwn)가 소유자·상태를 재검증하고
-  // 'cancelled' 상태로 만들어 대근 배정 자동 원상복구(findChainAssignment가 cancelled를 건너뜀)
-  // 로직을 그대로 재사용한다. 저장은 일반 저장 경로를 타지 않으므로 성공 후 새로고침으로 동기화한다.
   async function cancelRequest(id){
-    const req = STATE.requests.find(r => r.id === id);
-    if (!req) return;
-    if (req.status === 'cancelled'){ alert('이미 취소된 신청입니다.'); return; }
-    if (!requireEmployeeLogin('휴가 신청 취소')) return;
-    if (employeeId !== req.empId){ employeeMessage('본인 신청만 취소할 수 있습니다.'); return; }
+    await cancelPendingActivityRequest('request', id);
+  }
+
+  let cancellingActivityRequest = false;
+  async function cancelPendingActivityRequest(kind, id){
+    if (cancellingActivityRequest || !requireEmployeeLogin('신청 취소')) return;
+    const item = (kind === 'request' ? STATE.requests : STATE.protects).find(entry => entry.id === id);
+    if (!item || item.empId !== employeeId || item.status !== 'pending') return;
+    if (!confirm('승인 대기 중인 신청을 취소할까요?')) return;
+    cancellingActivityRequest = true;
     try {
-      await employeeRequest('/api/requests/cancel', { kind: 'request', id });
-      location.reload();
-    } catch (error) { employeeMessage(error.message); }
+      await flushPendingState();
+      if (!stateSync || stateSync.info().dirty || stateSync.info().busy) {
+        showToast('저장이 완료된 뒤 다시 시도해주세요.', 'warn');
+        return;
+      }
+      await employeeRequest('/api/requests/cancel', {kind, id});
+      if (await stateSync.reload()) renderAll();
+      showToast('신청을 취소했습니다.');
+    } catch (error) {
+      if (await stateSync?.reload()) renderAll();
+      showToast(error.message, 'warn');
+    } finally {
+      cancellingActivityRequest = false;
+    }
   }
 
   function submitProtect(){
@@ -2441,68 +2481,70 @@
   }
   function renderProtectList(){
     const wrap = $('#proList');
-    if(STATE.protects.length === 0){ wrap.innerHTML = '<p class="empty">아직 신청 내역이 없습니다.</p>'; return; }
-    wrap.innerHTML = [...STATE.protects].reverse().map(p => {
+    const {admin, employee} = activityViewer();
+    const protections = STATE.protects.filter(p => admin || (employee && p.empId === employee));
+    if(protections.length === 0){ wrap.innerHTML = '<p class="empty">아직 신청 내역이 없습니다.</p>'; return; }
+    wrap.innerHTML = protections.reverse().map(p => {
       const statusTag = p.status === 'pending' ? '<span class="tag warn">승인 대기</span>'
         : p.status === 'rejected' ? '<span class="tag leave">반려됨</span>'
         : p.status === 'cancelled' ? '<span class="tag muted">취소됨</span>'
         : '<span class="tag ok">확정</span>';
-      const cancellable = p.status !== 'rejected' && p.status !== 'cancelled';
+      const cancellable = p.status === 'pending';
       return `<div class="list-item">${statusTag}<b>${escapeAttribute(empName(p.empId))}</b> · ${escapeAttribute(p.date)}
         ${p.reason ? `<div class="meta">사유: ${escapeAttribute(p.reason)}</div>` : ''}
         <div class="meta">${new Date(p.submittedAt).toLocaleString('ko-KR')} 신청</div>
-        ${cancellable && employeeId && employeeId === p.empId ? `<div class="row" style="margin-top:6px;"><button class="btn ghost" data-security-action="cancel-protect" data-id="${escapeAttribute(p.id)}">신청 취소</button></div>` : ''}
+        ${cancellable && employee === p.empId ? `<div class="row" style="margin-top:6px;"><button class="btn ghost" data-security-action="cancel-protect" data-id="${escapeAttribute(p.id)}">신청 취소</button></div>` : ''}
       </div>`;
     }).join('');
   }
 
-  // 로그인한 본인이 자신의 비번 보장 신청을 취소한다. isProtectedOn 등 관련 로직은 이미
-  // status !== 'cancelled'를 함께 걸러내고 있어 별도 수정 없이 안전하게 반영된다. 서버(cancelOwn)가
-  // 소유자·상태를 재검증하며, 일반 저장 경로를 타지 않으므로 성공 후 새로고침으로 동기화한다.
   async function cancelProtect(id){
-    const pro = STATE.protects.find(p => p.id === id);
-    if (!pro) return;
-    if (pro.status === 'cancelled' || pro.status === 'rejected'){ alert('이미 취소(반려)된 신청입니다.'); return; }
-    if (!requireEmployeeLogin('비번 보장 신청 취소')) return;
-    if (employeeId !== pro.empId){ employeeMessage('본인 신청만 취소할 수 있습니다.'); return; }
-    try {
-      await employeeRequest('/api/requests/cancel', { kind: 'protect', id });
-      location.reload();
-    } catch (error) { employeeMessage(error.message); }
+    await cancelPendingActivityRequest('protect', id);
   }
 
   function renderAdminTab(){
-    const empId = $('#adminEmp').value;
+    const { admin, employee } = activityViewer();
+    const picker = $('#adminEmp');
+    $('#coverPersonPick').hidden = !admin;
+    if (admin && !Array.from(picker.options).some(option => option.value === '')) {
+      picker.add(new Option('전체', ''), 0);
+      picker.value = '';
+    }
+    if (!admin) picker.value = '';
+    const empId = admin ? picker.value : employee;
+    const canView = admin || !!employee;
     const mine = [];
     STATE.requests.forEach(r => r.chain.forEach(c => {
-      if(c.empId === empId && c.empId !== r.empId && r.status !== 'cancelled') mine.push({...c, sourceEmp: r.empId, reqId: r.id});
+      if(canView && (empId ? c.empId === empId : admin) && c.empId !== r.empId && r.status !== 'cancelled') mine.push({...c, sourceEmp: r.empId, reqId: r.id});
     }));
     mine.sort((a, b) => a.date.localeCompare(b.date));
     const todayKey = fmt(stripTime(getToday()));
     const upcoming = mine.filter(m => m.date >= todayKey);
     const past = mine.filter(m => m.date < todayKey).reverse();
-    const isMe = employeeId && employeeId === empId;
+    const isMe = !!employee && employee === empId;
+    const count = $('#activityCoverCount');
+    if (count) count.textContent = `예정 ${upcoming.length}건`;
     const title = $('#coverTitle');
-    if (title) title.textContent = !empId ? '내게 잡힌 대근' : isMe ? `내게 잡힌 대근 ${upcoming.length}건` : `${empName(empId)}님 대근 ${upcoming.length}건`;
+    if (title) title.textContent = !empId ? (admin ? `전체 대근 ${upcoming.length}건` : '내게 잡힌 대근') : isMe ? `내게 잡힌 대근 ${upcoming.length}건` : `${empName(empId)}님 대근 ${upcoming.length}건`;
     const card = m => {
       const d = new Date(m.date + 'T00:00:00');
-      const already = STATE.excuses.find(e => e.empId === empId && e.date === m.date);
+      const already = STATE.excuses.find(e => e.empId === m.empId && e.date === m.date);
       const canSubmit = isMe && m.date >= todayKey;
       const chip = `<span class="shift ${m.shift === '대일' ? 'cell-대일' : 'cell-대근'}">${escapeAttribute(m.shift || '대근')}</span>`;
       return `<div class="cover-card">
         <div class="cover-date"><b>${d.getDate()}</b><small>${d.getMonth() + 1}월 · ${WEEKDAY_KO[d.getDay()]}</small></div>
         <div class="cover-body">
-          <div class="cover-line">${chip}<b>${escapeAttribute(empName(m.sourceEmp))}님 휴가 대근</b><span class="meta">${escapeAttribute(m.label)}</span></div>
+          <div class="cover-line">${chip}<b>${admin ? escapeAttribute(empName(m.empId)) + ' · ' : ''}${escapeAttribute(empName(m.sourceEmp))}님 휴가 대근</b><span class="meta">${escapeAttribute(m.label)}</span></div>
           ${already ? `<span class="cover-done">✓ 못 서는 사유를 냈어요 — “${escapeAttribute(already.reason)}”</span>`
-            : canSubmit ? `<textarea placeholder="못 서는 사유 (그 달 25일 0시 전까지)" id="excuse-${escapeAttribute(m.date)}-${escapeAttribute(empId)}" aria-label="${escapeAttribute(m.date)} 못 서는 사유"></textarea>
-            <div class="row"><button class="btn secondary" data-security-action="excuse" data-emp="${escapeAttribute(empId)}" data-date="${escapeAttribute(m.date)}">못 서요 · 사유 내기</button></div>`
+            : canSubmit ? `<details class="cover-excuse"><summary>대근이 어려워요</summary><textarea placeholder="못 서는 사유 (그 달 25일 0시 전까지)" id="excuse-${escapeAttribute(m.date)}-${escapeAttribute(empId)}" aria-label="${escapeAttribute(m.date)} 못 서는 사유"></textarea>
+            <div class="row"><button class="btn secondary" data-security-action="excuse" data-emp="${escapeAttribute(empId)}" data-date="${escapeAttribute(m.date)}">사유 제출</button></div></details>`
             : m.date >= todayKey ? '<span class="meta">본인 이름으로 로그인하면 못 서는 사유를 낼 수 있어요.</span>' : ''}
         </div>
       </div>`;
     };
     const wrap = $('#adminAssignList');
-    if (!empId) wrap.innerHTML = '<div class="panel"><p class="empty">위에서 사람을 고르거나 로그인하세요.</p></div>';
-    else if (!mine.length) wrap.innerHTML = '<div class="panel"><p class="empty">잡힌 대근이 없어요.</p></div>';
+    if (!canView) wrap.innerHTML = '<div class="panel"><p class="empty">로그인하면 대근을 볼 수 있어요.</p></div>';
+    else if (!mine.length) wrap.innerHTML = '<div class="activity-empty"><p class="empty">잡힌 대근이 없어요.</p></div>';
     else {
       wrap.innerHTML = (upcoming.length ? upcoming.map(card).join('') : '<div class="panel"><p class="empty">앞으로 잡힌 대근이 없어요.</p></div>')
         + (past.length ? `<details class="cover-past"><summary>지난 대근 ${past.length}건</summary>${past.map(card).join('')}</details>` : '');
@@ -2511,9 +2553,9 @@
     if (summary) {
       const monthKey = todayKey.slice(0, 7);
       const thisMonth = mine.filter(m => m.date.startsWith(monthKey));
-      const excused = thisMonth.filter(m => STATE.excuses.some(e => e.empId === empId && e.date === m.date)).length;
+      const excused = thisMonth.filter(m => STATE.excuses.some(e => e.empId === m.empId && e.date === m.date)).length;
       $('#coverSummaryTitle').textContent = `${Number(monthKey.slice(5))}월 대근`;
-      summary.innerHTML = empId ? `<div class="stat-row"><span>잡힌 대근</span><b>${thisMonth.length}건</b></div>
+      summary.innerHTML = canView ? `<div class="stat-row"><span>잡힌 대근</span><b>${thisMonth.length}건</b></div>
         <div class="stat-row"><span>남은 대근</span><b>${thisMonth.filter(m => m.date >= todayKey).length}건</b></div>
         <div class="stat-row"><span>사유 낸 것</span><b>${excused}건</b></div>` : '<p class="rail-empty">사람을 고르면 보여요.</p>';
     }
@@ -2600,8 +2642,24 @@
     }catch(e){ /* 서버 없이 열었을 때는 무시 */ }
   }
 
+  function activityViewer(){
+    return {
+      admin: !!adminToken && Date.now() < adminUntil,
+      employee: employeeToken && Date.now() < employeeUntil ? employeeId : ''
+    };
+  }
+
+  function visibleActivityApprovals(){
+    const {admin, employee} = activityViewer();
+    return STATE.approvals.filter(a => admin || (employee && a.requestedBy === employee));
+  }
+
+  // 배지·요약 숫자는 승인함과 같은 기준: 관리자는 전체, 그 외에는 내 신청 + 담당자 PIN으로 처리할 건.
   function pendingApprovals(){
-    return STATE.approvals.filter(a => a.status === 'pending');
+    const {admin, employee} = activityViewer();
+    if (admin) return STATE.approvals.filter(a => a.status === 'pending');
+    const decidable = new Set(approverDecidableApprovals(employee).map(a => a.id));
+    return STATE.approvals.filter(a => a.status === 'pending' && ((employee && a.requestedBy === employee) || decidable.has(a.id)));
   }
 
   // 승인 절차 없이 담당자에게 알리기만 하면 되는 건(예: 대근 불가 사유 접수)
@@ -2644,24 +2702,99 @@
     } catch (error) { securityMessage(error.message); }
   }
 
+  function renderOwnApprovalInbox(employee, wrap){
+    const own = employee ? [
+      ...STATE.requests.filter(r => r.empId === employee).map(r => ({...r, kind:'request', date:r.startDate})),
+      ...STATE.protects.filter(p => p.empId === employee).map(p => ({...p, kind:'protect'}))
+    ].sort((a, b) => String(b.submittedAt).localeCompare(String(a.submittedAt))) : [];
+    const pending = own.filter(item => item.status === 'pending');
+    $('#activityApprovalCount').textContent = `내 대기 ${pending.length}건`;
+    $('#approveTitle').textContent = '내 신청';
+    const card = item => {
+      const type = item.kind === 'protect' ? '비번 보장' : item.type === 'set' ? '야+조근 휴가' : '일근 휴가';
+      const status = item.status === 'pending' ? '승인 대기'
+        : item.cancelledAt ? '취소됨' : ['cancelled', 'rejected'].includes(item.status) ? '반려' : '확정';
+      return `<article class="approval-card"><div class="approval-card-head">
+        <span class="tag ${item.status === 'pending' ? 'warn' : status === '확정' ? 'ok' : 'muted'}">${status}</span>
+        <b>${type} · ${escapeAttribute(item.date)}</b></div>
+        ${item.status === 'pending' ? `<div class="actions"><button type="button" class="btn secondary" data-security-action="cancel-${item.kind}" data-id="${escapeAttribute(item.id)}">신청 취소</button></div>` : ''}
+      </article>`;
+    };
+    const past = own.filter(item => item.status !== 'pending');
+    wrap.innerHTML = pending.length ? pending.map(card).join('') : `<div class="activity-empty"><p class="empty">${employee ? '승인 대기 중인 내 신청이 없어요.' : '로그인하면 내 신청을 볼 수 있어요.'}</p></div>`;
+    if (past.length) wrap.innerHTML += `<h3>처리된 내 신청</h3>${past.map(card).join('')}`;
+  }
+
   function renderApprovalInbox(){
-    const actorSel = $('#approvalActorSelect');
-    if (actorSel){
-      const prev = actorSel.value;
-      const approvers = getApprovers();
-      actorSel.innerHTML = approvers.length
-        ? approvers.map(a => `<option value="${escapeAttribute(a.id)}">${escapeAttribute(a.name)}</option>`).join('')
-        : '<option value="">등록된 담당자가 없습니다 — 설정 탭에서 등록</option>';
-      if (prev && approvers.some(a => a.id === prev)) actorSel.value = prev;
-    }
+    const {admin, employee} = activityViewer();
     const wrap = $('#approvalList');
     if (!wrap) return;
+    const actorPick = $('#approvalActorPick');
+    if (actorPick) actorPick.hidden = !admin;
+    const rail = $('#activityApprovalHistoryRail');
+    if (rail) rail.hidden = !admin;
+    const subtitle = $('#approveSubtitle');
+    if (subtitle && admin) subtitle.textContent = '대기 중인 신청을 먼저 확인하고, 최근 결과는 옆에서 볼 수 있어요.';
+    if (!admin) {
+      if (employee) {
+        // 근무자: 내 신청과 처리 결과만 본다.
+        if (actorPick) actorPick.hidden = true;
+        if (subtitle) subtitle.textContent = '승인 대기 중인 내 신청과 처리 결과를 볼 수 있어요.';
+        renderOwnApprovalInbox(employee, wrap);
+        return;
+      }
+      // 담당자(직원 로그인 없이 연 화면): 처리할 승인 대기 건을 본다. 승인·반려는 security.decide가 담당자 PIN으로 확인한다.
+      const decidable = approverDecidableApprovals('');
+      const locked = lockedApprover();
+      if (actorPick) actorPick.hidden = !decidable.length || !!locked;
+      if (decidable.length) fillApprovalActorSelect(decidable);
+      if (subtitle) subtitle.textContent = !decidable.length ? '지금 처리할 승인 대기 건이 없어요.'
+        : locked ? '담당자로 로그인되어 있어 바로 승인·반려할 수 있어요.'
+        : `'이 이름으로 처리'에서 담당자를 고르고 승인·반려를 누르면 담당자 PIN을 물어봐요.`;
+      $('#activityApprovalCount').textContent = `대기 ${decidable.length}건`;
+      $('#approveTitle').textContent = decidable.length ? `처리할 신청 ${decidable.length}건` : '처리할 신청이 없어요';
+      wrap.innerHTML = decidable.length ? decidable.map(approvalCard).join('') : '<div class="activity-empty"><p class="empty">승인 대기 건이 없습니다.</p></div>';
+      return;
+    }
+    fillApprovalActorSelect();
     const pend = pendingApprovals();
+    const count = $('#activityApprovalCount');
+    if (count) count.textContent = `대기 ${pend.length}건`;
     const title = $('#approveTitle');
     if (title) title.textContent = pend.length ? `처리할 신청 ${pend.length}건` : '처리할 신청이 없어요';
     if (pend.length === 0){ wrap.innerHTML = '<div class="panel"><p class="empty">승인 대기 건이 없습니다.</p></div>'; return; }
+    wrap.innerHTML = pend.map(approvalCard).join('');
+  }
+
+  // 담당자 PIN으로 처리할 수 있는 승인 대기 건. 본인이 낸 신청은 본인이 처리하지 않도록 뺀다.
+  // 근무자로 로그인한 화면에서는 내 신청만 보이고, 다른 사람 신청은 직원 로그인 없이 연 담당자 화면에서만 보인다.
+  // 담당자로 로그인해 이름이 정해져 있으면(#approvalActorSelect의 data-locked-approver) 그 담당자 건만 보인다.
+  function lockedApprover(){
+    return $('#approvalActorSelect')?.dataset?.lockedApprover || '';
+  }
+  function approverDecidableApprovals(employee){
+    if (employee) return [];
+    const locked = lockedApprover();
+    return STATE.approvals.filter(a => a.status === 'pending' && a.approverIds?.length && (!locked || a.approverIds.includes(locked)));
+  }
+
+  // approvals를 넘기면 그 건들의 담당자만, 없으면 전체 담당자를 고를 수 있게 한다.
+  function fillApprovalActorSelect(approvals){
+    const actorSel = $('#approvalActorSelect');
+    if (!actorSel) return;
+    const prev = actorSel.value;
+    const ids = approvals ? new Set(approvals.flatMap(a => a.approverIds || [])) : null;
+    const approvers = getApprovers().filter(a => !ids || ids.has(a.id));
+    actorSel.innerHTML = approvers.length
+      ? approvers.map(a => `<option value="${escapeAttribute(a.id)}">${escapeAttribute(a.name)}</option>`).join('')
+      : '<option value="">등록된 담당자가 없습니다 — 설정 탭에서 등록</option>';
+    const keep = actorSel.dataset?.lockedApprover || prev;
+    if (keep && approvers.some(a => a.id === keep)) actorSel.value = keep;
+  }
+
+  function approvalCard(a){
     const typeClass = { leave: 'leave', protect: 'set', monthly: 'day' };
-    wrap.innerHTML = pend.map(a => `<article class="approval-card">
+    return `<article class="approval-card">
       <div class="approval-card-head">
         <span class="tag ${typeClass[a.type] || 'warn'}">${escapeAttribute(APPROVAL_TYPE_LABEL[a.type] || a.type)}</span><b>${escapeAttribute(a.title)}</b>
         <time>${new Date(a.requestedAt).toLocaleString('ko-KR')} 요청</time>
@@ -2672,18 +2805,18 @@
         <button class="btn secondary" data-security-action="reject" data-id="${escapeAttribute(a.id)}">반려</button>
         <button class="btn" data-security-action="approve" data-id="${escapeAttribute(a.id)}">${a.type === 'monthly' ? '확정' : '승인'}</button>
       </div>
-    </article>`).join('');
+    </article>`;
   }
 
   function renderApprovalHistory(){
     const wrap = $('#approvalHistory');
     if (!wrap) return;
-    const done = STATE.approvals.filter(a => a.status !== 'pending').slice(0, 20);
+    const done = activityViewer().admin ? STATE.approvals.filter(a => a.status !== 'pending').slice(0, 20) : [];
     if (done.length === 0){ wrap.innerHTML = '<p class="empty">처리된 승인 건이 없습니다.</p>'; return; }
     wrap.innerHTML = done.map(a => {
       const tag = a.status === 'approved'
         ? '<span class="tag ok">승인</span>'
-        : '<span class="tag leave">반려</span>';
+        : a.decisionReason === '신청자 본인 취소' ? '<span class="tag muted">취소됨</span>' : '<span class="tag leave">반려</span>';
       return `<div class="list-item">${tag}<b>${escapeAttribute(a.title)}</b>
         <div class="meta">${escapeAttribute(approverName(a.decidedBy))} · ${a.decidedAt ? new Date(a.decidedAt).toLocaleString('ko-KR') : ''}${a.decisionReason ? ` · 사유: ${escapeAttribute(a.decisionReason)}` : ''}</div>
       </div>`;
@@ -2866,13 +2999,25 @@
     showToast('담당자에게 월 근무표 확정 요청을 보냈습니다.');
   }
 
+  function selectActivity(name){
+    $$('#activityNav [data-activity]').forEach(button => {
+      button.setAttribute('aria-pressed', String(button.dataset.activity === name));
+    });
+    $$('[data-activity-panel]').forEach(panel => { panel.hidden = panel.id !== 'activity-' + name; });
+  }
+
+  function openApprovalInbox(){
+    selectActivity('approve');
+    $('#tabbar button[data-tab="activity"]').click();
+  }
+
   // 사내메일로 받은 승인 링크(?approve=<id>)로 들어오면 승인함 탭을 바로 열어준다.
   function openApprovalFromLink(){
     const params = new URLSearchParams(location.search);
     const approvalId = params.get('approve');
     if (!approvalId) return;
-    const tabBtn = document.querySelector('#tabbar button[data-tab="approve"]');
-    if (tabBtn) tabBtn.click();
+    openApprovalInbox();
+    // 메일 링크로 들어온 담당자는 관리자가 아닐 수 있으므로 전체 승인 목록에서 찾는다.
     const approval = STATE.approvals.find(a => a.id === approvalId);
     if (!approval){
       showToast('해당 승인 건을 찾을 수 없습니다. 이미 처리되었거나 삭제된 건일 수 있습니다.', 'warn');
@@ -3095,13 +3240,22 @@
 
   function renderNotifTab(){
     const wrap = $('#notifList');
-    if(STATE.notifications.length === 0){ wrap.innerHTML = '<p class="empty">발송 로그가 없습니다.</p>'; return; }
-    wrap.innerHTML = STATE.notifications.map(n => `<div class="list-item">
-      <span class="tag email">이메일</span>
-      <b>${escapeAttribute(n.to)}</b> — ${escapeAttribute(n.title)}
-      <div class="meta">${escapeAttribute(n.body)}</div>
-      <div class="meta">${new Date(n.at).toLocaleString('ko-KR')}</div>
-    </div>`).join('');
+    const {admin, employee} = activityViewer();
+    const name = employee ? empName(employee) : '';
+    const uniqueName = !!name && EMPLOYEES.filter(e => e.name === name).length === 1;
+    const notifications = STATE.notifications.filter(n => admin || (employee &&
+      (n.toEmpId ? n.toEmpId === employee : uniqueName && n.to === name)))
+      .sort((a, b) => String(b.at).localeCompare(String(a.at)));
+    $('#activityLogCount').textContent = `알림 ${notifications.length}건`;
+    if (!notifications.length) {
+      wrap.innerHTML = '<p class="empty">아직 기록된 알림이 없어요.</p>';
+      return;
+    }
+    wrap.innerHTML = notifications.map(n => `<details class="activity-log">
+      <summary><span class="tag email">이메일</span> ${escapeAttribute(n.title)}</summary>
+      <time>${new Date(n.at).toLocaleString('ko-KR')}</time>
+      <p><b>받는 사람:</b> ${escapeAttribute(n.to)}<br>${escapeAttribute(n.body)}</p>
+    </details>`).join('');
   }
 
   function renderSettings(){
@@ -3873,8 +4027,10 @@
       scheduleFocusEmp = chip.dataset.person;
       renderScheduleTab();
     });
-    $('#railApprovalLink').addEventListener('click', () => {
-      document.querySelector('#tabbar button[data-tab="approve"]').click();
+    $('#railApprovalLink').addEventListener('click', openApprovalInbox);
+    $('#activityNav').addEventListener('click', event => {
+      const button = event.target.closest('[data-activity]');
+      if (button) selectActivity(button.dataset.activity);
     });
 
     const initMonth = new Date();
