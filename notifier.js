@@ -62,7 +62,8 @@ async function verifyMail() {
   }
 }
 
-async function sendMail(to, subject, text, html) {
+// attachments: nodemailer 형식 [{ filename, content, contentType }] (내 근무표 CSV 등).
+async function sendMail(to, subject, text, html, attachments) {
   const tx = getTransporter();
   if (!tx) return { channel: 'email', to, ok: false, skipped: 'SMTP 설정 없음(.env의 SMTP_HOST)' };
   try {
@@ -72,7 +73,8 @@ async function sendMail(to, subject, text, html) {
       to,
       subject,
       text,
-      ...(html ? { html } : {})
+      ...(html ? { html } : {}),
+      ...(attachments && attachments.length ? { attachments } : {})
     });
     return { channel: 'email', to, ok: true };
   } catch (err) {

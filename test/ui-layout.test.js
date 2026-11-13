@@ -5,7 +5,8 @@ const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
 
-const html = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
+// Windows 에서 git 이 CRLF 로 꺼내도 같은 결과가 나오게 줄바꿈을 맞춘다 (서버도 해시 전에 맞춘다).
+const html = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8').replace(/\r\n?/g, '\n');
 const script = html.match(/<script>([\s\S]*?)<\/script>/)[1];
 const scheduleTab = html.match(/<section id="tab-schedule">[\s\S]*?<\/section>/)[0];
 
