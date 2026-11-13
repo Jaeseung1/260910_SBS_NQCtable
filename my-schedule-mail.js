@@ -9,7 +9,6 @@
 
 const { sendMail, isMailConfigured } = require('./notifier');
 
-const WEEKDAYS = '일월화수목금토';
 // 같은 사람이 버튼을 연달아 눌러 메일이 쌓이지 않게 한다.
 const RESEND_MS = 60 * 1000;
 
@@ -33,14 +32,13 @@ function daysInMonth(year, month) {
   return new Date(Date.UTC(year, month, 0)).getUTCDate();
 }
 
-// 1일부터 말일까지 한 줄씩: 날짜, 요일, 근무. 엑셀이 한글을 깨뜨리지 않게 BOM 을 붙인다.
+// 1일부터 말일까지 한 줄씩: 날짜, 근무 (사용자가 두 칸만 원했다). 엑셀이 한글을 깨뜨리지 않게 BOM 을 붙인다.
 function buildScheduleCsv({ year, month, shifts }) {
-  const lines = ['날짜,요일,근무'];
+  const lines = ['날짜,근무'];
   shifts.forEach((shift, index) => {
     const day = index + 1;
-    const weekday = WEEKDAYS[new Date(Date.UTC(year, month - 1, day)).getUTCDay()];
     const date = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-    lines.push([date, weekday, shiftLabel(shift)].map(csvCell).join(','));
+    lines.push([date, shiftLabel(shift)].map(csvCell).join(','));
   });
   return '﻿' + lines.join('\r\n') + '\r\n';
 }
