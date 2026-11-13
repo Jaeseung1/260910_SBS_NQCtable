@@ -60,7 +60,7 @@ test('HTTP file boundary and existing API routes', { timeout: 30000 }, async t =
   });
 
   for (const file of [
-    'server.js', 'excel-export.js', 'db.js', 'security.js', 'activityLog.js', 'notifier.js', 'digest.js',
+    'server.js', 'excel-export.js', 'my-schedule-mail.js', 'db.js', 'security.js', 'activityLog.js', 'notifier.js', 'digest.js',
     'index.html', 'sbs-logo.png', 'package.json', 'package-lock.json',
     'README.md', 'app.js', 'styles.css'
   ]) {

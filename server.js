@@ -17,12 +17,14 @@ const { createHash } = require('node:crypto');
 const { notifyApprovers, getBaseUrl } = require('./notifier');
 const { startDigestScheduler } = require('./digest');
 const { createWorkbook } = require('./excel-export');
+const { createMyScheduleMailer } = require('./my-schedule-mail');
 
 const app = express();
 // A local HTTPS reverse proxy may forward the original protocol.
 app.set('trust proxy', 'loopback');
 const PORT = Number(process.env.PORT) || 8000;
 const security = createSecurity({ db, getState, setState });
+const mailMySchedule = createMyScheduleMailer({ getState, security });
 const scriptHashes = [...readFileSync(path.join(__dirname, 'index.html'), 'utf8').replace(/\r\n?/g, '\n').matchAll(/<script>([\s\S]*?)<\/script>/g)]
   .map(match => "'sha256-" + createHash('sha256').update(match[1]).digest('base64') + "'");
 
@@ -80,6 +82,12 @@ app.post('/api/export/excel', async (req, res) => {
     if (!error.status) console.error('엑셀 생성 오류:', error);
     res.status(error.status || 500).json({error:error.status ? error.message : '엑셀 파일을 생성하지 못했습니다. 잠시 후 다시 시도해 주세요.'});
   }
+});
+
+// 로그인한 근무자 본인의 한 달 근무를 CSV 로 그 사람의 등록된 사내메일에 보낸다.
+// 받는 주소는 서버가 로그인 토큰으로 정한다 (my-schedule-mail.js).
+app.post('/api/my-schedule/mail', async (req, res, next) => {
+  try { res.json(await mailMySchedule(req)); } catch (error) { next(error); }
 });
 
 // 현재 저장된 근무표 상태 전체를 반환. 서버에 아직 아무것도 없으면 state:null

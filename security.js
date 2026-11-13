@@ -452,6 +452,6 @@ function createSecurity({ db, getState, setState, adminPassword = process.env.AD
     if (l && (!who || l.holderKey === who.key)) lock = null;
     return { ok: true };
   }
-  return { login, save, decide, isAdmin, employeeLogin, changeEmployeePin, approverLogin, cancelOwn, lockStatus, acquireLock, heartbeatLock, releaseLock };
+  return { login, save, decide, isAdmin, employeeSession, employeeLogin, changeEmployeePin, approverLogin, cancelOwn, lockStatus, acquireLock, heartbeatLock, releaseLock };
 }
 module.exports = { createSecurity, publicState, validateSave, targets };

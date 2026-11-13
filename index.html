@@ -514,6 +514,7 @@
               <button class="btn secondary" id="requestHistoryBtn" type="button">신청 내역</button>
               <button class="btn secondary export" id="exportPdfBtn" type="button">PDF</button>
               <button class="btn secondary export" id="exportExcelBtn" type="button" title="샘플 양식 · NC 교대근무자 최대 4명 · TC 추가 인원">엑셀</button>
+              <button class="btn secondary export" id="mailMyScheduleBtn" type="button" hidden title="보고 있는 달의 내 근무를 CSV 파일로 내 사내메일에 보냅니다">내 근무표 메일로</button>
               <button class="btn" id="requestMonthlyBtn" type="button">이 달 근무표 확정 요청</button>
             </div>
           </div>
@@ -1245,6 +1246,9 @@
       gateNote.textContent = adminLoggedIn ? '관리자로 로그인됨 · 15분 동안 바꿀 수 있어요.' : '보기만 할 수 있어요. 바꾸려면 오른쪽 위 로그인에서 “관리자”를 고르세요.';
       gateNote.classList.toggle('is-admin', adminLoggedIn);
     }
+    // 내 근무표 메일: 근무자로 로그인했을 때만. 받는 주소는 서버가 로그인한 본인 것으로 정한다.
+    const mailBtn = $('#mailMyScheduleBtn');
+    if (mailBtn) mailBtn.hidden = !employeeLoggedIn;
     const pinChangeBtn = $('#employeePinChangeBtn');
     if (pinChangeBtn) pinChangeBtn.hidden = !employeeLoggedIn;
     const approverSelect = $('#loginApproverSelect');
@@ -3206,6 +3210,29 @@
     } finally { btn.disabled = false; }
   }
 
+  // 보고 있는 달의 내 근무(1일~말일)를 CSV 로 내 사내메일에 보낸다. 근무값은 엑셀과 같은 방법으로
+  // 화면에서 계산해 보내고, 서버는 로그인한 본인에게 등록된 메일로만 보낸다(my-schedule-mail.js).
+  async function mailMySchedule(){
+    if (!requireEmployeeLogin('내 근무표 메일')) return;
+    const btn = $('#mailMyScheduleBtn');
+    btn.disabled = true;
+    try {
+      const {year, monthIndex} = getCurrentMonthView();
+      const emp = EMPLOYEES.find(e => e.id === employeeId);
+      if (!emp) throw new Error('직원 정보를 찾지 못했습니다.');
+      if (!(emp.email || '').trim()) throw new Error('등록된 사내메일이 없습니다. 관리자에게 직원 구성에서 메일 등록을 요청해주세요.');
+      const days = new Date(year, monthIndex + 1, 0).getDate();
+      const shifts = Array.from({length: days}, (_, i) => {
+        const date = new Date(year, monthIndex, i + 1);
+        return isEmployeeActiveOnDate(emp, date) ? effectiveShift(emp.id, date) : '';
+      });
+      const result = await employeeRequest('/api/my-schedule/mail', {year, month: monthIndex + 1, shifts});
+      showToast(`${year}년 ${monthIndex + 1}월 내 근무표를 ${result.to} 로 보냈어요.`, 'ok');
+    } catch (error) {
+      showToast(error.message || '메일을 보내지 못했습니다.', 'warn');
+    } finally { btn.disabled = false; }
+  }
+
   async function exportPdf(){
     const btn = $('#exportPdfBtn');
     const actions = $('.schedule-actions-row');
@@ -4134,6 +4161,7 @@
     $('#approvalApplyBtn').addEventListener('click', applyApprovalLines);
     $('#exportPdfBtn').addEventListener('click', exportPdf);
     $('#exportExcelBtn').addEventListener('click', exportExcel);
+    $('#mailMyScheduleBtn').addEventListener('click', mailMySchedule);
     $('#requestMonthlyBtn').addEventListener('click', requestMonthlyApproval);
     $('#approverAddBtn').addEventListener('click', addApprover);
     if (LOCAL_MODE) openApprovalFromLink();
