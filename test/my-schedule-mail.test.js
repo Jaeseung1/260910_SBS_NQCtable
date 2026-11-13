@@ -30,14 +30,14 @@ async function rejects(promise, status, pattern) {
   await assert.rejects(promise, error => error.status === status && (!pattern || pattern.test(error.message)));
 }
 
-test('CSV: 1일부터 말일까지 날짜·근무 두 칸, 비번은 비, 휴가는 휴, BOM 포함', () => {
+test('CSV: 1일부터 말일까지 날짜·근무 두 칸, 비번은 비, 휴가는 휴가 그대로, BOM 포함', () => {
   const csv = buildScheduleCsv({ year: 2026, month: 11, shifts: NOV });
   assert.ok(csv.startsWith('﻿날짜,근무\r\n'));
   const lines = csv.slice(1).trim().split('\r\n');
   assert.equal(lines.length, 31);
   assert.equal(lines[1], '2026-11-01,일');
   assert.equal(lines[4], '2026-11-04,비');
-  assert.equal(lines[12], '2026-11-12,휴');
+  assert.equal(lines[12], '2026-11-12,휴가');
   assert.equal(lines[13], '2026-11-13,대일');
   assert.equal(lines[30], '2026-11-30,야');
   assert.ok(lines.every(line => line.split(',').length === 2), '날짜·근무 두 칸이어야 한다');
@@ -59,7 +59,7 @@ test('로그인한 본인의 등록된 메일로만 보낸다 — 본문의 주�
   assert.match(subject, /2026년 11월 최도인님 근무/);
   assert.match(text, /1일 일 · 2일 야/);
   assert.equal(attachments[0].filename, '근무표_2026-11_최도인.csv');
-  assert.match(attachments[0].content, /2026-11-12,휴/);
+  assert.match(attachments[0].content, /2026-11-12,휴가/);
 });
 
 test('로그인 안 함 401, 처음 PIN 그대로면 403', async () => {

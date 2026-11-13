@@ -14,10 +14,11 @@ const RESEND_MS = 60 * 1000;
 
 function fail(status, message) { throw Object.assign(new Error(message), { status }); }
 
-// 화면의 근무값 → 파일의 근무값. 사용자가 고른 표기: 일·야·조·휴, 비번은 비.
+// 화면의 근무값 → 파일의 근무값. 비번만 비 로 바꾸고 나머지(일·야·조·휴가·대일…)는 그대로.
+// 휴가를 '휴' 로 줄이지 않는다: 이 CSV 를 불러오는 교대 앱(NQCshift)은 '휴' 를 비번(휴무)으로
+// 읽어서 휴가가 그냥 쉬는 날로 보였다 (2026-11-13 사용자 확인).
 function shiftLabel(value) {
   if (value === 'O') return '비';
-  if (value === '휴가') return '휴';
   return value;
 }
 
