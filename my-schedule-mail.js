@@ -7,7 +7,7 @@
 // 근무값은 화면이 계산해서 보낸다(엑셀 내보내기와 같다). 근무 계산(로테이션·휴가·대근·
 // 수동 편집)은 index.html 에만 있어서다. 본인 메일로만 가므로 값이 틀려도 본인만 받는다.
 
-const { sendMail, isMailConfigured } = require('./notifier');
+const { sendMail, isMailConfigured, getBaseUrl } = require('./notifier');
 
 // 같은 사람이 버튼을 연달아 눌러 메일이 쌓이지 않게 한다.
 const RESEND_MS = 60 * 1000;
@@ -55,7 +55,10 @@ function validate(body) {
   return { year, month, shifts };
 }
 
-function createMyScheduleMailer({ getState, security, send = sendMail, mailReady = isMailConfigured, now = () => Date.now() }) {
+// 받은 CSV 를 불러올 교대 앱 주소. 이 서버가 /shift/ 에서 띄운다(server.js).
+function defaultAppUrl() { return getBaseUrl() + '/shift/'; }
+
+function createMyScheduleMailer({ getState, security, send = sendMail, mailReady = isMailConfigured, now = () => Date.now(), appUrl = defaultAppUrl }) {
   const lastSent = new Map();
 
   return async function mailMySchedule(req) {
@@ -81,7 +84,10 @@ function createMyScheduleMailer({ getState, security, send = sendMail, mailReady
     const result = await send(
       to,
       `[근무표] ${year}년 ${month}월 ${name}님 근무`,
-      `${name}님의 ${year}년 ${month}월 근무표입니다. 첨부한 CSV 파일을 엑셀이나 달력 앱에서 열 수 있습니다.\n\n${summary}\n\n(근무표에서 [내 근무표 메일로] 를 눌러 보낸 메일입니다.)\n`,
+      `${name}님의 ${year}년 ${month}월 근무표입니다. 첨부한 CSV 파일을 엑셀이나 교대 앱에서 열 수 있습니다.\n\n`
+        + `교대 앱(휴대폰에서 오늘·내일 근무 보기): ${appUrl()}\n`
+        + `  사내 Wi-Fi 에서 열고 → 설정 → CSV 파일 고르기 로 이 첨부를 불러오세요. 홈 화면에 추가하면 앱처럼 쓸 수 있습니다.\n\n`
+        + `${summary}\n\n(근무표에서 [내 근무표 메일로] 를 눌러 보낸 메일입니다.)\n`,
       undefined,
       [{ filename: `근무표_${year}-${String(month).padStart(2, '0')}_${name}.csv`, content: csv, contentType: 'text/csv; charset=utf-8' }]
     );
