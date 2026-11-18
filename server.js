@@ -12,7 +12,7 @@ const path = require('path');
 const express = require('express');
 const { db, getState, setState } = require('./db');
 const { createSecurity, publicState, targets } = require('./security');
-const { readFileSync } = require('node:fs');
+const { readFileSync, existsSync } = require('node:fs');
 const { createHash } = require('node:crypto');
 const { notifyApprovers, getBaseUrl } = require('./notifier');
 const { startDigestScheduler } = require('./digest');
@@ -25,8 +25,15 @@ app.set('trust proxy', 'loopback');
 const PORT = Number(process.env.PORT) || 8000;
 const security = createSecurity({ db, getState, setState });
 const mailMySchedule = createMyScheduleMailer({ getState, security });
-const scriptHashes = [...readFileSync(path.join(__dirname, 'index.html'), 'utf8').replace(/\r\n?/g, '\n').matchAll(/<script>([\s\S]*?)<\/script>/g)]
-  .map(match => "'sha256-" + createHash('sha256').update(match[1]).digest('base64') + "'");
+// 화면 안의 <script> 만 실행을 허락한다(CSP 해시). 근무표와 교대 앱(shift/) 두 화면이다.
+// shift/ 가 없는 복사본(테스트 등)에서도 서버는 떠야 하므로 없으면 건너뛴다.
+function inlineScriptHashes(file) {
+  const full = path.join(__dirname, file);
+  if (!existsSync(full)) return [];
+  return [...readFileSync(full, 'utf8').replace(/\r\n?/g, '\n').matchAll(/<script>([\s\S]*?)<\/script>/g)]
+    .map(match => "'sha256-" + createHash('sha256').update(match[1]).digest('base64') + "'");
+}
+const scriptHashes = [...inlineScriptHashes('index.html'), ...inlineScriptHashes('shift/index.html')];
 
 app.use(express.json({ limit: '15mb' }));
 app.use((req, res, next) => {
@@ -47,13 +54,26 @@ const publicFiles = new Map([
   ['/', 'index.html'],
   ['/index', 'index.html'],
   ['/index.html', 'index.html'],
-  ['/sbs-logo.png', 'sbs-logo.png']
+  ['/sbs-logo.png', 'sbs-logo.png'],
+  // 교대 앱(NQCshift "교대온 간단"): 메일로 받은 내 근무표 CSV 를 휴대폰에서 오늘·내일·달력으로 본다.
+  // 사내망 휴대폰이 http://<서버>/shift/ 로 연다. 원본은 github.com/Jaeseung1/NQCshift.
+  ['/shift/', 'shift/index.html'],
+  ['/shift/index.html', 'shift/index.html'],
+  ['/shift/manifest.webmanifest', 'shift/manifest.webmanifest'],
+  ['/shift/sw.js', 'shift/sw.js'],
+  ['/shift/icons/apple-touch-icon.png', 'shift/icons/apple-touch-icon.png'],
+  ['/shift/icons/icon-192.png', 'shift/icons/icon-192.png'],
+  ['/shift/icons/icon-512.png', 'shift/icons/icon-512.png'],
+  ['/shift/icons/icon-maskable-512.png', 'shift/icons/icon-maskable-512.png']
 ]);
 app.use((req, res, next) => {
   if (req.method !== 'GET' && req.method !== 'HEAD') return next();
+  // 앱 안의 상대 경로(manifest.webmanifest, icons/…)가 맞게 풀리도록 끝에 / 를 붙여 보낸다.
+  if (req.path === '/shift') return res.redirect(301, '/shift/');
   const file = publicFiles.get(req.path);
   if (!file) return next();
-  res.sendFile(path.join(__dirname, file));
+  res.sendFile(path.join(__dirname, file), file.endsWith('.webmanifest')
+    ? { headers: { 'Content-Type': 'application/manifest+json; charset=utf-8' } } : undefined);
 });
 
 app.post('/api/auth/admin', (req, res) => res.json(security.login(req)));

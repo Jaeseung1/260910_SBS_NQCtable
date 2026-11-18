@@ -20,7 +20,8 @@ function setup({ session = { empId: 'e1', mustChange: false }, email = 'me@examp
     security: { employeeSession: () => session },
     send: async (...args) => { sent.push(args); return { ok }; },
     mailReady: () => ready,
-    now: () => clock
+    now: () => clock,
+    appUrl: () => 'http://server.test:8000/shift/'
   });
   return { mail, sent, tick: ms => { clock += ms; } };
 }
@@ -58,6 +59,7 @@ test('로그인한 본인의 등록된 메일로만 보낸다 — 본문의 주�
   assert.equal(to, 'me@example.invalid');
   assert.match(subject, /2026년 11월 최도인님 근무/);
   assert.match(text, /1일 일 · 2일 야/);
+  assert.match(text, /교대 앱.*http:\/\/server\.test:8000\/shift\//, '교대 앱 주소가 본문에 있어야 한다');
   assert.equal(attachments[0].filename, '근무표_2026-11_최도인.csv');
   assert.match(attachments[0].content, /2026-11-12,휴가/);
 });
